@@ -1,10 +1,21 @@
+<!-- This is an example of the most basic config file possible. -->
 <jschat>
+<!-- Folder where logs will be stored. This folder must exist. -->
 <logfolder>/tmp/hawthorn/1</logfolder>
+<!-- Level of logging. DETAIL logs a lot of extra info. -->
 <loglevel>DETAIL</loglevel>
+<!-- Randomly-generated magic number. This must be kept secure as it
+     allows full access to the server. Needless to say, don't use this example
+     number in any real installation! -->
 <magicnumber>23d70acbe28943b3548e500e297afb16</magicnumber>
+<!-- List of servers. -->
 <servers>
+  <!-- Current server. (IP address is the one you want it to bind to.
+       Default port is 13370.) -->
   <server this='y'>192.168.0.100</server>
 </servers>
+<!-- Test keys. For ease of testing, hawthorn will display keys for these
+     situations to standard output when it starts up. -->
 <testkey channel="a" user="b" displayname="User B"/>
 <testkey channel="a" user="c" displayname="User C"/>
 <testkey channel="a" user="_admin" displayname="_"/>
