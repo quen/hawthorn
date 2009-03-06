@@ -1,0 +1,12 @@
+<jschat>
+<logfolder>/tmp/hawthorn/1</logfolder>
+<loglevel>DETAIL</loglevel>
+<magicnumber>23d70acbe28943b3548e500e297afb16</magicnumber>
+<servers>
+  <server this='y'>192.168.0.100</server>
+</servers>
+<testkey channel="a" user="b" displayname="User B"/>
+<testkey channel="a" user="c" displayname="User C"/>
+<testkey channel="a" user="_admin" displayname="_"/>
+<testkey channel="!system" user="_admin" displayname="_"/>
+</jschat>
