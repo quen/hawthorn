@@ -16,7 +16,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 package com.leafdigital.hawthorn;
 
 /** Message sent when somebody says something. */
@@ -48,10 +48,10 @@ public class SayMessage extends Message
 	 */
 	SayMessage(long time,String channel,String ip,String user,String displayName,
 		String message)
-		{
+	{
 		super(time,channel,ip,user,displayName);
 		this.message=message;
-		}
+	}
 
 	/** @return Message text */
 	public String getMessage()
