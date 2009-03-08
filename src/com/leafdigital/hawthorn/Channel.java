@@ -240,9 +240,8 @@ public class Channel extends HawthornObject
 
 		// Remove users in present list who have timed out
 		LinkedList<UserInfo> timedOut=new LinkedList<UserInfo>();
-		for(Iterator<UserInfo> i=present.values().iterator();i.hasNext();)
+		for(UserInfo info : present.values())
 		{
-			UserInfo info=i.next();
 			if(info.timedOut())
 			{
 				timedOut.add(info);
