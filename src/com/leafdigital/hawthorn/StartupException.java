@@ -23,14 +23,14 @@ package com.leafdigital.hawthorn;
 public class StartupException extends HawthornException
 {
 	/**
-	 * @param code Unique error CODE_xx 
+	 * @param code Unique error CODE_xx
 	 * @param message Message text
 	 */
 	StartupException(ErrorCode code,String message)
 	{
 		this(code,message,null);
 	}
-	
+
 	/**
 	 * @param code Unique error code
 	 * @param message Message text
@@ -39,5 +39,5 @@ public class StartupException extends HawthornException
 	StartupException(ErrorCode code,String message,Throwable cause)
 	{
 		super(code,message,cause);
-	}	
+	}
 }

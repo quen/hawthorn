@@ -23,14 +23,14 @@ package com.leafdigital.hawthorn;
 public class OperationException extends HawthornException
 {
 	/**
-	 * @param code Unique error CODE_xx 
+	 * @param code Unique error CODE_xx
 	 * @param message Message text
 	 */
 	OperationException(ErrorCode code,String message)
 	{
 		this(code,message,null);
 	}
-	
+
 	/**
 	 * @param code Unique error code
 	 * @param message Message text
@@ -39,6 +39,6 @@ public class OperationException extends HawthornException
 	OperationException(ErrorCode code,String message,Throwable cause)
 	{
 		super(code,message,cause);
-	}	
+	}
 
 }

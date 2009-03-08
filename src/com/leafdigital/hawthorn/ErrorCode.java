@@ -29,17 +29,17 @@ public enum ErrorCode
 	/** Config file has incorrect format */
 	STARTUP_CONFIGFORMAT,
 	/** Error reading config file */
-	STARTUP_CONFIGREAD, 
+	STARTUP_CONFIGREAD,
 	/** Log folder not writable */
-	STARTUP_LOGNOTWRITEABLE, 
+	STARTUP_LOGNOTWRITEABLE,
 	/** Internet address in config file not valid */
-	STARTUP_INVALIDADDRESS, 
+	STARTUP_INVALIDADDRESS,
 	/** Error with Java security subsystem */
 	STARTUP_MISSINGSHA1,
 	/** Error generating test keys */
 	STARTUP_TESTKEY,
 	/** Not able to bind to specified address */
-	STARTUP_CANNOTBIND, 
+	STARTUP_CANNOTBIND,
 	/** Error with Java security subsystem */
 	OPERATION_MISSINGSHA1,
 	/** Error reading logfile */

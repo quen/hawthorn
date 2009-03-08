@@ -25,21 +25,21 @@ import java.util.HashMap;
 public class Channels extends HawthornObject
 {
 	private final static int CHANNELDUMPFREQUENCY=10*60*1000;
-	
+
 	/** Stores data about each available channel. */
 	private HashMap<String,Channel> channels=new HashMap<String,Channel>();
-	
+
 	private Object channelDumpSynch=new Object();
 	private boolean close,closed;
-	
+
 	/** @param app Hawthorn app main object */
 	public Channels(Hawthorn app)
 	{
 		super(app);
-		
-		new ChannelDumpThread();		
+
+		new ChannelDumpThread();
 	}
-	
+
 	/**
 	 * Gets a channel. If it's not in memory, creates it.
 	 * @param name Name of desired channel
@@ -58,7 +58,7 @@ public class Channels extends HawthornObject
 			return c;
 		}
 	}
-	
+
 	/** Closes thread and bails. */
 	public void close()
 	{
@@ -77,7 +77,7 @@ public class Channels extends HawthornObject
 			}
 		}
 	}
-	
+
 	/** Thread that discards unused channel objects and old messages. */
 	private final class ChannelDumpThread extends Thread
 	{
@@ -87,7 +87,7 @@ public class Channels extends HawthornObject
 			setPriority(Thread.MIN_PRIORITY);
 			start();
 		}
-		
+
 		@Override
 		public void run()
 		{
@@ -103,22 +103,22 @@ public class Channels extends HawthornObject
 					catch(InterruptedException e)
 					{
 					}
-					
+
 					if(close)
 					{
 						closed=true;
 						channelDumpSynch.notifyAll();
 						return;
-					}					
+					}
 				}
-				
+
 				// Get channels (then leave channel synch)
 				Channel[] allChannels;
 				synchronized(channels)
 				{
-					allChannels=channels.values().toArray(new Channel[channels.values().size()]);					
+					allChannels=channels.values().toArray(new Channel[channels.values().size()]);
 				}
-				
+
 				// Clean up all channels
 				int count=allChannels.length;
 				for(Channel channel : allChannels)
@@ -132,12 +132,12 @@ public class Channels extends HawthornObject
 						}
 					}
 				}
-				
+
 				// Log status
 				getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
 					"Channel stats: channels open "+count);
 			}
-			
+
 		}
 	}
 

@@ -23,12 +23,12 @@ package com.leafdigital.hawthorn;
 public abstract class HawthornObject
 {
 	private Hawthorn app;
-	
+
 	protected HawthornObject(Hawthorn app)
 	{
 		this.app=app;
 	}
-	
+
 	/** @return App configuration */
 	public Configuration getConfig()
 	{
@@ -40,19 +40,19 @@ public abstract class HawthornObject
 	{
 		return getConfig().getLogger();
 	}
-	
+
 	/** @return App event handler */
 	public EventHandler getEventHandler()
 	{
 		return app.getEventHandler();
 	}
-	
+
 	/** @return App object */
 	public Hawthorn getApp()
 	{
 		return app;
 	}
-	
+
 	/** @return Channels object */
 	public Channels getChannels()
 	{
