@@ -19,32 +19,40 @@ along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn;
 
-/** A single message */
-public class Message
+import java.lang.reflect.*;
+import java.util.HashMap;
+import java.util.regex.*;
+
+/** A single message sent on a channel. */
+public abstract class Message
 {
+	private final static Pattern COMMAND=Pattern.compile(
+		"([A-Z]+) ("+Hawthorn.REGEXP_USERCHANNEL+") ([0-9a-f:.]+) ("+Hawthorn.REGEXP_USERCHANNEL+
+		") \"("+Hawthorn.REGEXP_DISPLAYNAME+")\"(.*)");
+
+	private static HashMap<String,Method> messageInitMethods=
+		new HashMap<String,Method>();
+
 	private long time;
 	private String channel;
 	private String user;
 	private String displayName;
-	private String message;
 	private String ip;
-	
+
 	/**
 	 * @param time Time of message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
 	 * @param displayName Display name of user
-	 * @param message Message text
 	 */
-	Message(long time,String channel,String ip,String user,String displayName,String message)
+	Message(long time,String channel,String ip,String user,String displayName)
 	{
 		this.time=time;
 		this.channel=channel;
 		this.ip=ip;
 		this.user=user;
 		this.displayName=displayName;
-		this.message=message;
 	}
 
 	/** @return Time of message */
@@ -52,7 +60,7 @@ public class Message
 	{
 		return time;
 	}
-	
+
 	/** @return Channel name */
 	public String getChannel()
 	{
@@ -71,37 +79,93 @@ public class Message
 		return displayName;
 	}
 
-	/** @return Message text */
-	public String getMessage()
-	{
-		return message;
-	}
-	
 	/** @return IP address of user */
 	public String getIP()
 	{
 		return ip;
 	}
-	
+
 	/** @return JS version of message (not including channel as this is known) */
-	public String getJS()
+	public String getJSFormat()
 	{
-		StringBuilder result=new StringBuilder();
-		result.append("{time:");
-		result.append(time);
-		result.append(",user:'");
-		result.append(user); // Not permitted to contain any weird characters
-		result.append("',displayname:'");
-		result.append(Hawthorn.escapeJS(displayName));
-		result.append("',text:'");
-		result.append(Hawthorn.escapeJS(message));
-		result.append("'}");
-		return result.toString();
+		return "{time:"+time+",user:'"+user+
+			"',displayname:'"+Hawthorn.escapeJS(displayName)+
+			"'"+getExtraJS()+"}";
 	}
 
-	/** @param time New time */
-	public void setTime(long time)
+	/**
+	 * @return Version of message to put in logs (not including channel as
+	 *   logfile defines that, or time which is added by logger) */
+	public String getLogFormat()
+	{
+		return ip+' '+user+" \""+displayName+"\""+getExtra();
+	}
+
+	/** @return Version of message that will be sent to other servers */
+	public String getServerFormat()
+	{
+		return getServerCommand()+" "+channel+" "+ip+" "+user+" \""+
+		  displayName+"\""+getExtra();
+	}
+
+	/** @return Additional data to go into the JavaScript message representation */
+	protected abstract String getExtraJS();
+
+	/** @return Additional data to go into server/log message representations */
+	protected abstract String getExtra();
+
+	/** @return Command string for server-server messages */
+	protected abstract String getServerCommand();
+
+	/**
+	 * Sets time. Used only when adjusting time for uniqueness within channel.
+	 * @param time New time
+	 */
+	void setTime(long time)
 	{
 		this.time=time;
+	}
+
+	/**
+	 * Called when initialising other message types.
+	 * @param command Server-to-server command name
+	 * @param cl Class implementing message
+	 * @throws NoSuchMethodException Error obtaining the parseMessage method
+	 * @throws SecurityException Error obtaining the parseMessage method
+	 */
+	static void registerType(String command,Class<? extends Message> cl)
+		throws SecurityException, NoSuchMethodException
+	{
+		Method m=cl.getMethod("parseMessage",
+			long.class,String.class,String.class,String.class,String.class,String.class);
+		messageInitMethods.put(command,m);
+	}
+
+	/**
+	 * Constructs a new message based on a server-to-server line.
+	 * @param line Line of text (not including \n)
+	 * @return New message
+	 * @throws IllegalArgumentException If it isn't a valid message line
+	 * @throws InvocationTargetException If there's an error invoking the init
+	 *   method inside the message subclass
+	 * @throws IllegalAccessException Access failure
+	 */
+	public static Message parseMessage(String line) throws
+		IllegalArgumentException, IllegalAccessException, InvocationTargetException
+	{
+		Matcher m=COMMAND.matcher(line);
+		if(!m.matches())
+		{
+			throw new IllegalArgumentException("Line not valid: "+line);
+		}
+
+		Method parseMessage=messageInitMethods.get(m.group(1));
+		if(parseMessage==null)
+		{
+			throw new IllegalArgumentException("Unknown command: "+m.group(1));
+		}
+
+		return (Message)parseMessage.invoke(null,System.currentTimeMillis(),
+			m.group(2),m.group(3),m.group(4),m.group(5),m.group(6));
 	}
 }

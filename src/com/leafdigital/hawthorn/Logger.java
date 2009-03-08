@@ -29,45 +29,45 @@ public final class Logger
 {
 	/** Log filename used for system-related logging */
 	public final static String SYSTEMLOG="!system";
-	
-	private final static int 
+
+	private final static int
 		LOGUPDATEFREQUENCY=5000,DELETECHECKFREQUENCY=60*60*1000,
 		LOGSTAYOPEN=2*60*1000;
-	
+
 	private Level showLevel;
-	
+
 	private File folder;
-	
+
 	private String address;
-	
+
 	private HashMap<File,OpenFile> openFiles=
 		new HashMap<File,OpenFile>();
-	
+
 	private Object threadSynch=new Object();
-	
+
 	private boolean close=false,closed=false;
-	
+
 	private int logDays;
-	
+
 	/** Importance level of logged message. */
 	public enum Level
 	{
 		/** Message should only be displayed when showing detailed logging. */
 		DETAIL(0),
 		/** Message indicates normal event. */
-		NORMAL(100), 
+		NORMAL(100),
 		/** Message indicates error. */
-		ERROR(200), 
+		ERROR(200),
 		/** Message indicates fatal error. */
 		FATALERROR(300);
-		
+
 		private int value;
-		
+
 		private Level(int value)
 		{
 			this.value=value;
 		}
-		
+
 		/**
 		 * @param min Minimum required level
 		 * @return True if this level is at least the required one
@@ -77,14 +77,14 @@ public final class Logger
 			return value >= min.value;
 		}
 	}
-	
+
 	/** Represents a file that's currently open for writing. */
 	private static class OpenFile
 	{
 		BufferedWriter writer;
 		long lastWrite;
 		boolean flushed;
-		
+
 		/**
 		 * Sets up the open-file record.
 		 * @param writer Writer for data
@@ -95,7 +95,7 @@ public final class Logger
 			lastWrite=System.currentTimeMillis();
 			flushed=true;
 		}
-		
+
 		/**
 		 * Writes a line to the log.
 		 * @param line Line (not including terminating \n)
@@ -114,7 +114,7 @@ public final class Logger
 			lastWrite=System.currentTimeMillis();
 			flushed=false;
 		}
-		
+
 		/**
 		 * Closes the log.
 		 */
@@ -132,7 +132,7 @@ public final class Logger
 				e.printStackTrace();
 			}
 		}
-		
+
 		/**
 		 * Flushes the log; also closes it if it hasn't been used for a while.
 		 * @return True if file has been closed
@@ -140,7 +140,7 @@ public final class Logger
 		synchronized boolean flush()
 		{
 			// Flush if required
-			if(!flushed) 
+			if(!flushed)
 			{
 				try
 				{
@@ -153,7 +153,7 @@ public final class Logger
 					e.printStackTrace();
 				}
 			}
-			
+
 			// Close file if required
 			if(System.currentTimeMillis()-lastWrite > LOGSTAYOPEN)
 			{
@@ -175,7 +175,7 @@ public final class Logger
 			}
 		}
 	}
-	
+
 	/**
 	 * @param folder Folder where logs should be stored
 	 * @param showLevel Minimum level of data to log
@@ -192,7 +192,7 @@ public final class Logger
 		// Windows doesn't like colons in filenames, so change those from IPv6
 		// address if present
 		address=thisAddress.getHostAddress().replace(':','!')+"_"+thisPort;
-		
+
 		Thread t=new Thread(new Runnable()
 		{
 			public void run()
@@ -203,7 +203,7 @@ public final class Logger
 		t.setPriority(Thread.MIN_PRIORITY);
 		t.start();
 	}
-	
+
 	private void logThread()
 	{
 		long lastDeleteCheck=0;
@@ -219,12 +219,12 @@ public final class Logger
 				}
 				catch(InterruptedException e)
 				{
-				}				
+				}
 				closeRequired=close;
 			}
-			
+
 			// If close is requested
-			if(closeRequired) 
+			if(closeRequired)
 			{
 				// Close all the files
 				synchronized(openFiles)
@@ -235,8 +235,8 @@ public final class Logger
 					}
 					openFiles.clear();
 				}
-				
-				// Tell close method to stop waiting				
+
+				// Tell close method to stop waiting
 				synchronized(threadSynch)
 				{
 					closed=true;
@@ -244,7 +244,7 @@ public final class Logger
 				}
 				return;
 			}
-			
+
 			// Otherwise flush any files with data and chuck away any that haven't
 			// been used in a while
 			synchronized(openFiles)
@@ -258,14 +258,14 @@ public final class Logger
 					}
 				}
 			}
-			
+
 			// Every so often, check and delete old log files
 			if(
-				logDays!=0 && 
+				logDays!=0 &&
 				System.currentTimeMillis()-lastDeleteCheck > DELETECHECKFREQUENCY)
 			{
 				File[] files=folder.listFiles();
-				if(files!=null) 
+				if(files!=null)
 				{
 					long threshold=System.currentTimeMillis() - (long)logDays*24*60*60*1000;
 					int deleted=0;
@@ -275,7 +275,7 @@ public final class Logger
 						{
 							continue;
 						}
-						
+
 						if(f.lastModified() < threshold)
 						{
 							if(f.delete())
@@ -296,7 +296,7 @@ public final class Logger
 			}
 		}
 	}
-	
+
 	/** Closes the logging system, terminating its thread. */
 	public void close()
 	{
@@ -304,7 +304,7 @@ public final class Logger
 		{
 			close=true;
 			threadSynch.notifyAll();
-			
+
 			while(!closed)
 			{
 				try
@@ -317,7 +317,7 @@ public final class Logger
 			}
 		}
 	}
-	
+
 	/**
 	 * Logs a line of text.
 	 * @param fileName Base name of the file; the date and .log will be added
@@ -326,13 +326,16 @@ public final class Logger
 	 */
 	public void log(String fileName,Level level,String line)
 	{
-		if(!level.isAtLeast(showLevel)) return;
+		if(!level.isAtLeast(showLevel))
+		{
+			return;
+		}
 
-		// Work out filename including date		
+		// Work out filename including date
 		Date now=new Date();
 		String date=(new SimpleDateFormat("yyyy-MM-dd")).format(now);
 		File target=getLogFile(fileName,date);
-		
+
 		// Open file if necessary
 		OpenFile file;
 		synchronized(openFiles)
@@ -354,7 +357,7 @@ public final class Logger
 				openFiles.put(target,file);
 			}
 		}
-		
+
 		// Add time to line
 		String time=(new SimpleDateFormat("HH:mm:ss")).format(now);
 
@@ -377,7 +380,7 @@ public final class Logger
 		pw.flush();
 		log(fileName,level,line+" [Exception]\n"+sw.toString()+"\n");
 	}
-	
+
 	/**
 	 * @param fileName Log name (channel usually)
 	 * @param date Date in YYYY-MM-DD format
@@ -387,7 +390,7 @@ public final class Logger
 	{
 		return getLogFile(fileName,date).exists();
 	}
-	
+
 	/**
 	 * @param fileName Log name (channel or SYSTEMLOG)
 	 * @param date Date in YYYY-MM-DD format
@@ -411,19 +414,22 @@ public final class Logger
 	public String getLogJS(String fileName,String date) throws OperationException
 	{
 		// The system log has a name based on this server
-		
+
 		try
 		{
 			StringBuilder js=new StringBuilder();
 			File target=getLogFile(fileName,date);
 			BufferedReader br=new BufferedReader(new InputStreamReader(
-				new FileInputStream(target),"UTF-8"));		
+				new FileInputStream(target),"UTF-8"));
 			boolean first=true;
 			while(true)
 			{
 				String line=br.readLine();
-				if(line==null) break;
-				
+				if(line==null)
+				{
+					break;
+				}
+
 				if(first)
 				{
 					js.append('[');
@@ -433,19 +439,20 @@ public final class Logger
 				{
 					js.append(',');
 				}
-				
+
 				js.append('\'');
 				js.append(Hawthorn.escapeJS(line));
-				js.append('\'');							
+				js.append('\'');
 			}
 			js.append(']');
+			br.close();
 			return js.toString();
 		}
-		catch(IOException e)		
+		catch(IOException e)
 		{
 			throw new OperationException(ErrorCode.OPERATION_LOGREAD,
 				"Error reading log",e);
 		}
 	}
-	
+
 }

@@ -23,12 +23,15 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 
-/** JSChat server. Implements minimal subset of HTTP to handle chat requests. */
+/**
+ * Server main object. Mainly just stores links to the key components that
+ * make up the system.
+ */
 public class Hawthorn
 {
 	/** Configuration file details. */
-	private Configuration config; 
-	
+	private Configuration config;
+
 	/** Server that handles requests. */
   private HttpServer server;
 
@@ -46,30 +49,30 @@ public class Hawthorn
 
 	/** Regular expression for display name: all normal characters except " */
 	public static final String REGEXP_DISPLAYNAME="[^\u0000-\u001f\"]+";
-  
+
 	/** Regular expression for message: all normal characters */
 	public static final String REGEXP_MESSAGE="[^\u0000-\u001f]+";
-  
+
   private Hawthorn(File configFile) throws StartupException
   {
   	config=new Configuration(configFile);
   	channels=new Channels(this);
   	otherServers=new OtherServers(this);
-		eventHandler=new EventHandler(this);		
+		eventHandler=new EventHandler(this);
   	server=new HttpServer(this);
-  	
+
   	if(config.getTestKeys().size()>0)
   	{
   		System.out.println("http://"+config.getThisServer().getAddress().getHostAddress()+":"+
   			config.getThisServer().getPort()+"/");
   		System.out.println();
-  	}  	
+  	}
 		for(Configuration.TestKey test : config.getTestKeys())
   	{
   		test.show(this);
   	}
   }
-  
+
   /**
    * Initialises the system.
    * @param args Command-line arguments; should be a single argument to the
@@ -79,9 +82,12 @@ public class Hawthorn
 	{
 		try
 		{
-			if(args.length!=1) throw new StartupException(
-				ErrorCode.STARTUP_COMMANDLINE,"Please start this server with a single " +
-					"command-line parameter pointing to the configuration file.");
+			if(args.length!=1)
+			{
+				throw new StartupException(
+					ErrorCode.STARTUP_COMMANDLINE,"Please start this server with a single " +
+						"command-line parameter pointing to the configuration file.");
+			}
 			new Hawthorn(new File(args[0]));
 		}
 		catch(StartupException e)
@@ -89,33 +95,33 @@ public class Hawthorn
 			System.err.println(e);
 		}
 	}
-  
+
   /** @return Configuration */
 	public Configuration getConfig()
 	{
 		return config;
 	}
-	
+
 	/** @return Channel list */
 	public Channels getChannels()
 	{
 		return channels;
 	}
-	
+
 	/** @return Event processor */
 	public EventHandler getEventHandler()
 	{
 		return eventHandler;
 	}
-	
+
 	/** @return Other-server handler */
 	public OtherServers getOtherServers()
 	{
 		return otherServers;
 	}
-	
+
 	/**
-	 * Closes the app, shutting threads as possible then hard-exiting.
+	 * Closes the app, shutting all threads.
 	 */
 	public void close()
 	{
@@ -123,9 +129,9 @@ public class Hawthorn
 		channels.close();
 		eventHandler.close();
 		otherServers.close();
+		config.getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
+			"Hawthorn system closed down.");
 		config.getLogger().close();
-		// This line generates a FindBugs warning, but I intend it to do this.
-		System.exit(0);
 	}
 
 	/**
@@ -135,9 +141,9 @@ public class Hawthorn
 	 */
 	public static String escapeJS(String text)
 	{
-		return text.replace("\\","\\\\").replace("'","\\'");		
+		return text.replace("\\","\\\\").replace("'","\\'");
 	}
-	
+
 	/**
 	 * Obtains key to check against for authentication.
 	 * @param channel Channel ID
@@ -162,7 +168,7 @@ public class Hawthorn
 		{
 			throw new Error("No UTF-8 support?!",e);
 		}
-		
+
 		// Hash data and return 40-character string
 		MessageDigest m;
 		try
@@ -182,8 +188,8 @@ public class Hawthorn
     {
     	sha1="0"+sha1;
     }
-    
+
     return sha1;
 	}
-	
+
 }

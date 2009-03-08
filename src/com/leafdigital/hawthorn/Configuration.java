@@ -35,22 +35,22 @@ public class Configuration
 {
 	private String magicNumber;
 	private boolean logChat=true;
-	private int historyHours=4;	
+	private int historyHours=4;
 	private int eventThreads=4;
 	private ServerInfo[] otherServers;
 	private ServerInfo thisServer;
 	private Logger.Level minLogLevel=Logger.Level.NORMAL;
 	private LinkedList<TestKey> testKeys=new LinkedList<TestKey>();
 	private static long testKeyTime=System.currentTimeMillis();
-	
+
 	private Logger logger;
-	
+
 	/** Contains details about a single server */
 	public static class ServerInfo
 	{
 		private InetAddress address;
 		private int port;
-		
+
 		/**
 		 * Interprets info from config file.
 		 * @param details XML element containing server details
@@ -67,18 +67,21 @@ public class Configuration
 				throw new StartupException(ErrorCode.STARTUP_INVALIDADDRESS,
 					"The Internet address "+getText(details)+" is not valid.");
 			}
-			
+
 			if(details.hasAttribute("port"))
 			{
 				try
 				{
 					port=Integer.parseInt(details.getAttribute("port"));
-					if(port<=0 || port>32767) throw new NumberFormatException();
+					if(port<=0 || port>32767)
+					{
+						throw new NumberFormatException();
+					}
 				}
 				catch(NumberFormatException e)
 				{
 					throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-						"The port= value is not a valid port number.");						
+						"The port= value is not a valid port number.");
 				}
 			}
 			else
@@ -86,26 +89,26 @@ public class Configuration
 				port=13370;
 			}
 		}
-		
+
 		/** @return Address */
 		public InetAddress getAddress()
 		{
 			return address;
 		}
-		
+
 		/** @return Port */
 		public int getPort()
 		{
 			return port;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return address.getHostAddress()+" port="+port;
 		}
 	}
-	
+
 	/**
 	 * Obtains text from inside an XML element.
 	 * @param container Containing element
@@ -137,7 +140,7 @@ public class Configuration
 	{
 		File logFolder=null;
 		int logDays=7;
-		
+
 		try
 		{
 			// Parse file
@@ -150,19 +153,19 @@ public class Configuration
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Configuration file root element must be <jschat>.");
 			}
-			
+
 			// Go through each child element
 			NodeList children=xml.getDocumentElement().getChildNodes();
 			for(int i=0;i<children.getLength();i++)
 			{
-				if(!(children.item(i) instanceof Element)) 
+				if(!(children.item(i) instanceof Element))
 				{
 					continue;
 				}
 				Element child=(Element)children.item(i);
 				if(child.getTagName().equals("magicnumber"))
 				{
-					magicNumber=getText(child);					
+					magicNumber=getText(child);
 				}
 				else if(child.getTagName().equals("logfolder"))
 				{
@@ -173,20 +176,23 @@ public class Configuration
 							"The specified log folder "+logFolder+" does not exist, or " +
 							"else the system cannot write to it. Please ensure it is a " +
 							"writable folder.");
-					}					
+					}
 				}
 				else if(child.getTagName().equals("logdays"))
 				{
 					try
 					{
 						logDays=Integer.parseInt(getText(child));
-						if(logDays<0) throw new NumberFormatException();
+						if(logDays<0)
+						{
+							throw new NumberFormatException();
+						}
 					}
 					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-							"The <logdays> value is not a valid number.");						
-					}					
+							"The <logdays> value is not a valid number.");
+					}
 				}
 				else if(child.getTagName().equals("loglevel"))
 				{
@@ -199,31 +205,40 @@ public class Configuration
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <loglevel> value is not a valid log level. Valid options " +
 							"include DETAIL, NORMAL, and ERROR.");
-					}					
+					}
 				}
 				else if(child.getTagName().equals("logchat"))
 				{
 					if(getText(child).equals("y"))
+					{
 						logChat=true;
+					}
 					else if(getText(child).equals("n"))
+					{
 						logChat=false;
+					}
 					else
+					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <logchat> value is not a valid log chat setting. " +
 							"Please use y or n.");
+					}
 				}
 				else if(child.getTagName().equals("historyhours"))
 				{
 					try
 					{
 						historyHours=Integer.parseInt(getText(child));
-						if(historyHours<0) throw new NumberFormatException();
+						if(historyHours<0)
+						{
+							throw new NumberFormatException();
+						}
 					}
 					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-							"The <historyhours> value is not a valid number.");						
-					}										
+							"The <historyhours> value is not a valid number.");
+					}
 				}
 				else if(child.getTagName().equals("servers"))
 				{
@@ -239,7 +254,7 @@ public class Configuration
 						if(!server.getTagName().equals("server"))
 						{
 							throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-								"The <servers> tag may only contain <server> tags.");			
+								"The <servers> tag may only contain <server> tags.");
 						}
 						if("y".equals(server.getAttribute("this")))
 						{
@@ -258,17 +273,20 @@ public class Configuration
 					try
 					{
 						eventThreads=Integer.parseInt(getText(child));
-						if(eventThreads<1 || eventThreads>100) throw new NumberFormatException();
+						if(eventThreads<1 || eventThreads>100)
+						{
+							throw new NumberFormatException();
+						}
 					}
 					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-							"The <eventthreads> value is not a valid thread count number.");						
-					}										
+							"The <eventthreads> value is not a valid thread count number.");
+					}
 				}
 				else if(child.getTagName().equals("testkey"))
 				{
-					String 
+					String
 						channel=child.getAttribute("channel"),
 						user=child.getAttribute("user"),
 						displayName=child.getAttribute("displayname");
@@ -293,16 +311,16 @@ public class Configuration
 				else
 				{
 					throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-						"The tag <"+child.getTagName()+"> is not recognised.");			
+						"The tag <"+child.getTagName()+"> is not recognised.");
 				}
 			}
-			
+
 			if(logFolder==null)
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Missing required <logfolder> configuration element. Specify a " +
 					"folder where logs should be stored. Example:\n\n" +
-					"<logfolder>/var/logs/jschat</logfolder>");			
+					"<logfolder>/var/logs/jschat</logfolder>");
 			}
 			if(magicNumber==null)
 			{
@@ -329,7 +347,7 @@ public class Configuration
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Missing required <magicnumber> configuration element. Specify a " +
 					"suitable random string that will be kept secure. Here's one " +
-					"generated for you:\n\n<magicnumber>" +sha1+"</magicnumber>");			
+					"generated for you:\n\n<magicnumber>" +sha1+"</magicnumber>");
 			}
 			if(thisServer==null)
 			{
@@ -338,20 +356,20 @@ public class Configuration
 					"that may be suitable for a single-server installation on this " +
 					"computer:\n\n<servers>\n  <server this='y'>"+
 					InetAddress.getLocalHost().getHostAddress()+
-					"</server>\n</servers>");			
+					"</server>\n</servers>");
 			}
-			
+
 			logger=new Logger(logFolder,minLogLevel,logDays,
 				thisServer.getAddress(),thisServer.getPort());
 			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "Hawthorn system startup");
-			
+
 			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "Log folder: "+logFolder);
 			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "Log level: "+minLogLevel);
 			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "Logs deleted after: "+
 				(logDays==0 ? "never" : logDays+" days"));
-			
-			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "History retained for: "+historyHours+" hours");			
-			
+
+			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "History retained for: "+historyHours+" hours");
+
 			logger.log(Logger.SYSTEMLOG,Logger.Level.NORMAL, "This server: "+thisServer);
 			for(int i=0;i<otherServers.length;i++)
 			{
@@ -378,10 +396,10 @@ public class Configuration
 	/**
 	 * Stores details for a test key we're going to generate.
 	 */
-	public class TestKey
+	public static class TestKey
 	{
 		private String channel,user,displayName;
-		
+
 		/**
 		 * @param channel Channel name
 		 * @param user User name
@@ -393,7 +411,7 @@ public class Configuration
 			this.user=user;
 			this.displayName=displayName;
 		}
-		
+
 		/**
 		 * Displays the test key on standard error.
 		 * @param app Main application object
@@ -429,37 +447,37 @@ public class Configuration
 	{
 		return thisServer;
 	}
-	
-	/** @return Logger */	
+
+	/** @return Logger */
 	public Logger getLogger()
 	{
 		return logger;
 	}
-	
+
 	/** @return Number of event threads to create */
 	public int getEventThreads()
 	{
 		return eventThreads;
 	}
-	
+
 	/** @return Magic number string */
 	public String getMagicNumber()
 	{
 		return magicNumber;
 	}
-	 
+
 	/** @return History time to keep messages for */
 	public int getHistoryHours()
 	{
 		return historyHours;
 	}
-	
+
 	/** @return True if chat messages should be logged at this server */
 	public boolean logChat()
 	{
 		return logChat;
 	}
-	
+
 	/**
 	 * Checks whether a given address belongs to one of the other servers.
 	 * @param possible Address that might be another server
@@ -472,11 +490,11 @@ public class Configuration
 			if(compare.getAddress().getHostAddress().equals(possible.getHostAddress()))
 			{
 				return true;
-			}		
+			}
 		}
 		return false;
 	}
-	
+
 	/** @return List of other servers */
 	public ServerInfo[] getOtherServers()
 	{
@@ -484,7 +502,7 @@ public class Configuration
 		System.arraycopy(otherServers,0,result,0,otherServers.length);
 		return result;
 	}
-	
+
 	/** @return Keys to display for test purposes*/
 	public Collection<TestKey> getTestKeys()
 	{

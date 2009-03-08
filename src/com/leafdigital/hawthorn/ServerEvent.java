@@ -19,7 +19,7 @@ along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn;
 
-import java.util.regex.*;
+import java.lang.reflect.InvocationTargetException;
 
 import com.leafdigital.hawthorn.HttpServer.Connection;
 import com.leafdigital.hawthorn.Logger.Level;
@@ -29,10 +29,6 @@ public class ServerEvent extends Event
 {
 	private String request;
 	private Connection connection;
-	
-	private final static Pattern SAY=Pattern.compile(
-		"SAY ("+Hawthorn.REGEXP_USERCHANNEL+") ([0-9a-f:.]+) ("+Hawthorn.REGEXP_USERCHANNEL+
-		") \"("+Hawthorn.REGEXP_DISPLAYNAME+")\" ("+Hawthorn.REGEXP_MESSAGE+")");
 
 	/**
 	 * @param app Main app object
@@ -49,26 +45,32 @@ public class ServerEvent extends Event
 	@Override
 	public void handle() throws OperationException
 	{
-		Matcher m=SAY.matcher(request);
-		if(m.matches())
+		try
 		{
+			Message m=Message.parseMessage(request);
 			getLogger().log(Logger.SYSTEMLOG,Logger.Level.DETAIL,
 				"Received from remote: "+request);
-			handleSay(m.group(1),m.group(2),m.group(3),m.group(4),m.group(5));
+			getChannels().get(m.getChannel()).say(m);
 		}
-		else
+		catch(IllegalArgumentException e)
 		{
-			// Unsupported request
-			getLogger().log(Logger.SYSTEMLOG,Level.ERROR,
-				"Unexpected line from server "+connection+": "+request);
-			connection.close();			
+			fail();
+		}
+		catch(IllegalAccessException e)
+		{
+			fail();
+		}
+		catch(InvocationTargetException e)
+		{
+			fail();
 		}
 	}
-	
-	private void handleSay(String channel,String ip,String user,String displayName,
-		String message)
+
+	private void fail()
 	{
-		getChannels().get(channel).say(new Message(System.currentTimeMillis(),
-			channel,ip,user,displayName,message));
+		// Unsupported request
+		getLogger().log(Logger.SYSTEMLOG,Level.ERROR,
+			"Unexpected line from server "+connection+": "+request);
+		connection.close();
 	}
 }

@@ -23,21 +23,21 @@ import java.io.*;
 import java.net.*;
 import java.util.LinkedList;
 
-/** 
- * Maintains connections to the other servers and transmits 
+/**
+ * Maintains connections to the other servers and transmits
  * directly-received say commands to them.
  */
 public class OtherServers extends HawthornObject
 {
 	private int TRANSFERLIMIT=1000;
-	
+
 	private int RETRYDELAY=60*1000;
 	private int FLUSHDELAY=300;
-	
+
 	private OtherServer[] otherServers;
 	private int count;
-	
-	
+
+
 	/**
 	 * @param app Application main object
 	 */
@@ -48,10 +48,10 @@ public class OtherServers extends HawthornObject
 		count=0;
 		for(Configuration.ServerInfo info : app.getConfig().getOtherServers())
 		{
-			otherServers[count++]=new OtherServer(info.getAddress(),info.getPort());						
-		}		
+			otherServers[count++]=new OtherServer(info.getAddress(),info.getPort());
+		}
 	}
-	
+
 	/** Closes threads */
 	public void close()
 	{
@@ -72,17 +72,17 @@ public class OtherServers extends HawthornObject
 			otherServers[i].sendMessage(m);
 		}
 	}
-	
+
 	/** Manages connection to another server. */
 	private final class OtherServer extends Thread
 	{
 		private LinkedList<Message> waiting=new LinkedList<Message>();
 		private InetAddress address;
 		private int port;
-		
+
 		private boolean close,closed;
-		
-		
+
+
 		/**
 		 * @param address Address for connection
 		 * @param port Port for connection
@@ -94,19 +94,21 @@ public class OtherServers extends HawthornObject
 			this.port=port;
 			start();
 		}
-		
+
 		synchronized void sendMessage(Message m)
 		{
 			// Add to transfer list
 			waiting.addLast(m);
 			notify();
-			
+
 			// Do not build up an infinite list, if we can't get through to the
 			// remote server.
 			if(waiting.size()>TRANSFERLIMIT)
-				waiting.removeFirst();			
+			{
+				waiting.removeFirst();
+			}
 		}
-		
+
 		synchronized void close()
 		{
 			close=true;
@@ -120,15 +122,15 @@ public class OtherServers extends HawthornObject
 				catch(InterruptedException e)
 				{
 				}
-			}			
+			}
 		}
-		
+
 		@Override
 		public void run()
 		{
 			long lastFailure=System.currentTimeMillis();
 			boolean flushed=true;
-			outerloop: while(true)				
+			outerloop: while(true)
 			{
 				synchronized(this)
 				{
@@ -138,7 +140,7 @@ public class OtherServers extends HawthornObject
 						break;
 					}
 				}
-				
+
 				try
 				{
 					// Connect to server
@@ -147,14 +149,14 @@ public class OtherServers extends HawthornObject
 						s.getOutputStream(),"UTF-8"));
 					getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
 						this+": Connected to remote server");
-					
+
 					// Send authentication
 					long now=System.currentTimeMillis();
 					String hash=getApp().getValidKey(
 						"remote server",address.getHostAddress(),"",now+"");
 					writer.write("*"+now+"*"+hash+"\n");
 					writer.flush();
-					
+
 					// Keep sending things when there's something to send
 					while(true)
 					{
@@ -167,7 +169,7 @@ public class OtherServers extends HawthornObject
 								{
 									wait(FLUSHDELAY);
 									writer.flush();
-									flushed=true;									
+									flushed=true;
 								}
 								else
 								{
@@ -179,14 +181,13 @@ public class OtherServers extends HawthornObject
 									break outerloop;
 								}
 							}
-							
-							m=waiting.removeFirst();							
+
+							m=waiting.removeFirst();
 						}
-						String say="SAY "+m.getChannel()+" "+m.getIP()+" "+m.getUser()+" \""+
-							m.getDisplayName()+"\" "+m.getMessage();
+						String say=m.getServerFormat();
 						try
 						{
-							writer.write(say+"\n");						
+							writer.write(say+"\n");
 						}
 						catch(Throwable t)
 						{
@@ -209,7 +210,7 @@ public class OtherServers extends HawthornObject
 					getLogger().log(Logger.SYSTEMLOG,Logger.Level.ERROR,
 						this+": Remote server send error",t);
 					long now=System.currentTimeMillis();
-					if(now-lastFailure < RETRYDELAY)						
+					if(now-lastFailure < RETRYDELAY)
 					{
 						try
 						{
@@ -232,7 +233,7 @@ public class OtherServers extends HawthornObject
 		{
 			return address+" port "+port;
 		}
-		
+
 	}
 
 }
