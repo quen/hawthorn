@@ -34,11 +34,27 @@ public class Channel extends HawthornObject
 	/** Time to wait for new messages before closing connection */
 	private final static int WAITTIME=60*1000;
 
+	/** Time to wait with no activity before assuming a user is absent */
+	private final static int PRESENT_TIMEOUT=90*1000;
+
 	private final static Message[] NOMESSAGES={};
 
+	/**
+	 * List of messages remembered in the channel; it remembers messages for
+	 * a certain time
+	 */
 	private LinkedList<Message> messages=new LinkedList<Message>();
 
+	/** List of listeners currently waiting for channel messages */
 	private HashMap<Integer,Listener> listeners=new HashMap<Integer,Listener>();
+
+	/** Index into listeners by user ID */
+	private HashMap<String,LinkedList<Listener>> listenersByUser=
+		new HashMap<String,LinkedList<Listener>>();
+
+
+	/** Map from user ID of everyone present in the channel */
+	private HashMap<String,UserInfo> present=new HashMap<String,UserInfo>();
 
 	private long lastMessage=0;
 
@@ -49,20 +65,24 @@ public class Channel extends HawthornObject
 		private int timeoutId;
 		private long time;
 		private String id;
+		private String user;
 
 		/**
 		 * Constructs and starts waiting for timeout or message.
 		 * @param app Main app object
 		 * @param connection Connection for response
+		 * @param user User ID
 		 * @param id ID string
 		 * @param time Time we started waiting for messages
 		 */
-		private Listener(Hawthorn app,Connection connection,String id,long time)
+		private Listener(Hawthorn app,Connection connection,String user,
+			String id,long time)
 		{
 			super(app);
 			this.connection=connection;
 			this.time=time;
 			this.id=id;
+			this.user=user;
 
 			// Set timer to wait for the event
 			timeoutId=getEventHandler().addTimedEvent(
@@ -70,6 +90,15 @@ public class Channel extends HawthornObject
 
 			// Add this to the listeners list
 			listeners.put(timeoutId,this);
+
+			// And add it to the per-user index
+			LinkedList<Listener> existing=listenersByUser.get(user);
+			if(existing==null)
+			{
+				existing=new LinkedList<Listener>();
+				listenersByUser.put(user,existing);
+			}
+			existing.add(this);
 		}
 
 		@Override
@@ -94,10 +123,10 @@ public class Channel extends HawthornObject
 		}
 
 		/**
-		 * Called when a new message is received.
-		 * @param m Message
+		 * Called when one or more new messages are received.
+		 * @param messages Messages
 		 */
-		private void newMessage(Message m)
+		private void newMessages(Message[] messages)
 		{
 			synchronized(Channel.this)
 			{
@@ -107,13 +136,69 @@ public class Channel extends HawthornObject
 				{
 					return;
 				}
+				// Remove from by-user index
+				LinkedList<Listener> byUser=listenersByUser.get(user);
+				if(byUser!=null) // It should not be null, but let's play safe
+				{
+					byUser.remove(this);
+					if(byUser.isEmpty())
+					{
+						listenersByUser.remove(user);
+					}
+				}
 			}
 
 			// Remove event
 			getEventHandler().removeTimedEvent(timeoutId);
 
 			// Send response
-			sendWaitForMessageResponse(connection,id,m.getTime(),new Message[] {m});
+			sendWaitForMessageResponse(connection,id,
+				messages[messages.length-1].getTime(),messages);
+		}
+	}
+
+	/**
+	 * Details about a user who's currently in the channel.
+	 */
+	private class UserInfo
+	{
+		private boolean thisServer;
+		private String ip,user,displayName;
+		private long lastAccess;
+
+		/**
+		 * @param thisServer True if user is connected to this server
+		 * @param ip IP address
+		 * @param user User ID
+		 * @param displayName Display name
+		 */
+		private UserInfo(boolean thisServer,String ip,String user,String displayName)
+		{
+			this.thisServer=thisServer;
+			this.ip=ip;
+			this.user=user;
+			this.displayName=displayName;
+			access();
+		}
+
+		/** Updates access time to now */
+		void access()
+		{
+			lastAccess=System.currentTimeMillis();
+		}
+
+		/** @return True if user has timed out (only applies on owning server) */
+		boolean timedOut()
+		{
+			return thisServer &&
+				lastAccess+PRESENT_TIMEOUT < System.currentTimeMillis();
+		}
+
+		/** @return Suitable LeaveMessage representing a timeout */
+		LeaveMessage newLeaveMessage()
+		{
+			return new LeaveMessage(System.currentTimeMillis(),getName(),
+				ip,user,displayName,true);
 		}
 	}
 
@@ -134,12 +219,13 @@ public class Channel extends HawthornObject
 	}
 
 	/**
-	 * Cleans up old messsages.
+	 * Cleans up old messsages and sends leave message for timed-out users.
 	 * @return True if there are no messages in this channel and nobody is
 	 *   listening so it should be thrown away
 	 */
 	synchronized boolean cleanup()
 	{
+		// Remove old messages
 		long then=System.currentTimeMillis()-
 			(getConfig().getHistoryHours()*60L*60L*1000L);
 		for(Iterator<Message> i=messages.iterator();i.hasNext();)
@@ -152,36 +238,118 @@ public class Channel extends HawthornObject
 			i.remove();
 		}
 
+		// Remove users in present list who have timed out
+		LinkedList<UserInfo> timedOut=new LinkedList<UserInfo>();
+		for(Iterator<UserInfo> i=present.values().iterator();i.hasNext();)
+		{
+			UserInfo info=i.next();
+			if(info.timedOut())
+			{
+				timedOut.add(info);
+			}
+		}
+		for(UserInfo info : timedOut)
+		{
+			LeaveMessage leave=info.newLeaveMessage();
+			getApp().getOtherServers().sendMessage(leave);
+			message(leave,false);
+		}
+
+		// If there are no messages and listeners, OK to delete this channel
 		return messages.isEmpty() && listeners.isEmpty();
 	}
 
 	/**
 	 * Called when a user (local or remote) says something in the channel
 	 * @param m Message
+	 * @param remote True if this was from a remote user
 	 */
-	public synchronized void say(Message m)
+	public synchronized void message(Message m,boolean remote)
 	{
-		// Ensure that no two messages have the same time
-		if(m.getTime()==lastMessage)
+		// Message array
+		Message[] newMessages={m};
+
+		// Handle presence information
+		if(m instanceof SayMessage)
 		{
-			m.setTime(lastMessage+1);
+			UserInfo existing=present.get(m.getUser());
+			if(existing==null)
+			{
+				// User said something, so must be present
+				Message join=new JoinMessage(System.currentTimeMillis(),getName(),
+					m.getIP(),m.getUser(),m.getDisplayName());
+
+				// Note that this autogenerated join message does not need to be
+				// sent to the other servers.
+				newMessages=new Message[] {join,m};
+
+				// Add to presence list
+				present.put(m.getUser(),
+					new UserInfo(!remote,m.getIP(),m.getUser(),m.getDisplayName()));
+			}
+			else
+			{
+				// Mark that the user said something
+				existing.access();
+			}
+		}
+		else if(m instanceof JoinMessage)
+		{
+			UserInfo existing=present.get(m.getUser());
+			if(existing==null)
+			{
+				// Add to presence list
+				present.put(m.getUser(),
+					new UserInfo(!remote,m.getIP(),m.getUser(),m.getDisplayName()));
+			}
+			else
+			{
+				// Already joined, so don't send message to listeners
+				return;
+			}
+		}
+		else if(m instanceof LeaveMessage)
+		{
+			// Remove from presence list
+			if(present.remove(m.getUser())==null)
+			{
+				// They weren't there? Then don't pass on message
+				return;
+			}
+
+			// Note the listeners will automatically be closed by sending this
+			// leave message.
 		}
 
-		// Add message
-		messages.add(m);
-		lastMessage=m.getTime();
+		internalMessage(newMessages);
+	}
 
-		// Put message in chat logs if this server is logging
-		if(getConfig().logChat())
+	private synchronized void internalMessage(Message[] newMessages)
+	{
+		for(Message m : newMessages)
 		{
-			getLogger().log(getName(),Logger.Level.NORMAL,m.getLogFormat());
+			// Ensure that no two messages have the same time
+			if(m.getTime()==lastMessage)
+			{
+				m.setTime(lastMessage+1);
+			}
+
+			// Add message
+			messages.add(m);
+			lastMessage=m.getTime();
+
+			// Put message in chat logs if this server is logging
+			if(getConfig().logChat())
+			{
+				getLogger().log(getName(),Logger.Level.NORMAL,m.getLogFormat());
+			}
 		}
 
-		// Pass message to all listeners
+		// Pass message(s) to all listeners
 		while(!listeners.isEmpty())
 		{
-			// This sends the message and removes the listener
-			listeners.values().iterator().next().newMessage(m);
+			// This sends the message(s) and removes the listener
+			listeners.values().iterator().next().newMessages(newMessages);
 		}
 	}
 
@@ -218,6 +386,8 @@ public class Channel extends HawthornObject
 	/**
 	 * Registers a request for messages on this channel.
 	 * @param connection Connection that wants to receive messages
+	 * @param user User ID
+	 * @param displayName User display name
 	 * @param id ID number as string
 	 * @param lastTime Time of last message (receives any messages with time
 	 *   greater than this) or ANY
@@ -225,8 +395,9 @@ public class Channel extends HawthornObject
 	 * @param maxNumber Maximum number of messages or ANY
 	 * @throws IllegalArgumentException If you specify too many parameters
 	 */
-	public synchronized void waitForMessage(Connection connection,String id,
-		long lastTime,int maxAge,int maxNumber) throws IllegalArgumentException
+	public synchronized void waitForMessage(Connection connection,
+		String user,String displayName,
+		String id,long lastTime,int maxAge,int maxNumber) throws IllegalArgumentException
 	{
 		if(lastTime!=ANY && (maxAge!=ANY || maxNumber!=ANY))
 		{
@@ -279,12 +450,34 @@ public class Channel extends HawthornObject
 				}
 				sendWaitForMessageResponse(
 					connection,id,result[result.length-1].getTime(),result);
+				// When it responds straight away, we don't need for the user to
+				// be present, because this is only equivalent to getRecent anyhow.
+				// If they're really in the channel they will send another request
+				// immediately.
 				return;
 			}
 		}
 
 		// Keep waiting for new messages
-		new Listener(getApp(),connection,id,lastTime);
+		new Listener(getApp(),connection,user,id,lastTime);
+
+		// User is now present in channel
+		UserInfo existing=present.get(user);
+		if(existing==null)
+		{
+			String ip=connection.toString();
+
+			// Send a join message to local and remote servers
+			JoinMessage join=new JoinMessage(System.currentTimeMillis()+1,
+				getName(),ip,user,displayName);
+			getApp().getOtherServers().sendMessage(join);
+			message(join,false);
+		}
+		else
+		{
+			// Stave off the timeout
+			existing.access();
+		}
 	}
 
 	private void sendWaitForMessageResponse(Connection connection,

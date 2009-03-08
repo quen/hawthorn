@@ -19,17 +19,21 @@ along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn;
 
-/** Message sent when somebody says something. */
-public class SayMessage extends Message
+/**
+ * Message sent when somebody leaves a channel. This message may be sent by
+ * a user (for example when they close a popup window); if not, the server
+ * generates it after the user hasn't acted in the channel for a short time.
+ */
+public class LeaveMessage extends Message
 {
 	/** Type of message */
-	private final static String TYPE="SAY";
+	private final static String TYPE="LEAVE";
 
 	static
 	{
 		try
 		{
-			Message.registerType(TYPE,SayMessage.class);
+			Message.registerType(TYPE,LeaveMessage.class);
 		}
 		catch(Exception e)
 		{
@@ -38,7 +42,7 @@ public class SayMessage extends Message
 		}
 	}
 
-	private String message;
+	private boolean timeout;
 
 	/**
 	 * @param time Time of message
@@ -46,31 +50,25 @@ public class SayMessage extends Message
 	 * @param ip IP address of user
 	 * @param user User who sent message
 	 * @param displayName Display name of user
-	 * @param message Message text
+	 * @param timeout True if it's a timeout, false if user requested it
 	 */
-	SayMessage(long time,String channel,String ip,String user,String displayName,
-		String message)
+	LeaveMessage(long time,String channel,String ip,String user,
+		String displayName,boolean timeout)
 	{
 		super(time,channel,ip,user,displayName);
-		this.message=message;
-	}
-
-	/** @return Message text */
-	public String getMessage()
-	{
-		return message;
+		this.timeout=timeout;
 	}
 
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'"+Hawthorn.escapeJS(message)+"'";
+		return ",timeout:"+timeout;
 	}
 
 	@Override
 	protected String getExtra()
 	{
-		return " "+message;
+		return timeout ? " timeout" : " explicit";
 	}
 
 	@Override
@@ -88,10 +86,15 @@ public class SayMessage extends Message
 	 * @param extra Bit that goes after all this in the text
 	 * @return New message
 	 */
-	public static SayMessage parseMessage(long time,String channel,String ip,
+	public static LeaveMessage parseMessage(long time,String channel,String ip,
 		String user,String displayName,String extra)
 	{
-		return new SayMessage(time,channel,ip,user,displayName,extra);
+		boolean timeout=extra.equals("timeout");
+		if(!timeout && !extra.equals("explicit"))
+		{
+			throw new IllegalArgumentException("Extra text must be timeout or explicit");
+		}
+		return new LeaveMessage(time,channel,ip,user,displayName,timeout);
 	}
 
 }

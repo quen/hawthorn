@@ -50,7 +50,7 @@ public class ServerEvent extends Event
 			Message m=Message.parseMessage(request);
 			getLogger().log(Logger.SYSTEMLOG,Logger.Level.DETAIL,
 				"Received from remote: "+request);
-			getChannels().get(m.getChannel()).say(m);
+			getChannels().get(m.getChannel()).message(m,true);
 		}
 		catch(IllegalArgumentException e)
 		{

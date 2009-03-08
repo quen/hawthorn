@@ -88,7 +88,7 @@ public abstract class Message
 	/** @return JS version of message (not including channel as this is known) */
 	public String getJSFormat()
 	{
-		return "{time:"+time+",user:'"+user+
+		return "{type:'"+getType()+"',time:"+time+",user:'"+user+
 			"',displayname:'"+Hawthorn.escapeJS(displayName)+
 			"'"+getExtraJS()+"}";
 	}
@@ -98,13 +98,13 @@ public abstract class Message
 	 *   logfile defines that, or time which is added by logger) */
 	public String getLogFormat()
 	{
-		return ip+' '+user+" \""+displayName+"\""+getExtra();
+		return getType()+' '+ip+' '+user+" \""+displayName+"\""+getExtra();
 	}
 
 	/** @return Version of message that will be sent to other servers */
 	public String getServerFormat()
 	{
-		return getServerCommand()+" "+channel+" "+ip+" "+user+" \""+
+		return getType()+" "+channel+" "+ip+" "+user+" \""+
 		  displayName+"\""+getExtra();
 	}
 
@@ -114,8 +114,8 @@ public abstract class Message
 	/** @return Additional data to go into server/log message representations */
 	protected abstract String getExtra();
 
-	/** @return Command string for server-server messages */
-	protected abstract String getServerCommand();
+	/** @return Type of message, used as command string for server-server messages */
+	public abstract String getType();
 
 	/**
 	 * Sets time. Used only when adjusting time for uniqueness within channel.
