@@ -23,15 +23,15 @@ package com.leafdigital.hawthorn;
 public class SayMessage extends Message
 {
 	/** Type of message */
-	private final static String TYPE="SAY";
+	private final static String TYPE = "SAY";
 
 	static
 	{
 		try
 		{
-			Message.registerType(TYPE,SayMessage.class);
+			Message.registerType(TYPE, SayMessage.class);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);
@@ -48,11 +48,11 @@ public class SayMessage extends Message
 	 * @param displayName Display name of user
 	 * @param message Message text
 	 */
-	SayMessage(long time,String channel,String ip,String user,String displayName,
-		String message)
+	SayMessage(long time, String channel, String ip, String user,
+		String displayName, String message)
 	{
-		super(time,channel,ip,user,displayName);
-		this.message=message;
+		super(time, channel, ip, user, displayName);
+		this.message = message;
 	}
 
 	/** @return Message text */
@@ -64,13 +64,13 @@ public class SayMessage extends Message
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'"+Hawthorn.escapeJS(message)+"'";
+		return ",text:'" + Hawthorn.escapeJS(message) + "'";
 	}
 
 	@Override
 	protected String getExtra()
 	{
-		return " "+message;
+		return " " + message;
 	}
 
 	@Override
@@ -88,10 +88,10 @@ public class SayMessage extends Message
 	 * @param extra Bit that goes after all this in the text
 	 * @return New message
 	 */
-	public static SayMessage parseMessage(long time,String channel,String ip,
-		String user,String displayName,String extra)
+	public static SayMessage parseMessage(long time, String channel, String ip,
+		String user, String displayName, String extra)
 	{
-		return new SayMessage(time,channel,ip,user,displayName,extra);
+		return new SayMessage(time, channel, ip, user, displayName, extra);
 	}
 
 }

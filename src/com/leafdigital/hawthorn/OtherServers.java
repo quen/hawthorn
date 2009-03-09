@@ -24,17 +24,19 @@ import java.net.*;
 import java.util.LinkedList;
 
 /**
- * Maintains connections to the other servers and transmits
- * directly-received say commands to them.
+ * Maintains connections to the other servers and transmits directly-received
+ * say commands to them.
  */
 public class OtherServers extends HawthornObject
 {
-	private int TRANSFERLIMIT=1000;
+	private int TRANSFERLIMIT = 1000;
 
-	private int RETRYDELAY=60*1000;
-	private int FLUSHDELAY=300;
+	private int RETRYDELAY = 60 * 1000;
+
+	private int FLUSHDELAY = 300;
 
 	private OtherServer[] otherServers;
+
 	private int count;
 
 
@@ -44,18 +46,19 @@ public class OtherServers extends HawthornObject
 	public OtherServers(Hawthorn app)
 	{
 		super(app);
-		otherServers=new OtherServer[app.getConfig().getOtherServers().length];
-		count=0;
-		for(Configuration.ServerInfo info : app.getConfig().getOtherServers())
+		otherServers = new OtherServer[app.getConfig().getOtherServers().length];
+		count = 0;
+		for (Configuration.ServerInfo info : app.getConfig().getOtherServers())
 		{
-			otherServers[count++]=new OtherServer(info.getAddress(),info.getPort());
+			otherServers[count++] =
+				new OtherServer(info.getAddress(), info.getPort());
 		}
 	}
 
 	/** Closes threads */
 	public void close()
 	{
-		for(int i=0;i<otherServers.length;i++)
+		for (int i = 0; i < otherServers.length; i++)
 		{
 			otherServers[i].close();
 		}
@@ -63,11 +66,12 @@ public class OtherServers extends HawthornObject
 
 	/**
 	 * Adds message to the send-queue for all remote servers.
+	 *
 	 * @param m Message
 	 */
 	public void sendMessage(Message m)
 	{
-		for(int i=0;i<otherServers.length;i++)
+		for (int i = 0; i < otherServers.length; i++)
 		{
 			otherServers[i].sendMessage(m);
 		}
@@ -76,22 +80,24 @@ public class OtherServers extends HawthornObject
 	/** Manages connection to another server. */
 	private final class OtherServer extends Thread
 	{
-		private LinkedList<Message> waiting=new LinkedList<Message>();
+		private LinkedList<Message> waiting = new LinkedList<Message>();
+
 		private InetAddress address;
+
 		private int port;
 
-		private boolean close,closed;
+		private boolean close, closed;
 
 
 		/**
 		 * @param address Address for connection
 		 * @param port Port for connection
 		 */
-		private OtherServer(InetAddress address,int port)
+		private OtherServer(InetAddress address, int port)
 		{
-			super("Remote server thread for "+address+" port "+port);
-			this.address=address;
-			this.port=port;
+			super("Remote server thread for " + address + " port " + port);
+			this.address = address;
+			this.port = port;
 			start();
 		}
 
@@ -103,7 +109,7 @@ public class OtherServers extends HawthornObject
 
 			// Do not build up an infinite list, if we can't get through to the
 			// remote server.
-			if(waiting.size()>TRANSFERLIMIT)
+			if (waiting.size() > TRANSFERLIMIT)
 			{
 				waiting.removeFirst();
 			}
@@ -111,15 +117,15 @@ public class OtherServers extends HawthornObject
 
 		synchronized void close()
 		{
-			close=true;
+			close = true;
 			notify();
-			while(!closed)
+			while (!closed)
 			{
 				try
 				{
 					wait();
 				}
-				catch(InterruptedException e)
+				catch (InterruptedException e)
 				{
 				}
 			}
@@ -128,15 +134,15 @@ public class OtherServers extends HawthornObject
 		@Override
 		public void run()
 		{
-			long lastFailure=System.currentTimeMillis();
-			boolean flushed=true;
-			outerloop: while(true)
+			long lastFailure = System.currentTimeMillis();
+			boolean flushed = true;
+			outerloop: while (true)
 			{
-				synchronized(this)
+				synchronized (this)
 				{
-					if(close)
+					if (close)
 					{
-						closed=true;
+						closed = true;
 						break;
 					}
 				}
@@ -144,86 +150,88 @@ public class OtherServers extends HawthornObject
 				try
 				{
 					// Connect to server
-					Socket s=new Socket(address,port);
-					BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(
-						s.getOutputStream(),"UTF-8"));
-					getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
-						this+": Connected to remote server");
+					Socket s = new Socket(address, port);
+					BufferedWriter writer =
+						new BufferedWriter(new OutputStreamWriter(s.getOutputStream(),
+							"UTF-8"));
+					getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+						this + ": Connected to remote server");
 
 					// Send authentication
-					long now=System.currentTimeMillis();
-					String hash=getApp().getValidKey(
-						"remote server",address.getHostAddress(),"",now+"");
-					writer.write("*"+now+"*"+hash+"\n");
+					long now = System.currentTimeMillis();
+					String hash =
+						getApp().getValidKey("remote server", address.getHostAddress(), "",
+							now + "");
+					writer.write("*" + now + "*" + hash + "\n");
 					writer.flush();
 
 					// Keep sending things when there's something to send
-					while(true)
+					while (true)
 					{
 						Message m;
-						synchronized(this)
+						synchronized (this)
 						{
-							while(waiting.isEmpty())
+							while (waiting.isEmpty())
 							{
-								if(!flushed)
+								if (!flushed)
 								{
 									wait(FLUSHDELAY);
 									writer.flush();
-									flushed=true;
+									flushed = true;
 								}
 								else
 								{
 									wait();
 								}
-								if(close)
+								if (close)
 								{
-									closed=true;
+									closed = true;
 									break outerloop;
 								}
 							}
 
-							m=waiting.removeFirst();
+							m = waiting.removeFirst();
 						}
-						String say=m.getServerFormat();
+						String say = m.getServerFormat();
 						try
 						{
-							writer.write(say+"\n");
+							writer.write(say + "\n");
 						}
-						catch(Throwable t)
+						catch (Throwable t)
 						{
 							// If there's an error, put back the message we failed to send
 							// (this is probably a bit pointless since it's buffered so we
 							// may not spot an error until later, but).
-							synchronized(this)
+							synchronized (this)
 							{
 								waiting.addFirst(m);
 							}
 							throw t;
 						}
-						getLogger().log(Logger.SYSTEMLOG,Logger.Level.DETAIL,
-							this+": Sent "+say);
-						flushed=false;
+						getLogger().log(Logger.SYSTEMLOG, Logger.Level.DETAIL,
+							this + ": Sent " + say);
+						flushed = false;
 					}
 				}
-				catch(Throwable t)
+				catch (Throwable t)
 				{
-					getLogger().log(Logger.SYSTEMLOG,Logger.Level.ERROR,
-						this+": Remote server send error",t);
-					long now=System.currentTimeMillis();
-					if(now-lastFailure < RETRYDELAY)
+					getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+						this + ": Remote server send error", t);
+					long now = System.currentTimeMillis();
+					if (now - lastFailure < RETRYDELAY)
 					{
 						try
 						{
-							synchronized(this)
+							synchronized (this)
 							{
 								wait(RETRYDELAY);
 							}
 						}
-						catch(InterruptedException e1)
+						catch (InterruptedException e1)
 						{
 						}
 					}
-					lastFailure=now;
+					lastFailure = now;
 				}
 			}
 		}
@@ -231,7 +239,7 @@ public class OtherServers extends HawthornObject
 		@Override
 		public String toString()
 		{
-			return address+" port "+port;
+			return address + " port " + port;
 		}
 
 	}

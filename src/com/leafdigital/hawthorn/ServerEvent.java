@@ -28,6 +28,7 @@ import com.leafdigital.hawthorn.Logger.Level;
 public class ServerEvent extends Event
 {
 	private String request;
+
 	private Connection connection;
 
 	/**
@@ -35,11 +36,11 @@ public class ServerEvent extends Event
 	 * @param request Server request string
 	 * @param connection Connection from remote server
 	 */
-	public ServerEvent(Hawthorn app,String request,Connection connection)
+	public ServerEvent(Hawthorn app, String request, Connection connection)
 	{
 		super(app);
-		this.request=request;
-		this.connection=connection;
+		this.request = request;
+		this.connection = connection;
 	}
 
 	@Override
@@ -47,20 +48,20 @@ public class ServerEvent extends Event
 	{
 		try
 		{
-			Message m=Message.parseMessage(request);
-			getLogger().log(Logger.SYSTEMLOG,Logger.Level.DETAIL,
-				"Received from remote: "+request);
-			getChannels().get(m.getChannel()).message(m,true);
+			Message m = Message.parseMessage(request);
+			getLogger().log(Logger.SYSTEMLOG, Logger.Level.DETAIL,
+				"Received from remote: " + request);
+			getChannels().get(m.getChannel()).message(m, true);
 		}
-		catch(IllegalArgumentException e)
+		catch (IllegalArgumentException e)
 		{
 			fail();
 		}
-		catch(IllegalAccessException e)
+		catch (IllegalAccessException e)
 		{
 			fail();
 		}
-		catch(InvocationTargetException e)
+		catch (InvocationTargetException e)
 		{
 			fail();
 		}
@@ -69,8 +70,8 @@ public class ServerEvent extends Event
 	private void fail()
 	{
 		// Unsupported request
-		getLogger().log(Logger.SYSTEMLOG,Level.ERROR,
-			"Unexpected line from server "+connection+": "+request);
+		getLogger().log(Logger.SYSTEMLOG, Level.ERROR,
+			"Unexpected line from server " + connection + ": " + request);
 		connection.close();
 	}
 }

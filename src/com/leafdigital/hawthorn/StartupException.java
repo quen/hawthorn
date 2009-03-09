@@ -26,9 +26,9 @@ public class StartupException extends HawthornException
 	 * @param code Unique error CODE_xx
 	 * @param message Message text
 	 */
-	StartupException(ErrorCode code,String message)
+	StartupException(ErrorCode code, String message)
 	{
-		this(code,message,null);
+		this(code, message, null);
 	}
 
 	/**
@@ -36,8 +36,8 @@ public class StartupException extends HawthornException
 	 * @param message Message text
 	 * @param cause Cause of error or null if none
 	 */
-	StartupException(ErrorCode code,String message,Throwable cause)
+	StartupException(ErrorCode code, String message, Throwable cause)
 	{
-		super(code,message,cause);
+		super(code, message, cause);
 	}
 }

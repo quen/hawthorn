@@ -24,13 +24,13 @@ import java.util.HashMap;
 /** List of current channels. */
 public class Channels extends HawthornObject
 {
-	private final static int CHANNELDUMPFREQUENCY=60*1000;
+	private final static int CHANNELDUMPFREQUENCY = 60 * 1000;
 
 	/** Stores data about each available channel. */
-	private HashMap<String,Channel> channels=new HashMap<String,Channel>();
+	private HashMap<String, Channel> channels = new HashMap<String, Channel>();
 
-	private Object channelDumpSynch=new Object();
-	private boolean close,closed;
+	private Object channelDumpSynch = new Object();
+	private boolean close, closed;
 
 	/** @param app Hawthorn app main object */
 	public Channels(Hawthorn app)
@@ -42,18 +42,19 @@ public class Channels extends HawthornObject
 
 	/**
 	 * Gets a channel. If it's not in memory, creates it.
+	 *
 	 * @param name Name of desired channel
 	 * @return Channel
 	 */
 	public Channel get(String name)
 	{
-		synchronized(channels)
+		synchronized (channels)
 		{
-			Channel c=channels.get(name);
-			if(c==null)
+			Channel c = channels.get(name);
+			if (c == null)
 			{
-				c=new Channel(getApp(),name);
-				channels.put(name,c);
+				c = new Channel(getApp(), name);
+				channels.put(name, c);
 			}
 			return c;
 		}
@@ -62,16 +63,16 @@ public class Channels extends HawthornObject
 	/** Closes thread and bails. */
 	public void close()
 	{
-		synchronized(channelDumpSynch)
+		synchronized (channelDumpSynch)
 		{
-			close=true;
-			while(!closed)
+			close = true;
+			while (!closed)
 			{
 				try
 				{
 					channelDumpSynch.wait();
 				}
-				catch(InterruptedException e)
+				catch (InterruptedException e)
 				{
 				}
 			}
@@ -91,22 +92,22 @@ public class Channels extends HawthornObject
 		@Override
 		public void run()
 		{
-			while(true)
+			while (true)
 			{
 				// Wait
-				synchronized(channelDumpSynch)
+				synchronized (channelDumpSynch)
 				{
 					try
 					{
 						channelDumpSynch.wait(CHANNELDUMPFREQUENCY);
 					}
-					catch(InterruptedException e)
+					catch (InterruptedException e)
 					{
 					}
 
-					if(close)
+					if (close)
 					{
-						closed=true;
+						closed = true;
 						channelDumpSynch.notifyAll();
 						return;
 					}
@@ -114,18 +115,19 @@ public class Channels extends HawthornObject
 
 				// Get channels (then leave channel synch)
 				Channel[] allChannels;
-				synchronized(channels)
+				synchronized (channels)
 				{
-					allChannels=channels.values().toArray(new Channel[channels.values().size()]);
+					allChannels =
+						channels.values().toArray(new Channel[channels.values().size()]);
 				}
 
 				// Clean up all channels
-				int count=allChannels.length;
-				for(Channel channel : allChannels)
+				int count = allChannels.length;
+				for (Channel channel : allChannels)
 				{
-					if(channel.cleanup())
+					if (channel.cleanup())
 					{
-						synchronized(channels)
+						synchronized (channels)
 						{
 							channels.remove(channel.getName());
 							count--;
@@ -134,8 +136,8 @@ public class Channels extends HawthornObject
 				}
 
 				// Log status
-				getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
-					"Channel stats: channels open "+count);
+				getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+					"Channel stats: channels open " + count);
 			}
 
 		}

@@ -32,8 +32,9 @@ public abstract class Event extends HawthornObject
 
 	/**
 	 * Processses the event. This will be called on an event thread.
-	 * @throws OperationException If there is an unhandled error while
-	 *   processing the event
+	 *
+	 * @throws OperationException If there is an unhandled error while processing
+	 *         the event
 	 */
 	public abstract void handle() throws OperationException;
 }

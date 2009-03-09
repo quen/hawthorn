@@ -25,18 +25,18 @@ import java.util.*;
 /** Event handler that dispatches events from a queue to multiple threads. */
 public class EventHandler extends HawthornObject
 {
-	private LinkedList<Event> queue=new LinkedList<Event>();
-	private TreeSet<TimedEvent> timerQueue=new TreeSet<TimedEvent>();
+	private LinkedList<Event> queue = new LinkedList<Event>();
+	private TreeSet<TimedEvent> timerQueue = new TreeSet<TimedEvent>();
 	private boolean close;
-	private boolean statsClosed,timerClosed;
+	private boolean statsClosed, timerClosed;
 	private int openThreads;
-	private Object statsSynch=new Object();
+	private Object statsSynch = new Object();
 	private int[] eventCounts;
 	private int timedEventID;
 	private int eventCount;
 	private long eventTime;
 
-	private final static int STATSPERIOD=60*1000;
+	private final static int STATSPERIOD = 60 * 1000;
 
 	/** So that we can make events happen at a future time. */
 	private static class TimedEvent implements Comparable<TimedEvent>
@@ -45,22 +45,22 @@ public class EventHandler extends HawthornObject
 		private long time;
 		private Event e;
 
-		private TimedEvent(int id,long time,Event e)
+		private TimedEvent(int id, long time, Event e)
 		{
-			this.id=id;
-			this.time=time;
-			this.e=e;
+			this.id = id;
+			this.time = time;
+			this.e = e;
 		}
 
 		public int compareTo(TimedEvent other)
 		{
-			return other==this ? 0 : time<other.time ? -1 : 1;
+			return other == this ? 0 : time < other.time ? -1 : 1;
 		}
 
 		@Override
 		public boolean equals(Object obj)
 		{
-			return obj==this;
+			return obj == this;
 		}
 
 		/** @return Time event is supposed to happen */
@@ -84,30 +84,32 @@ public class EventHandler extends HawthornObject
 
 	/**
 	 * Constructs event queue and starts threads.
+	 *
 	 * @param app Application main class
 	 */
 	public EventHandler(Hawthorn app)
 	{
 		super(app);
 
-		int threads=getConfig().getEventThreads();
-		eventCounts=new int[threads];
-		for(int i=0;i<threads;i++)
+		int threads = getConfig().getEventThreads();
+		eventCounts = new int[threads];
+		for (int i = 0; i < threads; i++)
 		{
 			new EventThread(i);
 		}
 		new TimerThread();
 		new StatsThread();
-		openThreads=threads;
+		openThreads = threads;
 	}
 
 	/**
 	 * Adds an event to the queue.
+	 *
 	 * @param e Event to add
 	 */
 	public void addEvent(Event e)
 	{
-		synchronized(queue)
+		synchronized (queue)
 		{
 			// Add event to queue
 			queue.addLast(e);
@@ -119,35 +121,37 @@ public class EventHandler extends HawthornObject
 
 	/**
 	 * Adds an event to happen at a future date.
+	 *
 	 * @param time Time to happen
 	 * @param e Event to add
 	 * @return ID of timed event
 	 */
-	public int addTimedEvent(long time,Event e)
+	public int addTimedEvent(long time, Event e)
 	{
-		synchronized(timerQueue)
+		synchronized (timerQueue)
 		{
-			int id=++timedEventID;
-			timerQueue.add(new TimedEvent(id,time,e));
+			int id = ++timedEventID;
+			timerQueue.add(new TimedEvent(id, time, e));
 			timerQueue.notify();
 			return id;
 		}
 	}
 
 	/**
-	 * Removes a timed event, if it is present. (Does not give an error if
-	 * it's not present. Note that there are likely to be timing issues with
-	 * removing events; i.e. when removing an event, you should be prepared for
-	 * it to still occur.)
+	 * Removes a timed event, if it is present. (Does not give an error if it's
+	 * not present. Note that there are likely to be timing issues with removing
+	 * events; i.e. when removing an event, you should be prepared for it to still
+	 * occur.)
+	 *
 	 * @param id ID of event to remove
 	 */
 	public void removeTimedEvent(int id)
 	{
-		synchronized(timerQueue)
+		synchronized (timerQueue)
 		{
-			for(Iterator<TimedEvent> i=timerQueue.iterator();i.hasNext();)
+			for (Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
 			{
-				if(i.next().getId()==id)
+				if (i.next().getId() == id)
 				{
 					i.remove();
 				}
@@ -160,48 +164,48 @@ public class EventHandler extends HawthornObject
 	 */
 	public void close()
 	{
-		close=true;
+		close = true;
 
-		synchronized(timerQueue)
+		synchronized (timerQueue)
 		{
 			timerQueue.notifyAll();
-			while(!timerClosed)
+			while (!timerClosed)
 			{
 				try
 				{
 					timerQueue.wait();
 				}
-				catch(InterruptedException e)
+				catch (InterruptedException e)
 				{
 				}
 			}
 		}
 
-		synchronized(queue)
+		synchronized (queue)
 		{
 			queue.notifyAll();
-			while(openThreads>0)
+			while (openThreads > 0)
 			{
 				try
 				{
 					queue.wait();
 				}
-				catch(InterruptedException e)
+				catch (InterruptedException e)
 				{
 				}
 			}
 		}
 
-		synchronized(statsSynch)
+		synchronized (statsSynch)
 		{
 			statsSynch.notifyAll();
-			while(!statsClosed)
+			while (!statsClosed)
 			{
 				try
 				{
 					statsSynch.wait();
 				}
-				catch(InterruptedException e)
+				catch (InterruptedException e)
 				{
 				}
 			}
@@ -215,32 +219,32 @@ public class EventHandler extends HawthornObject
 
 		EventThread(int index)
 		{
-			super("Event thread "+index);
-			this.index=index;
+			super("Event thread " + index);
+			this.index = index;
 			start();
 		}
 
 		@Override
 		public void run()
 		{
-			long before=-1;
-			while(true)
+			long before = -1;
+			while (true)
 			{
 				// Get next event to handle
 				Event next;
-				synchronized(queue)
+				synchronized (queue)
 				{
-					long after=System.currentTimeMillis();
-					if(before!=-1)
+					long after = System.currentTimeMillis();
+					if (before != -1)
 					{
-						eventTime+=(after-before);
+						eventTime += (after - before);
 						eventCount++;
 					}
 
-					while(queue.isEmpty())
+					while (queue.isEmpty())
 					{
 						// If close requested, abort
-						if(close)
+						if (close)
 						{
 							openThreads--;
 							queue.notifyAll();
@@ -252,17 +256,17 @@ public class EventHandler extends HawthornObject
 						{
 							queue.wait();
 						}
-						catch(InterruptedException e)
+						catch (InterruptedException e)
 						{
 						}
 					}
 
 					// Get first event from queue
-					next=queue.removeFirst();
+					next = queue.removeFirst();
 					eventCounts[index]++;
 
 					// Time before processing event
-					before=System.currentTimeMillis();
+					before = System.currentTimeMillis();
 				}
 
 				// Handle event
@@ -270,10 +274,10 @@ public class EventHandler extends HawthornObject
 				{
 					next.handle();
 				}
-				catch(Throwable t)
+				catch (Throwable t)
 				{
-					getLogger().log(Logger.SYSTEMLOG,Logger.Level.ERROR,
-						"Event processing error ("+getName()+")",t);
+					getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+						"Event processing error (" + getName() + ")", t);
 				}
 			}
 		}
@@ -286,27 +290,27 @@ public class EventHandler extends HawthornObject
 			super("Event timer thread");
 			// Increase priority so that the timed events get into the normal queue
 			// ASAP and are therefore counted in the 'waiting' stats
-			setPriority(Thread.NORM_PRIORITY+1);
+			setPriority(Thread.NORM_PRIORITY + 1);
 			start();
 		}
 
 		@Override
 		public void run()
 		{
-			while(true)
+			while (true)
 			{
-				synchronized(timerQueue)
+				synchronized (timerQueue)
 				{
-					long now=System.currentTimeMillis();
-					long next=-1;
+					long now = System.currentTimeMillis();
+					long next = -1;
 
 					// Remove any queue events that are present
-					for(Iterator<TimedEvent> i=timerQueue.iterator();i.hasNext();)
+					for (Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
 					{
-						TimedEvent upcoming=i.next();
-						if(upcoming.getTime() > now)
+						TimedEvent upcoming = i.next();
+						if (upcoming.getTime() > now)
 						{
-							next=upcoming.getTime();
+							next = upcoming.getTime();
 							break;
 						}
 
@@ -317,23 +321,23 @@ public class EventHandler extends HawthornObject
 					// Wait until the next event
 					try
 					{
-						if(next==-1)
+						if (next == -1)
 						{
 							timerQueue.wait();
 						}
 						else
 						{
-							timerQueue.wait(next-now);
+							timerQueue.wait(next - now);
 						}
 					}
-					catch(InterruptedException e)
+					catch (InterruptedException e)
 					{
 					}
 
 					// Check if we've been asked to close
-					if(close)
+					if (close)
 					{
-						timerClosed=true;
+						timerClosed = true;
 						timerQueue.notifyAll();
 						return;
 					}
@@ -355,59 +359,61 @@ public class EventHandler extends HawthornObject
 		@Override
 		public void run()
 		{
-			while(true)
+			while (true)
 			{
-				synchronized(statsSynch)
+				synchronized (statsSynch)
 				{
 					// Wait for given period
 					try
 					{
 						statsSynch.wait(STATSPERIOD);
 					}
-					catch(InterruptedException e)
+					catch (InterruptedException e)
 					{
 					}
 
 					// If close requested, abort
-					if(close)
+					if (close)
 					{
-						statsClosed=true;
+						statsClosed = true;
 						statsSynch.notifyAll();
 						return;
 					}
 				}
 
 				int size;
-				StringBuilder events=new StringBuilder();
+				StringBuilder events = new StringBuilder();
 				double average;
-				synchronized(queue)
+				synchronized (queue)
 				{
-					size=queue.size();
-					for(int i=0;i<eventCounts.length;i++)
+					size = queue.size();
+					for (int i = 0; i < eventCounts.length; i++)
 					{
-						if(i!=0)
+						if (i != 0)
 						{
 							events.append(" / ");
 						}
 						events.append(eventCounts[i]);
-						eventCounts[i]=0;
+						eventCounts[i] = 0;
 					}
-					if(eventCount==0)
+					if (eventCount == 0)
 					{
-						average=-1;
+						average = -1;
 					}
 					else
 					{
-						average=(double)eventTime / eventCount;
+						average = (double)eventTime / eventCount;
 					}
 				}
 
-				NumberFormat decimal=DecimalFormat.getNumberInstance();
+				NumberFormat decimal = DecimalFormat.getNumberInstance();
 				decimal.setMaximumFractionDigits(1);
 				decimal.setMinimumFractionDigits(1);
-				getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
-					"Event stats: queue size "+size+", events retrieved [ "+events+
-					" ], mean event time "+decimal.format(average)+"ms");
+				getLogger().log(
+					Logger.SYSTEMLOG,
+					Logger.Level.NORMAL,
+					"Event stats: queue size " + size + ", events retrieved [ " + events
+						+ " ], mean event time " + decimal.format(average) + "ms");
 			}
 		}
 	}

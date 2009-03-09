@@ -20,22 +20,22 @@ along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 package com.leafdigital.hawthorn;
 
 /**
- * Message sent when somebody leaves a channel. This message may be sent by
- * a user (for example when they close a popup window); if not, the server
+ * Message sent when somebody leaves a channel. This message may be sent by a
+ * user (for example when they close a popup window); if not, the server
  * generates it after the user hasn't acted in the channel for a short time.
  */
 public class LeaveMessage extends Message
 {
 	/** Type of message */
-	private final static String TYPE="LEAVE";
+	private final static String TYPE = "LEAVE";
 
 	static
 	{
 		try
 		{
-			Message.registerType(TYPE,LeaveMessage.class);
+			Message.registerType(TYPE, LeaveMessage.class);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);
@@ -52,17 +52,17 @@ public class LeaveMessage extends Message
 	 * @param displayName Display name of user
 	 * @param timeout True if it's a timeout, false if user requested it
 	 */
-	LeaveMessage(long time,String channel,String ip,String user,
-		String displayName,boolean timeout)
+	LeaveMessage(long time, String channel, String ip, String user,
+		String displayName, boolean timeout)
 	{
-		super(time,channel,ip,user,displayName);
-		this.timeout=timeout;
+		super(time, channel, ip, user, displayName);
+		this.timeout = timeout;
 	}
 
 	@Override
 	protected String getExtraJS()
 	{
-		return ",timeout:"+timeout;
+		return ",timeout:" + timeout;
 	}
 
 	@Override
@@ -86,15 +86,16 @@ public class LeaveMessage extends Message
 	 * @param extra Bit that goes after all this in the text
 	 * @return New message
 	 */
-	public static LeaveMessage parseMessage(long time,String channel,String ip,
-		String user,String displayName,String extra)
+	public static LeaveMessage parseMessage(long time, String channel, String ip,
+		String user, String displayName, String extra)
 	{
-		boolean timeout=extra.equals("timeout");
-		if(!timeout && !extra.equals("explicit"))
+		boolean timeout = extra.equals("timeout");
+		if (!timeout && !extra.equals("explicit"))
 		{
-			throw new IllegalArgumentException("Extra text must be timeout or explicit");
+			throw new IllegalArgumentException(
+				"Extra text must be timeout or explicit");
 		}
-		return new LeaveMessage(time,channel,ip,user,displayName,timeout);
+		return new LeaveMessage(time, channel, ip, user, displayName, timeout);
 	}
 
 }

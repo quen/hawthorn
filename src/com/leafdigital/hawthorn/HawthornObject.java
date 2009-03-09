@@ -26,7 +26,7 @@ public abstract class HawthornObject
 
 	protected HawthornObject(Hawthorn app)
 	{
-		this.app=app;
+		this.app = app;
 	}
 
 	/** @return App configuration */
