@@ -19,6 +19,7 @@ along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn;
 
+import java.text.*;
 import java.util.*;
 
 /** Event handler that dispatches events from a queue to multiple threads. */
@@ -32,6 +33,8 @@ public class EventHandler extends HawthornObject
 	private Object statsSynch=new Object();
 	private int[] eventCounts;
 	private int timedEventID;
+	private int eventCount;
+	private long eventTime;
 
 	private final static int STATSPERIOD=60*1000;
 
@@ -220,12 +223,20 @@ public class EventHandler extends HawthornObject
 		@Override
 		public void run()
 		{
+			long before=-1;
 			while(true)
 			{
 				// Get next event to handle
 				Event next;
 				synchronized(queue)
 				{
+					long after=System.currentTimeMillis();
+					if(before!=-1)
+					{
+						eventTime+=(after-before);
+						eventCount++;
+					}
+
 					while(queue.isEmpty())
 					{
 						// If close requested, abort
@@ -249,6 +260,9 @@ public class EventHandler extends HawthornObject
 					// Get first event from queue
 					next=queue.removeFirst();
 					eventCounts[index]++;
+
+					// Time before processing event
+					before=System.currentTimeMillis();
 				}
 
 				// Handle event
@@ -365,6 +379,7 @@ public class EventHandler extends HawthornObject
 
 				int size;
 				StringBuilder events=new StringBuilder();
+				double average;
 				synchronized(queue)
 				{
 					size=queue.size();
@@ -377,10 +392,22 @@ public class EventHandler extends HawthornObject
 						events.append(eventCounts[i]);
 						eventCounts[i]=0;
 					}
+					if(eventCount==0)
+					{
+						average=-1;
+					}
+					else
+					{
+						average=(double)eventTime / eventCount;
+					}
 				}
 
+				NumberFormat decimal=DecimalFormat.getNumberInstance();
+				decimal.setMaximumFractionDigits(1);
+				decimal.setMinimumFractionDigits(1);
 				getLogger().log(Logger.SYSTEMLOG,Logger.Level.NORMAL,
-					"Event stats: queue size "+size+", events retrieved [ "+events+" ]");
+					"Event stats: queue size "+size+", events retrieved [ "+events+
+					" ], mean event time "+decimal.format(average)+"ms");
 			}
 		}
 	}
