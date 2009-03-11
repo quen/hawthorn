@@ -216,7 +216,8 @@ public class HttpEvent extends Event
 
 		String id = getID(params);
 
-		String maxAge = params.get("maxage"),maxNumber = params.get("maxnumber");
+		String maxAge = params.get("maxage"), maxNumber = params.get("maxnumber"), maxNames =
+			params.get("maxnames");
 		String error = null;
 		if (maxAge == null || !maxAge.matches(REGEXP_INT))
 		{
@@ -225,6 +226,10 @@ public class HttpEvent extends Event
 		else if (maxNumber == null || !maxNumber.matches(REGEXP_INT))
 		{
 			error = "Missing or invalid maxnumber=";
+		}
+		else if (maxNames == null || !maxNames.matches(REGEXP_INT))
+		{
+			error = "Missing or invalid maxnames=";
 		}
 		if (error != null)
 		{
@@ -235,6 +240,8 @@ public class HttpEvent extends Event
 
 		Message[] recent =
 			c.getRecent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber));
+		Name[] names = c.getNames(Integer.parseInt(maxNames));
+
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.getRecentComplete(" + id + ",[");
 		for (int i = 0; i < recent.length; i++)
@@ -244,6 +251,15 @@ public class HttpEvent extends Event
 				output.append(',');
 			}
 			output.append(recent[i].getJSFormat());
+		}
+		output.append("],[");
+		for (int i = 0; i < names.length; i++)
+		{
+			if (i != 0)
+			{
+				output.append(',');
+			}
+			output.append(names[i].getJSFormat());
 		}
 		output.append("]);");
 		connection.send(output.toString());
@@ -263,13 +279,13 @@ public class HttpEvent extends Event
 		String lastTimeString = params.get("lasttime");
 		long lastTime = Channel.ANY;
 		String error = null;
-		int maxAge = Channel.ANY,maxNumber = Channel.ANY;
+		int maxAge = Channel.ANY, maxNumber = Channel.ANY;
 		if (lastTimeString == null)
 		{
 			// Instead of specifying lastTime, you can give a max age and number of
 			// messages; this will retrieve existing messages, if any, that match
 			// those constraints, otherwise it will wait for new ones.
-			String maxAgeString = params.get("maxage"),maxNumberString =
+			String maxAgeString = params.get("maxage"), maxNumberString =
 				params.get("maxnumber");
 			if (maxAgeString == null || !maxAgeString.matches(REGEXP_INT))
 			{
@@ -356,8 +372,8 @@ public class HttpEvent extends Event
 	private boolean checkAuth(HashMap<String, String> params,
 		String errorFunction, boolean allowSystemChannel) throws OperationException
 	{
-		String channel = params.get("channel"),user = params.get("user"),displayname =
-			params.get("displayname"),key = params.get("key"),keytime =
+		String channel = params.get("channel"), user = params.get("user"), displayname =
+			params.get("displayname"), key = params.get("key"), keytime =
 			params.get("keytime");
 
 		String error = null;

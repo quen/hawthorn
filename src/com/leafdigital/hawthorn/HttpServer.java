@@ -120,13 +120,13 @@ public final class HttpServer extends HawthornObject
 		{
 			try
 			{
+				key.cancel();
 				channel.close();
 			}
 			catch (IOException e)
 			{
 				// Ignore exceptions when closing
 			}
-			key.cancel();
 			synchronized (connections)
 			{
 				connections.remove(key);

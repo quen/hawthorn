@@ -124,7 +124,7 @@ public class Channel extends HawthornObject
 			}
 
 			// Send the no-response message
-			sendWaitForMessageResponse(connection, id, time, NOMESSAGES);
+			sendWaitForMessageResponse(connection, id, time, NOMESSAGES, null);
 		}
 
 		/**
@@ -159,18 +159,18 @@ public class Channel extends HawthornObject
 
 			// Send response
 			sendWaitForMessageResponse(connection, id, messages[messages.length - 1]
-				.getTime(), messages);
+				.getTime(), messages, null);
 		}
 	}
 
 	/**
 	 * Details about a user who's currently in the channel.
 	 */
-	private class UserInfo
+	private class UserInfo extends Name
 	{
 		private boolean thisServer;
 
-		private String ip, user, displayName;
+		private String ip;
 
 		private long lastAccess;
 
@@ -183,10 +183,9 @@ public class Channel extends HawthornObject
 		private UserInfo(boolean thisServer, String ip, String user,
 			String displayName)
 		{
+			super(user, displayName);
 			this.thisServer = thisServer;
 			this.ip = ip;
-			this.user = user;
-			this.displayName = displayName;
 			access();
 		}
 
@@ -206,8 +205,8 @@ public class Channel extends HawthornObject
 		/** @return Suitable LeaveMessage representing a timeout */
 		LeaveMessage newLeaveMessage()
 		{
-			return new LeaveMessage(System.currentTimeMillis(), getName(), ip, user,
-				displayName, true);
+			return new LeaveMessage(System.currentTimeMillis(), getName(), ip,
+				getUser(), getDisplayName(), true);
 		}
 	}
 
@@ -402,6 +401,31 @@ public class Channel extends HawthornObject
 	}
 
 	/**
+	 * @param maxNames Maximum number of names to return or ANY
+	 * @return Names of channel users (note: selection is arbitrary if there are
+	 *         more than maxNames)
+	 */
+	public synchronized Name[] getNames(int maxNames)
+	{
+		Name[] result;
+		if (present.size() < maxNames || maxNames == ANY)
+		{
+			result = new Name[present.size()];
+		}
+		else
+		{
+			result = new Name[maxNames];
+		}
+		Iterator<UserInfo> iterator = present.values().iterator();
+		for (int i = 0; i < result.length; i++)
+		{
+			result[i] = iterator.next();
+		}
+
+		return result;
+	}
+
+	/**
 	 * Registers a request for messages on this channel.
 	 *
 	 * @param connection Connection that wants to receive messages
@@ -432,12 +456,13 @@ public class Channel extends HawthornObject
 		// Looking for any recent messages (limited time/number)
 		if (lastTime == ANY)
 		{
-			// If there are some recent messages, send them
+			// If there are some recent messages, send them, otherwise just send
+			// the name list anyhow
 			Message[] recent = getRecent(maxAge, maxNumber);
 			if (recent.length != 0)
 			{
 				sendWaitForMessageResponse(connection, id, recent[recent.length - 1]
-					.getTime(), recent);
+					.getTime(), recent, getNames(ANY));
 				return;
 			}
 
@@ -468,7 +493,7 @@ public class Channel extends HawthornObject
 					result[i] = iterator.next();
 				}
 				sendWaitForMessageResponse(connection, id, result[result.length - 1]
-					.getTime(), result);
+					.getTime(), result, null);
 				// When it responds straight away, we don't need for the user to
 				// be present, because this is only equivalent to getRecent anyhow.
 				// If they're really in the channel they will send another request
@@ -501,7 +526,7 @@ public class Channel extends HawthornObject
 	}
 
 	private void sendWaitForMessageResponse(Connection connection, String id,
-		long lastTime, Message[] messages)
+		long lastTime, Message[] messages, Name[] names)
 	{
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.waitForMessageComplete(");
@@ -516,6 +541,18 @@ public class Channel extends HawthornObject
 				output.append(',');
 			}
 			output.append(messages[i].getJSFormat());
+		}
+		output.append("],[");
+		if (names != null)
+		{
+			for (int i = 0; i < names.length; i++)
+			{
+				if (i != 0)
+				{
+					output.append(',');
+				}
+				output.append(names[i].getJSFormat());
+			}
 		}
 		output.append("]);");
 		connection.send(output.toString());
