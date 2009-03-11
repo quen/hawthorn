@@ -404,6 +404,8 @@ public class EventHandler extends HawthornObject
 					{
 						average = (double)eventTime / eventCount;
 					}
+					eventCount=0;
+					eventTime=0;
 				}
 
 				NumberFormat decimal = DecimalFormat.getNumberInstance();
