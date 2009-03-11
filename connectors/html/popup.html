@@ -1,0 +1,135 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<title>Hawthorn popup</title>
+<style type="text/css">
+body {
+	font: 0.85em Verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+input {
+	font: 1em Verdana, sans-serif;
+}
+
+#main {
+	position: absolute;
+	left: 0;
+	padding: 5px 5px 0;
+	overflow-y: scroll;
+}
+
+#intro {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 0.75em;
+	padding: 9px 5px 6px;
+	border-bottom: 1px solid #eee;
+}
+
+#intro p {
+	margin: 0;
+}
+
+#closebuttondiv {
+	position: absolute;
+	right: 5px;
+	bottom: 2px;
+}
+
+#names {
+	position: absolute;
+	padding: 5px 5px 0;
+	overflow-y: scroll;
+}
+
+#textbox {
+	position: absolute;
+	left: 0px;
+}
+
+.error h3 {
+	font-size: 1em;
+	margin: 0;
+	color: red;
+}
+
+.entry {
+	padding: 5px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.timestamp {
+	xpadding-top: 1px;
+	font-size: 0.75em;
+}
+
+.timestamp span {
+	background: #eee;
+	color: black;
+	padding: 0 2px;
+}
+
+.message {
+	text-indent: -2em;
+	margin-left: 2em;
+}
+
+.self {
+	color: #555;
+}
+</style>
+</head>
+<body>
+
+<div>
+<div id="intro">
+<div id="closebuttondiv"><input id="closebutton" type="button"
+	value="Close chat" /></div>
+<p>To chat, type messages in the textbox and press Return to send.</p>
+</div>
+<div id="main"></div>
+<div id="names"></div>
+<input id="textbox" type="text" /></div>
+<script type="text/javascript" src="../../js/hawthorn.js"></script>
+<script type="text/javascript">
+var popup = new HawthornPopup();
+
+window.onresize = function()
+{
+	// I can't be bothered to deal with HTML so let's hack all the layout in
+	// JavaScript.
+	var h = window.innerHeight;
+	var w = window.innerWidth;
+
+	var namesWidth = Math.floor(w / 4);
+
+	var intro = document.getElementById('intro');
+	intro.style.width = (w - 10) + 'px';	
+	var introHeight = intro.offsetHeight;
+
+	var textbox = document.getElementById('textbox');
+	var lowerHeight = textbox.offsetHeight;
+
+	popup.mainArea.style.top = introHeight + 'px';
+	popup.mainArea.style.width = (w - namesWidth - 10) + 'px';
+	popup.mainArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
+
+	popup.namesArea.style.top = introHeight + 'px';
+	popup.namesArea.style.left = (w - namesWidth) + 'px';
+	popup.namesArea.style.width = (namesWidth - 10) + 'px';
+	popup.namesArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
+
+	textbox.style.top=(h - lowerHeight)+'px';
+	textbox.style.width=w + 'px';
+};
+window.onresize();
+
+setTimeout(function() { document.getElementById('textbox').focus(); },0);
+</script>
+</body>
+</html>

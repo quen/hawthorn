@@ -1,0 +1,380 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- 
+Copyright 2009 Samuel Marshall
+
+This file is part of hawthorn.
+http://www.leafdigital.com/software/hawthorn/
+
+hawthorn is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+hawthorn is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with hawthorn.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+<title>Hawthorn HTML example (minimal)</title>
+<script type="text/javascript" src="../../js/hawthorn.js"></script>
+<script type="text/javascript">
+
+function init()
+{
+	var servers=[];
+	var preferred=-1;
+	for(var i=0;i<3;i++)
+	{
+		var url=document.getElementById('url'+i).value;
+		if(url=='')
+		{
+			break;
+		}
+
+		servers[i]=url;
+		if(document.getElementById('preferred'+i).checked)
+		{
+			preferred=i;
+		}		
+	}
+
+	hawthorn.init(servers,preferred);
+}
+
+function setText(id,message)
+{
+	var el=document.getElementById(id);
+	while(el.firstChild) el.removeChild(el.firstChild);
+	el.appendChild(document.createTextNode(message));
+}
+
+function setMessages(id, messages, names)
+{
+	var el=document.getElementById(id);
+	while(el.firstChild) el.removeChild(el.firstChild);
+	var intro=document.createElement('p');
+	intro.appendChild(document.createTextNode(messages.length+' messages:'));
+	el.appendChild(intro);
+	var ul=document.createElement('ul');
+	el.appendChild(ul);
+	for(var i=0;i<messages.length;i++)
+	{
+		var li=document.createElement('li');
+
+		var text;
+		switch(messages[i].type)
+		{
+		case 'SAY': text=messages[i].text; break;
+		case 'JOIN': text="JOIN"; break;
+		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+		}
+		
+		ul.appendChild(li);
+		li.appendChild(document.createTextNode(
+				new Date(messages[i].time)+' - '+
+				messages[i].user+' ('+messages[i].displayName+'): '+
+				text));
+	}
+	intro=document.createElement('p');
+	intro.appendChild(document.createTextNode(names.length+' names:'));
+	var ul=document.createElement('ul');
+	el.appendChild(ul);
+	for(var i=0;i<names.length;i++)
+	{
+		var li=document.createElement('li');
+		ul.appendChild(li);
+		li.appendChild(document.createTextNode(
+				names[i].user+' ('+names[i].displayName+'): '+
+				text));
+	}
+	
+}
+
+function getRecent()
+{
+	hawthorn.getRecent(
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		60*60*1000,
+		10,
+		function(messages)
+		{
+			setMessages('recent', messages, names);
+		},
+		function(error)
+		{
+			setText('recent','ERROR! '+error);
+		});
+}
+
+function say()
+{
+	hawthorn.say(
+			document.getElementById('channel').value,
+			document.getElementById('user').value,
+			document.getElementById('displayname').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			document.getElementById('message').value,
+			function()
+			{
+				setText('say','OK, said something!');
+			},
+			function(error)
+			{
+				setText('say','ERROR! '+error);
+			});			
+}
+
+function leave()
+{
+	hawthorn.leave(
+			document.getElementById('channel').value,
+			document.getElementById('user').value,
+			document.getElementById('displayname').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			function()
+			{
+				setText('leave','OK, left channel');
+			},
+			function(error)
+			{
+				setText('leave','ERROR! '+error);
+			});			
+}
+
+var lastWait=0;
+
+function waitForMessage()
+{
+	var waitfor=document.getElementById('waitforbutton');
+	waitfor.disabled=true;
+	setText('waitfor','Waiting for new message...');
+	var yes=function(lastTime,messages,names)
+	{
+		lastWait=lastTime;
+		setMessages("waitfor", messages, names);				
+		waitfor.disabled=false;
+	};
+	var no=function(error)
+	{
+		setText('waitfor','ERROR! '+error);
+		waitfor.disabled=false;
+	};
+	if(lastWait==0)
+	{
+		hawthorn.waitForMessageFirst(
+				document.getElementById('channel').value,
+				document.getElementById('user').value,
+				document.getElementById('displayname').value,
+				document.getElementById('keytime').value,
+				document.getElementById('key').value,
+				60*60*1000,10,yes,no);
+	}
+	else
+	{
+		hawthorn.waitForMessage(
+				document.getElementById('channel').value,
+				document.getElementById('user').value,
+				document.getElementById('displayname').value,
+				document.getElementById('keytime').value,
+				document.getElementById('key').value,
+				lastWait,yes,no);
+	}
+}
+
+function getLog()
+{
+	hawthorn.getLog(
+			document.getElementById('channel').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			document.getElementById('date').value,
+			function(lines)
+			{
+				var logs=document.getElementById('logs');
+				while(logs.firstChild) logs.removeChild(logs.firstChild);
+				
+				var intro=document.createElement('p');
+				intro.appendChild(document.createTextNode(lines.length+' lines:'));
+				logs.appendChild(intro);
+
+				var pre=document.createElement('pre');
+				for(var i=0;i<lines.length;i++)
+				{
+					pre.appendChild(document.createTextNode(lines[i]));
+					pre.appendChild(document.createElement('br'));
+				}
+				logs.appendChild(pre);
+			},
+			function(error)
+			{
+				setText('logs','ERROR! '+error);
+			});
+
+}
+
+function openPopup()
+{
+	hawthorn.openPopup(
+			'popup.html',
+			document.getElementById('channel').value,
+			document.getElementById('user').value,
+			document.getElementById('displayname').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			document.getElementById('title').value);	
+}
+
+
+function saveSettings()
+{
+	value='';
+	value+='[url0&'+escape(document.getElementById('url0').value);
+	value+='[url1&'+escape(document.getElementById('url1').value);
+	value+='[url2&'+escape(document.getElementById('url2').value);
+	value+='[channel&'+escape(document.getElementById('channel').value);
+	value+='[user&'+escape(document.getElementById('user').value);
+	value+='[displayname&'+escape(document.getElementById('displayname').value);
+	value+='[keytime&'+escape(document.getElementById('keytime').value);
+	value+='[key&'+escape(document.getElementById('key').value);
+	document.cookie =
+	  'hawthornExampleSettings='+value+'; expires=Mon, 31 Dec 2012 23:59:59 UTC; path=/'		
+}
+
+function loadSettings()
+{
+	var cookies=document.cookie.split(';');
+	for(var i=0;i<cookies.length;i++)
+	{
+		var wholeCookie=cookies[i];
+		while(wholeCookie.charAt(0)==' ') wholeCookie=wholeCookie.substring(1);
+		if(wholeCookie.indexOf('hawthornExampleSettings=')==0)
+		{
+			var value=wholeCookie.substring(cookies[i].indexOf('=')+1);
+			var parts=value.split('[');
+			for(var j=0;j<parts.length;j++)
+			{
+				if(parts[j]=='') continue;
+				var split=parts[j].split('&');
+				document.getElementById(split[0]).value=unescape(split[1]);
+			}			
+		}
+	}
+}
+</script>
+
+</head>
+<body>
+
+<h1>hawthorn HTML example</h1>
+
+<p>You can use this page to test a Hawthorn installation without any
+other software. This page also demonstrates how to call the JavaScript
+functions when implementing your own connector. This is not a usable
+solution - real use of hawthorn requires a server-side application that 
+handles authentication.</p>
+
+<p>To obtain keys that work with your server, use the <tt>&lt;testkey/&gt;</tt>
+element in your <tt>configuration.xml</tt>. Keys remain valid for one
+hour.</p>
+
+<p>For a quick demonstration, do the following:</p>
+
+<ol>
+<li>Fill in the server URL in the 'Init' section.</li>
+<li>Click the 'Init connection' button.</li>
+<li>Enter channel, user ID, display name, key time, and key in the 
+'Authorisation details' section. (These should be generated using 
+<tt>&lt;testkey/&gt;</tt> as above.)</li>
+<li>Click the 'Open popup' button and start chatting.</li>
+</ol>
+
+<div><input type="button" value="Save settings to cookie"
+	onclick="saveSettings()" /> <input type="button"
+	value="Load settings from cookie" onclick="loadSettings()" /></div>
+
+<h2>Init</h2>
+
+<p>You need to complete this before using any of the other forms. In
+a real system, a call to the init function would be automatically
+generated by the server-side system.</p>
+
+<div>URL <input id="url0" type="text" size="40" /> <input
+	type="radio" id="preferred0" name="preferred" checked="checked" /><br />
+URL <input id="url1" type="text" size="40" /> <input type="radio"
+	id="preferred1" name="preferred" /><br />
+URL <input id="url2" type="text" size="40" /> <input type="radio"
+	id="preferred2" name="preferred" /><br />
+<input type="radio" name="preferred" /> No preference</div>
+
+<div><input type="button" value="Init connection" onclick="init()" /></div>
+
+<h2>Authorisation details</h2>
+
+<p>In a real system, these details would be defined as hidden fields
+or JavaScript variables by the server-side system, which knows the magic
+number and is able to generate keys itself.</p>
+
+<div>Channel <input id="channel" type="text" size="20" /><br />
+User ID <input id="user" type="text" size="20" /><br />
+Display name <input id="displayname" type="text" size="20" /><br />
+Key time <input id="keytime" type="text" size="20" /><br />
+Key <input id="key" type="text" size="40" /></div>
+
+<h2>Recent messages</h2>
+
+<h3>Message list</h3>
+<div id="recent">Not yet obtained</div>
+
+<div><input type="button" value="Get recent messages"
+	onclick="getRecent()" /></div>
+
+<h2>Say</h2>
+<div id="say">Not said anything yet</div>
+<div>Message <input id="message" type="text" size="40" />
+<div><input type="button" value="Say" onclick="say()" /></div>
+</div>
+
+<h2>Leave</h2>
+<div id="leave">Not left yet</div>
+<div><input type="button" value="Leave" onclick="leave()" /></div>
+
+<h2>Wait for message</h2>
+
+<h3>Message list</h3>
+<div id="waitfor">Not yet requested</div>
+
+<div><input type="button" id="waitforbutton"
+	value="Wait for next message" onclick="waitForMessage()" /></div>
+
+<h2>Open popup</h2>
+
+<div>Title <input id="title" type="text" size="20" value="Chat window"/></div>
+<div><input type="button" value="Open popup" onclick="openPopup()" /></div>
+
+<h2>Get logs</h2>
+
+<p>In order to get logs, you need to have the username <strong>_admin</strong>
+and display name <strong>_</strong>. Note that you can also request for
+the special reserved channel name !system to get the system log.</p>
+
+<h3>Logs</h3>
+<div id="logs">Not yet requested</div>
+
+<div>Date <input id="date" type="text" size="20" /><br />
+<input type="button" value="Get logs" onclick="getLog()" /></div>
+
+</body>
+</html>
