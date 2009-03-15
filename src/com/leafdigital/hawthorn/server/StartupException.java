@@ -17,41 +17,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.leafdigital.hawthorn;
+package com.leafdigital.hawthorn.server;
 
-import java.io.*;
-
-/** Base class for Hawthorn system exceptions. */
-public abstract class HawthornException extends Exception
+/** Exception thrown during system startup. */
+public class StartupException extends HawthornException
 {
-	private ErrorCode code;
-	private String message;
+	/**
+	 * @param code Unique error CODE_xx
+	 * @param message Message text
+	 */
+	StartupException(ErrorCode code, String message)
+	{
+		this(code, message, null);
+	}
 
 	/**
 	 * @param code Unique error code
 	 * @param message Message text
 	 * @param cause Cause of error or null if none
 	 */
-	HawthornException(ErrorCode code, String message, Throwable cause)
+	StartupException(ErrorCode code, String message, Throwable cause)
 	{
-		super(code + ": " + message, cause);
-		this.code = code;
-		this.message = message;
+		super(code, message, cause);
 	}
-
-	@Override
-	public String toString()
-	{
-		String result = code + ": " + message;
-		if (getCause() != null)
-		{
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			getCause().printStackTrace(pw);
-			result += "\n\n" + sw.toString();
-		}
-		return result;
-	}
-
-
 }

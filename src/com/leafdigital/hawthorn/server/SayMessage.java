@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.leafdigital.hawthorn;
+package com.leafdigital.hawthorn.server;
 
 /** Message sent when somebody says something. */
 public class SayMessage extends Message

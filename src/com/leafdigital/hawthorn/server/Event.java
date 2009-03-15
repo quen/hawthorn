@@ -17,38 +17,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.leafdigital.hawthorn;
+package com.leafdigital.hawthorn.server;
 
-/** Represents a user name in a channel. */
-public class Name
+/** Event that can be handled by {@link EventHandler}. */
+public abstract class Event extends HawthornObject
 {
-	private String user,displayName;
+	/**
+	 * @param app Application main object
+	 */
+	protected Event(Hawthorn app)
+	{
+		super(app);
+	}
 
 	/**
-	 * @param user User ID
-	 * @param displayName Display name
+	 * Processses the event. This will be called on an event thread.
+	 *
+	 * @throws OperationException If there is an unhandled error while processing
+	 *         the event
 	 */
-	public Name(String user, String displayName)
-	{
-		this.user = user;
-		this.displayName = displayName;
-	}
-
-	/** @return User ID */
-	public String getUser()
-	{
-		return user;
-	}
-
-	/** @return User display name */
-	public String getDisplayName()
-	{
-		return displayName;
-	}
-
-	/** @return JavaScript version of name object */
-	public String getJSFormat()
-	{
-		return "{user:'"+user+"',displayName:'"+displayName+"'}";
-	}
+	public abstract void handle() throws OperationException;
 }

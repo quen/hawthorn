@@ -17,27 +17,45 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.leafdigital.hawthorn;
+package com.leafdigital.hawthorn.server;
 
-/** Exception thrown during system startup. */
-public class StartupException extends HawthornException
+/** For objects that need a reference to the Hawthorn application. */
+public abstract class HawthornObject
 {
-	/**
-	 * @param code Unique error CODE_xx
-	 * @param message Message text
-	 */
-	StartupException(ErrorCode code, String message)
+	private Hawthorn app;
+
+	protected HawthornObject(Hawthorn app)
 	{
-		this(code, message, null);
+		this.app = app;
 	}
 
-	/**
-	 * @param code Unique error code
-	 * @param message Message text
-	 * @param cause Cause of error or null if none
-	 */
-	StartupException(ErrorCode code, String message, Throwable cause)
+	/** @return App configuration */
+	public Configuration getConfig()
 	{
-		super(code, message, cause);
+		return app.getConfig();
+	}
+
+	/** @return App logger */
+	public Logger getLogger()
+	{
+		return getConfig().getLogger();
+	}
+
+	/** @return App event handler */
+	public EventHandler getEventHandler()
+	{
+		return app.getEventHandler();
+	}
+
+	/** @return App object */
+	public Hawthorn getApp()
+	{
+		return app;
+	}
+
+	/** @return Channels object */
+	public Channels getChannels()
+	{
+		return app.getChannels();
 	}
 }

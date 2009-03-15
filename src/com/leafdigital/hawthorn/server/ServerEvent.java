@@ -17,12 +17,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.leafdigital.hawthorn;
+package com.leafdigital.hawthorn.server;
 
 import java.lang.reflect.InvocationTargetException;
 
-import com.leafdigital.hawthorn.HttpServer.Connection;
-import com.leafdigital.hawthorn.Logger.Level;
+import com.leafdigital.hawthorn.server.HttpServer.Connection;
+import com.leafdigital.hawthorn.server.Logger.Level;
 
 /** Handles events generated from a remote server. */
 public class ServerEvent extends Event
