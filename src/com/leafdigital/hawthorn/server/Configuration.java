@@ -30,6 +30,8 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+import com.leafdigital.hawthorn.util.XML;
+
 /** Configuration file reader. */
 public class Configuration
 {
@@ -119,18 +121,14 @@ public class Configuration
 	 */
 	private static String getText(Element container) throws StartupException
 	{
-		StringBuilder result = new StringBuilder();
-		NodeList children = container.getChildNodes();
-		for (int i = 0; i < children.getLength(); i++)
+		try
 		{
-			if (!(children.item(i) instanceof Text))
-			{
-				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT, "Element "
-					+ container.getTagName() + " must not include XML tags.");
-			}
-			result.append(((Text)children.item(i)).getData());
+			return XML.getText(container);
 		}
-		return result.toString().trim();
+		catch(IOException e)
+		{
+			throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT, e.getMessage());
+		}
 	}
 
 	/**
@@ -147,10 +145,7 @@ public class Configuration
 		try
 		{
 			// Parse file
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db;
-			db = dbf.newDocumentBuilder();
-			Document xml = db.parse(configFile);
+			Document xml = XML.getDocumentBuilder().parse(configFile);
 			if (!xml.getDocumentElement().getTagName().equals("jschat"))
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
