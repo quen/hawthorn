@@ -14,7 +14,7 @@
        Default port is 13370.) -->
   <server this='y'>192.168.0.100</server>
 </servers>
-<!-- Test keys. For ease of testing, hawthorn will display keys for these
+<!-- Test keys. For ease of testing, Hawthorn will display keys for these
      situations to standard output when it starts up. -->
 <testkey channel="a" user="b" displayname="User B"/>
 <testkey channel="a" user="c" displayname="User C"/>
