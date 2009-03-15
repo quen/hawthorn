@@ -22,7 +22,7 @@ package com.leafdigital.hawthorn.server;
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
 
-import com.leafdigital.hawthorn.auth.Auth;
+import com.leafdigital.hawthorn.util.Auth;
 
 /**
  * Server main object. Mainly just stores links to the key components that make
