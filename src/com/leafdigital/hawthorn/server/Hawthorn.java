@@ -19,9 +19,10 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
-import java.io.*;
-import java.math.BigInteger;
-import java.security.*;
+import java.io.File;
+import java.security.NoSuchAlgorithmException;
+
+import com.leafdigital.hawthorn.auth.Auth;
 
 /**
  * Server main object. Mainly just stores links to the key components that make
@@ -152,33 +153,18 @@ public class Hawthorn
 	 *
 	 * @param channel Channel ID
 	 * @param user User ID
-	 * @param displayname User display name
-	 * @param keytime Key issue time
+	 * @param displayName User display name
+	 * @param keyTime Key issue time
 	 * @return Correct key
 	 * @throws OperationException
 	 */
-	String getValidKey(String channel, String user, String displayname,
-		String keytime) throws OperationException
+	String getValidKey(String channel, String user, String displayName,
+		long keyTime) throws OperationException
 	{
-		// Obtain data used for hash
-		String hashData =
-			channel + "\n" + user + "\n" + displayname + "\n" + keytime + "\n"
-				+ getConfig().getMagicNumber();
-		byte[] hashDataBytes;
 		try
 		{
-			hashDataBytes = hashData.getBytes("UTF-8");
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			throw new Error("No UTF-8 support?!", e);
-		}
-
-		// Hash data and return 40-character string
-		MessageDigest m;
-		try
-		{
-			m = MessageDigest.getInstance("SHA-1");
+			return Auth.getKey(
+				getConfig().getMagicNumber(),user,displayName,channel,keyTime);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -187,14 +173,6 @@ public class Hawthorn
 					+ "installation. Check you are using an appropriate Java "
 					+ "runtime.");
 		}
-		m.update(hashDataBytes, 0, hashDataBytes.length);
-		String sha1 = new BigInteger(1, m.digest()).toString(16);
-		while (sha1.length() < 40)
-		{
-			sha1 = "0" + sha1;
-		}
-
-		return sha1;
 	}
 
 }

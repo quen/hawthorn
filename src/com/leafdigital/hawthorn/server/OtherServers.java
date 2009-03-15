@@ -161,7 +161,7 @@ public class OtherServers extends HawthornObject
 					long now = System.currentTimeMillis();
 					String hash =
 						getApp().getValidKey("remote server", address.getHostAddress(), "",
-							now + "");
+							now);
 					writer.write("*" + now + "*" + hash + "\n");
 					writer.flush();
 

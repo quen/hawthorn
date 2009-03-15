@@ -406,7 +406,7 @@ public class HttpEvent extends Event
 			error = "Expired key";
 		}
 		else if (!key.equals(getApp().getValidKey(channel, user, displayname,
-			keytime)))
+			Long.parseLong(keytime))))
 		{
 			error = "Invalid key";
 		}

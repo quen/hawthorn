@@ -440,7 +440,7 @@ public class Configuration
 				System.out.println("        Time: " + testKeyTime);
 				System.out.println();
 				String key =
-					app.getValidKey(channel, user, displayName, testKeyTime + "");
+					app.getValidKey(channel, user, displayName, testKeyTime);
 				System.out.println("         Key: " + key);
 				System.out.println();
 				System.out.println("channel=" + channel + "&user=" + user

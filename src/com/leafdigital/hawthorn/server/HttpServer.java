@@ -422,7 +422,7 @@ public final class HttpServer extends HawthornObject
 							// Build hash using time and IP address
 							String valid =
 								getApp()
-									.getValidKey("remote server", toString(), "", time + "");
+									.getValidKey("remote server", toString(), "", time);
 							if (!valid.equals(m.group(2)))
 							{
 								getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
