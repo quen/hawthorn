@@ -35,7 +35,7 @@ public class Channel extends HawthornObject
 	private final static int WAITTIME = 60 * 1000;
 
 	/** Time to wait with no activity before assuming a user is absent */
-	private final static int PRESENT_TIMEOUT = 90 * 1000;
+	private final static int PRESENT_TIMEOUT = 31 * 1000;
 
 	private final static Message[] NOMESSAGES = {};
 
@@ -154,6 +154,9 @@ public class Channel extends HawthornObject
 						listenersByUser.remove(user);
 					}
 				}
+				// Update access time to current in user info
+				UserInfo info = present.get(user);
+				info.access();
 			}
 
 			// Remove event
@@ -195,6 +198,17 @@ public class Channel extends HawthornObject
 		void access()
 		{
 			lastAccess = System.currentTimeMillis();
+		}
+
+		/**
+		 * Updates access time to an arbitrary time; used for wait timeouts. Can
+		 * be reset by later calls to access() - this is intentional because
+		 * 'waiting for a message' counts as access, but not once the wait finishes.
+		 * @param time Time of access
+		 */
+		void access(long time)
+		{
+			lastAccess = time;
 		}
 
 		/** @return True if user has timed out (only applies on owning server) */
@@ -437,7 +451,8 @@ public class Channel extends HawthornObject
 	}
 
 	/**
-	 * Registers a request for messages on this channel.
+	 * Registers a request for messages on this channel. This marks a user as
+	 * joined to the channel.
 	 *
 	 * @param connection Connection that wants to receive messages
 	 * @param user User ID
@@ -496,12 +511,11 @@ public class Channel extends HawthornObject
 					displayName);
 			getApp().getOtherServers().sendMessage(join);
 			message(join, false);
+			existing=present.get(user);
 		}
-		else
-		{
-			// Stave off the timeout
-			existing.access();
-		}
+
+		// Set it not to timeout until the wait expires
+		existing.access(System.currentTimeMillis()+WAITTIME);
 	}
 
 	private void sendWaitForMessageResponse(Connection connection, String id,
