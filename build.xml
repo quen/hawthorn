@@ -1,0 +1,54 @@
+<project name="hawthorn" default="all" basedir=".">
+
+	<description>
+		Builds Hawthorn and related items.
+	</description>
+
+	<!-- Path to JSP API -->
+	<property name="jspapi" location="/UnixApps/tomcat/lib/jsp-api.jar" />
+	
+	<!-- Build folder -->
+	<property name="build" location="${java.io.tmpdir}/build/hawthorn" />
+
+	<!-- Output folder -->
+	<property name="output" location="${user.home}/Desktop/hawthorn" />
+
+	<!-- Output location: server jar -->
+	<property name="output-server" location="${output}/hawthorn.jar" />
+
+	<!-- Output location: tag library -->
+	<property name="output-taglib" location="${output}/hawthorn.taglib.jar" />
+
+	<!-- Init build folders -->
+	<target name="init">
+		<delete dir="${build}" />
+		<mkdir dir="${build}" />
+		<mkdir dir="${build}/classes" />
+		<mkdir dir="${output}" />
+	</target>
+
+	<!-- Compile Java source -->
+	<target name="compile" depends="init">
+		<javac srcdir="src" destdir="${build}/classes" classpath="${jspapi}"
+			source="1.5" target="1.5" encoding="UTF-8" debug="true">
+		</javac>
+	</target>
+
+	<target name="taglib" depends="compile" description="Create tag library">
+		<delete file="${output-taglib}" />
+		<jar jarfile="${output-taglib}" basedir="${build}/classes"
+			includes="com/leafdigital/hawthorn/jsp/**,com/leafdigital/hawthorn/util/**" />
+		<mkdir dir="${build}/taglib/META-INF" />
+		<copy todir="${build}/taglib/META-INF" 
+			file="src/com/leafdigital/hawthorn/jsp/taglib.tld" />
+		<jar jarfile="${output-taglib}" update="true" basedir="${build}/taglib" />
+	</target>
+
+	<target name="server" depends="compile" description="Create server">
+		<jar jarfile="${output-server}" basedir="${build}/classes"
+			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**" />
+	</target>
+
+	<target name="all" depends="server,taglib" description="Build all" />
+
+</project>
