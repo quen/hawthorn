@@ -5,4 +5,5 @@ TODO:
 * Add example of above to JSP connector.
 * Add adaptive polling model to server (new poll method) and JS.
 * Add PHP connector example.
-* Add Moodle block connector example.
+* Add Moodle block connector example, including example of enhanced display
+  (user pictures).
