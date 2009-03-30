@@ -126,7 +126,7 @@ public class Channel extends HawthornObject
 			}
 
 			// Send the no-response message
-			sendWaitForMessageResponse(connection, id, time, NOMESSAGES, null);
+			sendWaitForMessageResponse(connection, id, time, NOMESSAGES);
 		}
 
 		/**
@@ -161,7 +161,7 @@ public class Channel extends HawthornObject
 
 			// Send response
 			sendWaitForMessageResponse(connection, id, messages[messages.length - 1]
-				.getTime(), messages, null);
+				.getTime(), messages);
 		}
 	}
 
@@ -373,6 +373,15 @@ public class Channel extends HawthornObject
 	}
 
 	/**
+	 * @return A timestamp that can safely be used for requesting future messages
+	 *   if there are no recent ones
+	 */
+	public synchronized long getPreviousTimestamp()
+	{
+		return System.currentTimeMillis()-1;
+	}
+
+	/**
 	 * @param maxAge Maximum age in milliseconds
 	 * @param maxNumber Maximum number of messages
 	 * @return Array of messages that match the criteria
@@ -435,73 +444,41 @@ public class Channel extends HawthornObject
 	 * @param displayName User display name
 	 * @param id ID number as string
 	 * @param lastTime Time of last message (receives any messages with time
-	 *        greater than this) or ANY
-	 * @param maxAge Maximum age in milliseconds or ANY
-	 * @param maxNumber Maximum number of messages or ANY
+	 *        greater than this)
 	 * @throws IllegalArgumentException If you specify too many parameters
 	 */
 	public synchronized void waitForMessage(Connection connection, String user,
-		String displayName, String id, long lastTime, int maxAge, int maxNumber)
+		String displayName, String id, long lastTime)
 		throws IllegalArgumentException
 	{
-		if (lastTime != ANY && (maxAge != ANY || maxNumber != ANY))
+		// Looking for messages since the specified time
+		ListIterator<Message> iterator = messages.listIterator(messages.size());
+		int count = 0;
+		while (iterator.hasPrevious())
 		{
-			throw new IllegalArgumentException("You can specify either lastTime "
-				+ "or the maxAge/Number requirements, not both");
-		}
-		if (lastTime == ANY && (maxAge == ANY || maxNumber == ANY))
-		{
-			throw new IllegalArgumentException("If not specifying lastTime "
-				+ "you must specify both maxAge and maxNumber");
+			Message m = iterator.previous();
+			if (m.getTime() <= lastTime)
+			{
+				iterator.next();
+				break;
+			}
+			count++;
 		}
 
-		// Looking for any recent messages (limited time/number)
-		if (lastTime == ANY)
+		if (count > 0)
 		{
-			// If there are some recent messages, send them, otherwise just send
-			// the name list anyhow
-			Message[] recent = getRecent(maxAge, maxNumber);
-			if (recent.length != 0)
+			Message[] result = new Message[count];
+			for (int i = 0; i < count; i++)
 			{
-				sendWaitForMessageResponse(connection, id, recent[recent.length - 1]
-					.getTime(), recent, getNames(ANY));
-				return;
+				result[i] = iterator.next();
 			}
-
-			// Otherwise, wait for messages from now
-			lastTime = System.currentTimeMillis() - 1;
-		}
-		else
-		{
-			// Looking for messages since the specified time
-			ListIterator<Message> iterator = messages.listIterator(messages.size());
-			int count = 0;
-			while (iterator.hasPrevious())
-			{
-				Message m = iterator.previous();
-				if (m.getTime() <= lastTime)
-				{
-					iterator.next();
-					break;
-				}
-				count++;
-			}
-
-			if (count > 0)
-			{
-				Message[] result = new Message[count];
-				for (int i = 0; i < count; i++)
-				{
-					result[i] = iterator.next();
-				}
-				sendWaitForMessageResponse(connection, id, result[result.length - 1]
-					.getTime(), result, null);
-				// When it responds straight away, we don't need for the user to
-				// be present, because this is only equivalent to getRecent anyhow.
-				// If they're really in the channel they will send another request
-				// immediately.
-				return;
-			}
+			sendWaitForMessageResponse(connection, id, result[result.length - 1]
+				.getTime(), result);
+			// When it responds straight away, we don't need for the user to
+			// be present, because this is only equivalent to getRecent anyhow.
+			// If they're really in the channel they will send another request
+			// immediately.
+			return;
 		}
 
 		// Keep waiting for new messages
@@ -528,7 +505,7 @@ public class Channel extends HawthornObject
 	}
 
 	private void sendWaitForMessageResponse(Connection connection, String id,
-		long lastTime, Message[] messages, Name[] names)
+		long lastTime, Message[] messages)
 	{
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.waitForMessageComplete(");
@@ -543,18 +520,6 @@ public class Channel extends HawthornObject
 				output.append(',');
 			}
 			output.append(messages[i].getJSFormat());
-		}
-		output.append("],[");
-		if (names != null)
-		{
-			for (int i = 0; i < names.length; i++)
-			{
-				if (i != 0)
-				{
-					output.append(',');
-				}
-				output.append(names[i].getJSFormat());
-			}
 		}
 		output.append("]);");
 		connection.send(output.toString());

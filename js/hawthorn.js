@@ -87,13 +87,13 @@ var hawthorn =
 		this.addTag('hawthorn/getRecent?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
-				+ "&maxnames=" + maxNames);
+				+ (maxNames==null ? '' : "&maxnames=" + maxNames));
 	},
 
-	getRecentComplete : function(id, messages, names)
+	getRecentComplete : function(id, messages, names, lastTime)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'getRecent').continuation(messages, names);
+		this.getHandler(id, 'getRecent').continuation(messages, names, lastTime);
 	},
 
 	getRecentError : function(id,error)
@@ -151,20 +151,6 @@ var hawthorn =
 	{
 		this.removeTag(id);
 		this.getHandler(id, 'leave').failure(error);
-	},
-
-	waitForMessageFirst : function(channel,user,displayName,keyTime,key,maxAge,
-			maxNumber,continuation,failure)
-	{
-		this.handlers.push(
-		{
-			id : this.id,
-			continuation : continuation,
-			failure : failure
-		});
-		this.addTag('hawthorn/waitForMessage?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
-				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber);
 	},
 
 	waitForMessage : function(channel,user,displayName,keyTime,key,lastTime,
@@ -234,7 +220,7 @@ var hawthorn =
 		this.getRecent(details.channel, details.user, details.displayName, 
 			details.keyTime, details.key, details.maxAge, details.maxMessages, 
 			details.maxNames, 
-			function(messages, names) 
+			function(messages, names, lastTime) 
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
 				var ul=document.createElement('ul');
@@ -353,7 +339,7 @@ HawthornPopup.prototype.startWait = function()
 		return;
 	}
 	var p = this;
-	var ok = function(lastTime,messages,names)
+	var ok = function(lastTime,messages)
 	{
 		p.lastTime = lastTime;
 		for(var i = 0; i < messages.length; i++)
@@ -375,13 +361,17 @@ HawthornPopup.prototype.startWait = function()
 					message.text, message.user == p.user)
 			}
 		}
+		p.startWait();
+	};
+	var first = function(messages,names,lastTime)
+	{
 		for(var i = 0; i < names.length; i++)
 		{
 			var name=names[i];
 			p.addName(name.user, name.displayName);
-		}
-		p.startWait();
-	};
+		}	
+		ok(lastTime,messages);
+	}
 	var fail = function(error)
 	{
 		p.addError(error);
@@ -389,8 +379,8 @@ HawthornPopup.prototype.startWait = function()
 
 	if(this.lastTime == 0)
 	{
-		hawthorn.waitForMessageFirst(this.channel, this.user, this.displayName,
-			this.keyTime, this.key, this.maxAge, this.maxNumber, ok, fail);
+		hawthorn.getRecent(this.channel, this.user, this.displayName,
+			this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
 	}
 	else
 	{

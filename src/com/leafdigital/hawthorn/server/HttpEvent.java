@@ -94,7 +94,6 @@ public class HttpEvent extends Event
 						try
 						{
 							String value = paramPair.substring(equals + 1);
-							System.err.println("value="+value);
 							params.put(paramPair.substring(0, equals), URLDecoder.decode(
 								value, "UTF-8"));
 						}
@@ -163,7 +162,6 @@ public class HttpEvent extends Event
 			connection.send("sayEror(" + id + ",'Missing or invalid message=');");
 			return;
 		}
-		System.err.println(message);
 
 		Message m =
 			new SayMessage(System.currentTimeMillis(), channel,
@@ -232,9 +230,9 @@ public class HttpEvent extends Event
 		{
 			error = "Missing or invalid maxnumber=";
 		}
-		else if (maxNames == null || !maxNames.matches(REGEXP_INT))
+		else if (maxNames != null && !maxNames.matches(REGEXP_INT))
 		{
-			error = "Missing or invalid maxnames=";
+			error = "Invalid maxnames=";
 		}
 		if (error != null)
 		{
@@ -245,10 +243,12 @@ public class HttpEvent extends Event
 
 		Message[] recent =
 			c.getRecent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber));
-		Name[] names = c.getNames(Integer.parseInt(maxNames));
+		Name[] names = c.getNames(maxNames == null ? Channel.ANY
+			:	Integer.parseInt(maxNames));
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.getRecentComplete(" + id + ",[");
+		long timestamp=c.getPreviousTimestamp();
 		for (int i = 0; i < recent.length; i++)
 		{
 			if (i != 0)
@@ -256,6 +256,7 @@ public class HttpEvent extends Event
 				output.append(',');
 			}
 			output.append(recent[i].getJSFormat());
+			timestamp=recent[i].getTime();
 		}
 		output.append("],[");
 		for (int i = 0; i < names.length; i++)
@@ -266,7 +267,9 @@ public class HttpEvent extends Event
 			}
 			output.append(names[i].getJSFormat());
 		}
-		output.append("]);");
+		output.append("],");
+		output.append(timestamp);
+		output.append(");");
 		connection.send(output.toString());
 	}
 
@@ -282,38 +285,12 @@ public class HttpEvent extends Event
 		String id = getID(params);
 
 		String lastTimeString = params.get("lasttime");
-		long lastTime = Channel.ANY;
 		String error = null;
-		int maxAge = Channel.ANY, maxNumber = Channel.ANY;
-		if (lastTimeString == null)
-		{
-			// Instead of specifying lastTime, you can give a max age and number of
-			// messages; this will retrieve existing messages, if any, that match
-			// those constraints, otherwise it will wait for new ones.
-			String maxAgeString = params.get("maxage"), maxNumberString =
-				params.get("maxnumber");
-			if (maxAgeString == null || !maxAgeString.matches(REGEXP_INT))
-			{
-				error = "Missing or invalid maxage=";
-			}
-			else if (maxNumberString == null || !maxNumberString.matches(REGEXP_INT))
-			{
-				error = "Missing or invalid maxnumber=";
-			}
-			else
-			{
-				maxAge = Integer.parseInt(maxAgeString);
-				maxNumber = Integer.parseInt(maxNumberString);
-			}
-		}
-		else if (!lastTimeString.matches(REGEXP_LONG))
+		if (!lastTimeString.matches(REGEXP_LONG))
 		{
 			error = "hawthorn.waitForMessageError(" + id + ",'Invalid lasttime=');";
 		}
-		else
-		{
-			lastTime = Long.parseLong(lastTimeString);
-		}
+		long lastTime = Long.parseLong(lastTimeString);
 		if (error != null)
 		{
 			connection.send("hawthorn.waitForMessageError(" + id + ",'"
@@ -322,7 +299,7 @@ public class HttpEvent extends Event
 		}
 
 		c.waitForMessage(connection, params.get("user"), params.get("displayname"),
-			id, lastTime, maxAge, maxNumber);
+			id, lastTime);
 	}
 
 	private void handleGetLog(HashMap<String, String> params)
