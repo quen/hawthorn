@@ -36,7 +36,7 @@ public class EventHandler extends HawthornObject
 	private int eventCount;
 	private long eventTime;
 
-	private final static int STATSPERIOD = 60 * 1000;
+	private final static int STATS_PERIOD = 60 * 1000;
 
 	/** So that we can make events happen at a future time. */
 	private static class TimedEvent implements Comparable<TimedEvent>
@@ -276,7 +276,7 @@ public class EventHandler extends HawthornObject
 				}
 				catch (Throwable t)
 				{
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 						"Event processing error (" + getName() + ")", t);
 				}
 			}
@@ -366,7 +366,7 @@ public class EventHandler extends HawthornObject
 					// Wait for given period
 					try
 					{
-						statsSynch.wait(STATSPERIOD);
+						statsSynch.wait(STATS_PERIOD);
 					}
 					catch (InterruptedException e)
 					{
@@ -412,7 +412,7 @@ public class EventHandler extends HawthornObject
 				decimal.setMaximumFractionDigits(1);
 				decimal.setMinimumFractionDigits(1);
 				getLogger().log(
-					Logger.SYSTEMLOG,
+					Logger.SYSTEM_LOG,
 					Logger.Level.NORMAL,
 					"Event stats: queue size " + size + ", events retrieved [ " + events
 						+ " ], mean event time " + decimal.format(average) + "ms");

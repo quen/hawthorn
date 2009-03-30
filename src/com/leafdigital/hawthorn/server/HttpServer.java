@@ -29,14 +29,14 @@ import java.util.regex.*;
 /** Server that accepts incoming HTTP requests and dispatches them as events. */
 public final class HttpServer extends HawthornObject
 {
-	private final static int CONNECTIONTIMEOUT = 90000, CLEANUPEVERY = 30000,
-		STATSEVERY = 60000;
+	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000,
+		STATS_EVERY = 60000;
 
 	private final static int BACKLOG = 16;
 
-	private final static Pattern HTTPREQUEST =
+	private final static Pattern REGEXP_HTTPREQUEST =
 		Pattern.compile("GET (.+) HTTP/1\\.[01]");
-	private final static Pattern SERVERAUTH =
+	private final static Pattern REGEXP_SERVERAUTH =
 		Pattern.compile("\\*([0-9]{1,18})\\*([a-f0-9]{40})");
 
 	private Selector selector;
@@ -214,7 +214,7 @@ public final class HttpServer extends HawthornObject
 					}
 					catch (IOException e)
 					{
-						getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 							this + ": Error writing data");
 						close();
 						return;
@@ -283,7 +283,7 @@ public final class HttpServer extends HawthornObject
 			{
 				if (!getConfig().isOtherServer(channel.socket().getInetAddress()))
 				{
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						this + ": Remote server connection from disallowed IP");
 					close();
 					return;
@@ -322,10 +322,10 @@ public final class HttpServer extends HawthornObject
 				try
 				{
 					String firstLine = new String(array, 0, i, "US-ASCII");
-					Matcher m = HTTPREQUEST.matcher(firstLine);
+					Matcher m = REGEXP_HTTPREQUEST.matcher(firstLine);
 					if (!m.matches())
 					{
-						getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 							this + ": Invalid request line: " + firstLine);
 						close();
 						return;
@@ -346,7 +346,7 @@ public final class HttpServer extends HawthornObject
 				// give up on it.
 				if (bufferPos == BUFFERSIZE)
 				{
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						this + ": Received large invalid request");
 					close();
 					return;
@@ -396,7 +396,7 @@ public final class HttpServer extends HawthornObject
 					else
 					{
 						// This must be authentication method
-						Matcher m = SERVERAUTH.matcher(line);
+						Matcher m = REGEXP_SERVERAUTH.matcher(line);
 						if (m.matches())
 						{
 							// Check time. This is there both to ensure the security check
@@ -409,7 +409,7 @@ public final class HttpServer extends HawthornObject
 							{
 								getLogger()
 									.log(
-										Logger.SYSTEMLOG,
+										Logger.SYSTEM_LOG,
 										Logger.Level.ERROR,
 										this
 											+ ": Remote server reports incorrect time (>5 seconds "
@@ -425,17 +425,17 @@ public final class HttpServer extends HawthornObject
 									.getValidKey("remote server", toString(), "", time);
 							if (!valid.equals(m.group(2)))
 							{
-								getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 									this + ": Invalid remote server authorisation key: " + line);
 							}
 
 							serverAuthenticated = true;
-							getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 								this + ": Successful remote server login");
 						}
 						else
 						{
-							getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 								this + ": Invalid remote server auth line: " + line);
 							close();
 							return;
@@ -465,16 +465,16 @@ public final class HttpServer extends HawthornObject
 
 		private void receivedRequest(String request)
 		{
-			getLogger().log(Logger.SYSTEMLOG, Logger.Level.DETAIL,
+			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
 				this + ": Requested " + request);
 			getEventHandler().addEvent(new HttpEvent(getApp(), request, this));
 		}
 
 		private boolean checkTimeout(long now)
 		{
-			if (!serverAuthenticated && now - lastAction > CONNECTIONTIMEOUT)
+			if (!serverAuthenticated && now - lastAction > CONNECTION_TIMEOUT)
 			{
-				getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 					channel.socket().getInetAddress().getHostAddress() + " (timeout)");
 				close();
 				return true;
@@ -519,7 +519,7 @@ public final class HttpServer extends HawthornObject
 						}
 						catch (IOException e)
 						{
-							getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 								"Failed to accept connection", e);
 						}
 					}
@@ -547,7 +547,7 @@ public final class HttpServer extends HawthornObject
 				selector.selectedKeys().clear();
 
 				long now = System.currentTimeMillis();
-				if (now - lastCleanup > CLEANUPEVERY)
+				if (now - lastCleanup > CLEANUP_EVERY)
 				{
 					lastCleanup = now;
 					LinkedList<Connection> consider;
@@ -561,7 +561,7 @@ public final class HttpServer extends HawthornObject
 					}
 				}
 
-				if (now - lastStats > STATSEVERY)
+				if (now - lastStats > STATS_EVERY)
 				{
 					lastStats = now;
 					int count;
@@ -569,7 +569,7 @@ public final class HttpServer extends HawthornObject
 					{
 						count = connections.size();
 					}
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						"Server stats: connection count " + count);
 
 				}
@@ -577,7 +577,7 @@ public final class HttpServer extends HawthornObject
 		}
 		catch (Throwable t)
 		{
-			getLogger().log(Logger.SYSTEMLOG, Logger.Level.FATALERROR,
+			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.FATAL_ERROR,
 				"Fatal error in main server thread", t);
 			// If the main thread crashed, better exit the whole server
 			closed = true;

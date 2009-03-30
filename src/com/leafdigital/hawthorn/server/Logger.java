@@ -30,10 +30,10 @@ import com.leafdigital.hawthorn.util.JS;
 public final class Logger
 {
 	/** Log filename used for system-related logging */
-	public final static String SYSTEMLOG = "!system";
+	public final static String SYSTEM_LOG = "!system";
 
-	private final static int LOGUPDATEFREQUENCY = 5000,
-		DELETECHECKFREQUENCY = 60 * 60 * 1000, LOGSTAYOPEN = 2 * 60 * 1000;
+	private final static int LOG_UPDATE_FREQUENCY = 5000,
+		DELETE_CHECK_FREQUENCY = 60 * 60 * 1000, LOG_STAY_OPEN = 2 * 60 * 1000;
 
 	private int logDays;
 	private Level showLevel;
@@ -55,7 +55,7 @@ public final class Logger
 		/** Message indicates error. */
 		ERROR(200),
 		/** Message indicates fatal error. */
-		FATALERROR(300);
+		FATAL_ERROR(300);
 
 		private int value;
 
@@ -154,7 +154,7 @@ public final class Logger
 			}
 
 			// Close file if required
-			if (System.currentTimeMillis() - lastWrite > LOGSTAYOPEN)
+			if (System.currentTimeMillis() - lastWrite > LOG_STAY_OPEN)
 			{
 				try
 				{
@@ -214,7 +214,7 @@ public final class Logger
 			{
 				try
 				{
-					threadSynch.wait(LOGUPDATEFREQUENCY);
+					threadSynch.wait(LOG_UPDATE_FREQUENCY);
 				}
 				catch (InterruptedException e)
 				{
@@ -260,7 +260,7 @@ public final class Logger
 
 			// Every so often, check and delete old log files
 			if (logDays != 0
-				&& System.currentTimeMillis() - lastDeleteCheck > DELETECHECKFREQUENCY)
+				&& System.currentTimeMillis() - lastDeleteCheck > DELETE_CHECK_FREQUENCY)
 			{
 				File[] files = folder.listFiles();
 				if (files != null)
@@ -283,14 +283,14 @@ public final class Logger
 							}
 							else
 							{
-								log(SYSTEMLOG, Level.ERROR, "Error deleting old log "
+								log(SYSTEM_LOG, Level.ERROR, "Error deleting old log "
 									+ f.getName());
 							}
 						}
 					}
 					if (deleted > 0)
 					{
-						log(SYSTEMLOG, Level.NORMAL, "Deleted " + deleted + " old logs");
+						log(SYSTEM_LOG, Level.NORMAL, "Deleted " + deleted + " old logs");
 					}
 				}
 			}
@@ -401,7 +401,7 @@ public final class Logger
 	 */
 	private File getLogFile(String fileName, String date)
 	{
-		if (fileName.equals(SYSTEMLOG))
+		if (fileName.equals(SYSTEM_LOG))
 		{
 			fileName = "!system." + address;
 		}

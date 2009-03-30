@@ -49,7 +49,7 @@ public class ServerEvent extends Event
 		try
 		{
 			Message m = Message.parseMessage(request);
-			getLogger().log(Logger.SYSTEMLOG, Logger.Level.DETAIL,
+			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
 				"Received from remote: " + request);
 			getChannels().get(m.getChannel()).message(m, true);
 		}
@@ -70,7 +70,7 @@ public class ServerEvent extends Event
 	private void fail()
 	{
 		// Unsupported request
-		getLogger().log(Logger.SYSTEMLOG, Level.ERROR,
+		getLogger().log(Logger.SYSTEM_LOG, Level.ERROR,
 			"Unexpected line from server " + connection + ": " + request);
 		connection.close();
 	}

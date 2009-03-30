@@ -29,11 +29,11 @@ import java.util.LinkedList;
  */
 public class OtherServers extends HawthornObject
 {
-	private int TRANSFERLIMIT = 1000;
+	private final static int TRANSFER_LIMIT = 1000;
 
-	private int RETRYDELAY = 60 * 1000;
+	private final static int RETRY_DELAY = 60 * 1000;
 
-	private int FLUSHDELAY = 300;
+	private final static int FLUSH_DELAY = 300;
 
 	private OtherServer[] otherServers;
 
@@ -109,7 +109,7 @@ public class OtherServers extends HawthornObject
 
 			// Do not build up an infinite list, if we can't get through to the
 			// remote server.
-			if (waiting.size() > TRANSFERLIMIT)
+			if (waiting.size() > TRANSFER_LIMIT)
 			{
 				waiting.removeFirst();
 			}
@@ -154,7 +154,7 @@ public class OtherServers extends HawthornObject
 					BufferedWriter writer =
 						new BufferedWriter(new OutputStreamWriter(s.getOutputStream(),
 							"UTF-8"));
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						this + ": Connected to remote server");
 
 					// Send authentication
@@ -175,7 +175,7 @@ public class OtherServers extends HawthornObject
 							{
 								if (!flushed)
 								{
-									wait(FLUSHDELAY);
+									wait(FLUSH_DELAY);
 									writer.flush();
 									flushed = true;
 								}
@@ -208,23 +208,23 @@ public class OtherServers extends HawthornObject
 							}
 							throw t;
 						}
-						getLogger().log(Logger.SYSTEMLOG, Logger.Level.DETAIL,
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
 							this + ": Sent " + say);
 						flushed = false;
 					}
 				}
 				catch (Throwable t)
 				{
-					getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 						this + ": Remote server send error", t);
 					long now = System.currentTimeMillis();
-					if (now - lastFailure < RETRYDELAY)
+					if (now - lastFailure < RETRY_DELAY)
 					{
 						try
 						{
 							synchronized (this)
 							{
-								wait(RETRYDELAY);
+								wait(RETRY_DELAY);
 							}
 						}
 						catch (InterruptedException e1)

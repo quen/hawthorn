@@ -34,7 +34,8 @@ public class HttpEvent extends Event
 	/** Regular expression matching positive ints */
 	private static final String REGEXP_INT = "[0-9]{1,9}";
 
-	private final static int KEYEXPIRY = 60 * 60 * 1000;
+	/** How long keys last before expiring */
+	private final static int KEY_EXPIRY = 60 * 60 * 1000;
 
 	private String request;
 
@@ -133,7 +134,7 @@ public class HttpEvent extends Event
 		catch (Throwable t)
 		{
 			connection.send(500, "// Internal server error: " + t);
-			getLogger().log(Logger.SYSTEMLOG, Logger.Level.ERROR,
+			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 				"HTTP event error (" + Thread.currentThread().getName() + ")", t);
 		}
 	}
@@ -361,7 +362,7 @@ public class HttpEvent extends Event
 		String error = null;
 		if (channel == null
 			|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !(allowSystemChannel && channel
-				.equals(Logger.SYSTEMLOG))))
+				.equals(Logger.SYSTEM_LOG))))
 		{
 			error = "Missing or invalid channel=";
 		}
@@ -383,7 +384,7 @@ public class HttpEvent extends Event
 		{
 			error = "Missing or invalid keytime=";
 		}
-		else if (Long.parseLong(keytime) + KEYEXPIRY < System.currentTimeMillis())
+		else if (Long.parseLong(keytime) + KEY_EXPIRY < System.currentTimeMillis())
 		{
 			error = "Expired key";
 		}

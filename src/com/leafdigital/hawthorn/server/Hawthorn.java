@@ -132,7 +132,7 @@ public class Hawthorn
 		channels.close();
 		eventHandler.close();
 		otherServers.close();
-		config.getLogger().log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+		config.getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 			"Hawthorn system closed down.");
 		config.getLogger().close();
 	}

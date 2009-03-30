@@ -290,7 +290,7 @@ public class Configuration
 						child.getAttribute("displayname");
 					if (channel == null
 						|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !channel
-							.equals(Logger.SYSTEMLOG)))
+							.equals(Logger.SYSTEM_LOG)))
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires channel=, with no special characters");
@@ -362,24 +362,24 @@ public class Configuration
 			logger =
 				new Logger(logFolder, minLogLevel, logDays, thisServer.getAddress(),
 					thisServer.getPort());
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"Hawthorn system startup");
 
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL, "Log folder: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Log folder: "
 				+ logFolder);
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL, "Log level: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Log level: "
 				+ minLogLevel);
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL, "Logs deleted after: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Logs deleted after: "
 				+ (logDays == 0 ? "never" : logDays + " days"));
 
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL,
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"History retained for: " + historyHours + " hours");
 
-			logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL, "This server: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "This server: "
 				+ thisServer);
 			for (int i = 0; i < otherServers.length; i++)
 			{
-				logger.log(Logger.SYSTEMLOG, Logger.Level.NORMAL, "Remote server: "
+				logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Remote server: "
 					+ otherServers[i]);
 			}
 		}

@@ -32,12 +32,12 @@ public class Channel extends HawthornObject
 	public final static int ANY = -1;
 
 	/** Time to wait for new messages before closing connection */
-	private final static int WAITTIME = 60 * 1000;
+	private final static int WAIT_TIME = 60 * 1000;
 
 	/** Time to wait with no activity before assuming a user is absent */
 	private final static int PRESENT_TIMEOUT = 31 * 1000;
 
-	private final static Message[] NOMESSAGES = {};
+	private final static Message[] NO_MESSAGES = {};
 
 	/**
 	 * List of messages remembered in the channel; it remembers messages for a
@@ -92,7 +92,7 @@ public class Channel extends HawthornObject
 
 			// Set timer to wait for the event
 			timeoutId =
-				getEventHandler().addTimedEvent(System.currentTimeMillis() + WAITTIME,
+				getEventHandler().addTimedEvent(System.currentTimeMillis() + WAIT_TIME,
 					this);
 
 			// Add this to the listeners list
@@ -126,7 +126,7 @@ public class Channel extends HawthornObject
 			}
 
 			// Send the no-response message
-			sendWaitForMessageResponse(connection, id, time, NOMESSAGES);
+			sendWaitForMessageResponse(connection, id, time, NO_MESSAGES);
 		}
 
 		/**
@@ -515,7 +515,7 @@ public class Channel extends HawthornObject
 		}
 
 		// Set it not to timeout until the wait expires
-		existing.access(System.currentTimeMillis()+WAITTIME);
+		existing.access(System.currentTimeMillis()+WAIT_TIME);
 	}
 
 	private void sendWaitForMessageResponse(Connection connection, String id,
