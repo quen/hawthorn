@@ -61,4 +61,15 @@ public abstract class XML
 		}
 		return result.toString().trim();
 	}
+
+	/**
+	 * Escapes plain text for inclusion in XML.
+	 * @param original Original text
+	 * @return Escaped text
+	 */
+	public static String esc(String original)
+	{
+		return original.replace("&","&amp;").replace("<","&lt;").
+			replace("'","&apos;").replace("\"","&quot;");
+	}
 }

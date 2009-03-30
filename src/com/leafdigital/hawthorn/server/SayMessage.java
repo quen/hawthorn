@@ -19,6 +19,8 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** Message sent when somebody says something. */
 public class SayMessage extends Message
 {
@@ -64,7 +66,7 @@ public class SayMessage extends Message
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'" + Hawthorn.escapeJS(message) + "'";
+		return ",text:'" + JS.escapeJS(message) + "'";
 	}
 
 	@Override

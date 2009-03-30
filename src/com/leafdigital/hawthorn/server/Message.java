@@ -23,6 +23,8 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.regex.*;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** A single message sent on a channel. */
 public abstract class Message
 {
@@ -94,7 +96,7 @@ public abstract class Message
 	public String getJSFormat()
 	{
 		return "{type:'" + getType() + "',time:" + time + ",user:'" + user
-			+ "',displayName:'" + Hawthorn.escapeJS(displayName) + "'" + getExtraJS()
+			+ "',displayName:'" + JS.escapeJS(displayName) + "'" + getExtraJS()
 			+ "}";
 	}
 

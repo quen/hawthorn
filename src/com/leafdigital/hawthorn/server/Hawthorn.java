@@ -138,17 +138,6 @@ public class Hawthorn
 	}
 
 	/**
-	 * Escapes a string suitable for inclusion within JS single quotes.
-	 *
-	 * @param text String to escape
-	 * @return String with some characters escaped
-	 */
-	public static String escapeJS(String text)
-	{
-		return text.replace("\\", "\\\\").replace("'", "\\'");
-	}
-
-	/**
 	 * Obtains key to check against for authentication.
 	 *
 	 * @param channel Channel ID

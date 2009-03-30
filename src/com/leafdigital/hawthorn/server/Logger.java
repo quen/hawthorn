@@ -24,6 +24,8 @@ import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** Handles logfiles. */
 public final class Logger
 {
@@ -442,7 +444,7 @@ public final class Logger
 				}
 
 				js.append('\'');
-				js.append(Hawthorn.escapeJS(line));
+				js.append(JS.escapeJS(line));
 				js.append('\'');
 			}
 			js.append(']');

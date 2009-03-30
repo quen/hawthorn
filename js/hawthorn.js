@@ -85,7 +85,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/getRecent?channel=' + channel + '&user=' + user
-				+ '&displayname=' + escape(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
 				+ "&maxnames=" + maxNames);
 	},
@@ -112,8 +112,8 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/say?channel=' + channel + '&user=' + user
-				+ '&displayname=' + escape(displayName) + '&keytime=' + keyTime
-				+ "&key=" + key + "&message=" + escape(message));
+				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
+				+ "&key=" + key + "&message=" + encodeURIComponent(message));
 	},
 
 	sayComplete : function(id)
@@ -137,7 +137,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/leave?channel=' + channel + '&user=' + user
-				+ '&displayname=' + escape(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key);
 	},
 
@@ -163,7 +163,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/waitForMessage?channel=' + channel + '&user=' + user
-				+ '&displayname=' + escape(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber);
 	},
 
@@ -177,7 +177,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/waitForMessage?channel=' + channel + '&user=' + user
-				+ '&displayname=' + escape(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&lasttime=" + lastTime);
 	},
 
@@ -221,12 +221,61 @@ var hawthorn =
 	openPopup : function(url,channel,user,displayName,keyTime,key,title)
 	{
 		this.chatWindow = window.open(url+'?channel='+channel+'&user='+user+
-			'&displayName='+escape(displayName)+'&keyTime='+keyTime+'&key='+key+
-			'&title='+escape(title)+'&server='+escape(this.currentServer),'_'+channel,
+			'&displayName='+encodeURIComponent(displayName)+'&keyTime='+keyTime+'&key='+key+
+			'&title='+encodeURIComponent(title)+'&server='+encodeURIComponent(this.currentServer),'_'+channel,
 			'width=500,height=400,menubar=no,'+
 			'toolbar=no,location=no,directories=no,status=no,resizable=yes,'+
 			'scrollbars=no');
+	},
+	
+	handleGetRecent : function(details)
+	{
+		var el=document.getElementById(details.id);
+		this.getRecent(details.channel, details.user, details.displayName, 
+			details.keyTime, details.key, details.maxAge, details.maxMessages, 
+			details.maxNames, 
+			function(messages, names) 
+			{
+				while(el.firstChild) el.removeChild(el.firstChild);
+				var ul=document.createElement('ul');
+				el.appendChild(ul);
+				for(var i=0;i<messages.length;i++)
+				{
+					var li=document.createElement('li');
+	
+					var text;
+					switch(messages[i].type)
+					{
+					case 'SAY': text=messages[i].text; break;
+					case 'JOIN': text="JOIN"; break;
+					case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+					}
+					
+					ul.appendChild(li);
+					li.appendChild(document.createTextNode(
+							new Date(messages[i].time)+' - '+
+							messages[i].user+' ('+messages[i].displayName+'): '+
+							text));
+				}
+				intro=document.createElement('p');
+				intro.appendChild(document.createTextNode(names.length+' names:'));
+				var ul=document.createElement('ul');
+				el.appendChild(ul);
+				for(var i=0;i<names.length;i++)
+				{
+					var li=document.createElement('li');
+					ul.appendChild(li);
+					li.appendChild(document.createTextNode(
+							names[i].user+' ('+names[i].displayName+')'));
+				}
+			}, 
+			function(error)
+			{
+				while(el.firstChild) el.removeChild(el.firstChild);
+				el.appendChild(document.createTextNode(error));
+			});			
 	}
+	
 }
 
 /**
@@ -289,7 +338,7 @@ HawthornPopup.prototype.getPageParam = function(name)
 	var matches = re.exec(window.location.href);
 	if(matches)
 	{
-		return unescape(matches[1]);
+		return decodeURIComponent(matches[1]);
 	}
 	else
 	{
