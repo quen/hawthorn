@@ -67,6 +67,18 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
+				URL that re-acquires a Hawthorn key for the user. This URL will
+				be called with additional parameters channel, user, displayName,
+				and id (the latter is used in constructing the JavaScript response).
+			  It must check that the user is still authenticated and then output
+			  JavaScript response using the reAcquireAllow tag.
+			</description>
+			<name>reAcquireUrl</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
 				If true, delays JavaScript inclusion; you must use 
 				&lt;includeJavaScript/> before the page ends (otherwise, JavaScript
 				is included the first time it is needed)
@@ -229,6 +241,62 @@ jsptaglibrary_2_0.xsd"
 			<variable-class>java.lang.Long</variable-class>
 			<scope>AT_END</scope>
 		</variable>
+	</tag>
+
+	<tag>
+		<description>
+			Prints JavaScript code that should run in response to a Hawthorn
+			re-acquire request. The user's authorisation to the underlying system
+			should be rechecked before calling this tag.
+		</description>
+		<display-name>Print re-acquire allow JavaScript</display-name>
+		<name>reAcquireAllow</name>
+		<tag-class>com.leafdigital.hawthorn.jsp.ReAcquireAllowTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<description>
+				JavaScript ID
+			</description>
+			<name>id</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
+				Hawthorn channel ID
+			</description>
+			<name>channel</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<description>
+			Prints JavaScript code that should run in response to a Hawthorn
+			re-acquire request which has failed. If the authorisation attempt
+			to the underlying system fails, this tag should be called.
+		</description>
+		<display-name>Print re-acquire deny JavaScript</display-name>
+		<name>reAcquireDeny</name>
+		<tag-class>com.leafdigital.hawthorn.jsp.ReAcquireDenyTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<description>
+				JavaScript ID
+			</description>
+			<name>id</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
+				Error message
+			</description>
+			<name>error</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 
 </taglib>

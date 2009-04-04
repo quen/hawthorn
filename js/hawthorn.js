@@ -37,17 +37,32 @@ var hawthorn =
 
 	addTag : function(path)
 	{
-		var currentId = this.id;
 		if(!hawthorn.currentServer)
 		{
 			hawthorn.getHandler(currentId).failure('Not inited');
 			this.id++;
+			return;
 		}
+		this.addTagAnyServer(this.currentServer + path);
+	},
+
+	addTagAnyServer : function(url)
+	{
 		var head = document.getElementsByTagName("head")[0];
 		var newScript = document.createElement('script');
 		newScript.id = 'hawthorn_script' + this.id;
 		newScript.type = 'text/javascript';
-		newScript.src = this.currentServer + path + "&id=" + this.id;
+		var src = url;
+		if(src.indexOf('?') == -1)
+		{
+			src += '?id=' + this.id;
+		}
+		else
+		{
+			src += '&id=' + this.id;
+		}
+		newScript.src = src;
+		var currentId = this.id;
 		newScript.onerror = function()
 		{
 			hawthorn.getHandler(currentId).failure('Error accessing chat server');
@@ -93,13 +108,13 @@ var hawthorn =
 	getRecentComplete : function(id, messages, names, lastTime)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'getRecent').continuation(messages, names, lastTime);
+		this.getHandler(id).continuation(messages, names, lastTime);
 	},
 
 	getRecentError : function(id,error)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'getRecent').failure(error);
+		this.getHandler(id).failure(error);
 	},
 
 	say : function(channel,user,displayName,keyTime,key,message,continuation,
@@ -119,13 +134,13 @@ var hawthorn =
 	sayComplete : function(id)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'say').continuation();
+		this.getHandler(id).continuation();
 	},
 
 	sayError : function(id,error)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'say').failure(error);
+		this.getHandler(id).failure(error);
 	},
 
 	leave : function(channel,user,displayName,keyTime,key,continuation,failure)
@@ -144,13 +159,13 @@ var hawthorn =
 	leaveComplete : function(id)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'leave').continuation();
+		this.getHandler(id).continuation();
 	},
 
 	leaveError : function(id,error)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'leave').failure(error);
+		this.getHandler(id).failure(error);
 	},
 
 	waitForMessage : function(channel,user,displayName,keyTime,key,lastTime,
@@ -170,16 +185,40 @@ var hawthorn =
 	waitForMessageComplete : function(id, lastTime, messages, names)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'waitForMessage').continuation(lastTime, messages, names);
+		this.getHandler(id).continuation(lastTime, messages, names);
 	},
 
-	waitForMessageError : function(id,error)
+	waitForMessageError : function(id, error)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'waitForMessage').failure(error);
+		this.getHandler(id).failure(error);
 	},
 
-	getLog : function(channel,keyTime,key,date,continuation,failure)
+	reAcquire : function(url, channel, user, displayName, continuation, failure)
+	{
+		this.handlers.push(
+		{
+			id : this.id,
+			continuation : continuation,
+			failure : failure
+		});
+		this.addTagAnyServer(url + '?channel=' + channel + '&user=' + user
+		+ '&displayname=' + encodeURIComponent(displayName));
+	},
+
+	reAcquireComplete : function(id, key, keyTime)
+	{
+		this.removeTag(id);
+		this.getHandler(id).continuation(key, keyTime);
+	},
+
+	reAcquireError : function(id, error)
+	{
+		this.removeTag(id);
+		this.getHandler(id).failure(error);
+	},
+
+	getLog : function(channel, keyTime, key, date, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -195,20 +234,22 @@ var hawthorn =
 	getLogComplete : function(id,lines)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'getLog').continuation(lines);
+		this.getHandler(id).continuation(lines);
 	},
 
 	getLogError : function(id,error)
 	{
 		this.removeTag(id);
-		this.getHandler(id, 'getLog').failure(error);
+		this.getHandler(id).failure(error);
 	},
 
-	openPopup : function(url,channel,user,displayName,keyTime,key,title)
+	openPopup : function(url,reAcquireUrl,channel,user,displayName,keyTime,key,title)
 	{
-		this.chatWindow = window.open(url+'?channel='+channel+'&user='+user+
-			'&displayName='+encodeURIComponent(displayName)+'&keyTime='+keyTime+'&key='+key+
-			'&title='+encodeURIComponent(title)+'&server='+encodeURIComponent(this.currentServer),'_'+channel,
+		this.chatWindow = window.open(url + '?reacquire=' +
+			encodeURIComponent(reAcquireUrl) + '&channel=' + channel + '&user=' +
+			user + '&displayName=' + encodeURIComponent(displayName) + '&keyTime=' +
+			keyTime + '&key=' + key + '&title=' + encodeURIComponent(title) +
+			'&server=' + encodeURIComponent(this.currentServer), '_' + channel,
 			'width=500,height=400,menubar=no,'+
 			'toolbar=no,location=no,directories=no,status=no,resizable=yes,'+
 			'scrollbars=no');
@@ -228,7 +269,7 @@ var hawthorn =
 				for(var i=0;i<messages.length;i++)
 				{
 					var li=document.createElement('li');
-	
+
 					var text;
 					switch(messages[i].type)
 					{
@@ -236,7 +277,7 @@ var hawthorn =
 					case 'JOIN': text="JOIN"; break;
 					case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 					}
-					
+
 					ul.appendChild(li);
 					li.appendChild(document.createTextNode(
 							new Date(messages[i].time)+' - '+
@@ -259,7 +300,7 @@ var hawthorn =
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
 				el.appendChild(document.createTextNode(error));
-			});			
+			});
 	}
 	
 }
@@ -272,6 +313,7 @@ var hawthorn =
  */
 function HawthornPopup()
 {
+	this.keyAcquireURL = this.getPageParam('reacquire');
 	this.server = this.getPageParam('server');
 	hawthorn.init([this.server], 0);
 
@@ -332,6 +374,22 @@ HawthornPopup.prototype.getPageParam = function(name)
 	}
 }
 
+HawthornPopup.prototype.reAcquire = function(continuation)
+{
+	var p = this;
+	hawthorn.reAcquire(this.keyAcquireURL, this.channel, this.user, this.displayName,
+		function(key, keyTime)
+		{
+			p.key = key;
+			p.keyTime = keyTime;
+			continuation();
+		},
+		function(error)
+		{
+			p.addError(error);
+		});
+}
+
 HawthornPopup.prototype.startWait = function()
 {
 	if(this.left)
@@ -361,7 +419,14 @@ HawthornPopup.prototype.startWait = function()
 					message.text, message.user == p.user)
 			}
 		}
-		p.startWait();
+		if(lastTime - p.keyTime > 55*60*1000)
+		{
+			p.reAcquire(function() { p.startWait(); });
+		}
+		else
+		{
+			p.startWait();
+		}
 	};
 	var first = function(messages,names,lastTime)
 	{
@@ -385,7 +450,7 @@ HawthornPopup.prototype.startWait = function()
 	else
 	{
 		hawthorn.waitForMessage(this.channel, this.user, this.displayName,
-				this.keyTime, this.key, this.lastTime, ok, fail);
+			this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }
 

@@ -45,10 +45,12 @@ public class LinkToChatTag extends SimpleTagSupport
 
 		// Output link
 		getJspContext().getOut().println(
-			"<a href='#' onclick=\"hawthorn.openPopup('"+
-			JS.escapeJS(init.getPopupUrl())+"','"+channel+"','"+
-			init.getUser()+"','"+JS.escapeJS(init.getDisplayName())+"',"+time+",'"+
-			key+"','"+JS.escapeJS(title)+"');\">");
+			"<a href='#' onclick=\"hawthorn.openPopup('"
+			+	JS.escapeJS(init.getPopupUrl()) + "','"
+			+	JS.escapeJS(init.getReAcquireUrl()) + "','"
+			+ channel + "','"
+			+	init.getUser() + "','" + JS.escapeJS(init.getDisplayName()) + "',"
+			+ time+",'" + key + "','" + JS.escapeJS(title) + "');\">");
 
 		// Print content
 		getJspBody().invoke(null);
@@ -91,5 +93,4 @@ public class LinkToChatTag extends SimpleTagSupport
 	{
 		this.iconAlt = iconAlt;
 	}
-
 }

@@ -37,7 +37,7 @@ public class InitTag extends BodyTagSupport
 	/** Attribute used on page context. */
 	static final String HAWTHORN_INIT_TAG = "hawthorn.initTag";
 
-	private String magicNumber, user, displayName, jsUrl, popupUrl;
+	private String magicNumber, user, displayName, jsUrl, popupUrl, reAcquireUrl;
 	private URL[] servers;
 	private int preferredServer;
 	private boolean defer;
@@ -171,6 +171,13 @@ public class InitTag extends BodyTagSupport
 		this.popupUrl = popupUrl;
 	}
 
+
+	/** @param reAcquireUrl URL to JSP script that acquires a new access key */
+	public void setReAcquireUrl(String reAcquireUrl)
+	{
+		this.reAcquireUrl = reAcquireUrl;
+	}
+
 	/**
 	 * Gets an authentication key based on the known data.
 	 *
@@ -209,6 +216,12 @@ public class InitTag extends BodyTagSupport
 	public String getPopupUrl()
 	{
 		return popupUrl;
+	}
+
+	/** @return URL (absolute or relative to popup.html) to re-acquire script */
+	public String getReAcquireUrl()
+	{
+		return reAcquireUrl;
 	}
 
 	/** @return Server list */
