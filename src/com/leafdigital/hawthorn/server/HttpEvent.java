@@ -38,6 +38,8 @@ public class HttpEvent extends Event
 
 	private HttpServer.Connection connection;
 
+	private long requestTime;
+
 	/**
 	 * @param app Main app object
 	 * @param request HTTP request path
@@ -48,6 +50,7 @@ public class HttpEvent extends Event
 		super(app);
 		this.request = request;
 		this.connection = connection;
+		requestTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -133,6 +136,12 @@ public class HttpEvent extends Event
 			connection.send(500, "// Internal server error: " + t);
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 				"HTTP event error (" + Thread.currentThread().getName() + ")", t);
+		}
+		finally
+		{
+			long time = System.currentTimeMillis() - requestTime;
+			getStatistics().updateTimeStatistic(
+				HttpServer.STATISTICS_USER_REQUEST_TIME, (int)time);
 		}
 	}
 

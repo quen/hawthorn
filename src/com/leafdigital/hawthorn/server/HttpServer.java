@@ -28,9 +28,15 @@ import java.util.regex.*;
 
 /** Server that accepts incoming HTTP requests and dispatches them as events. */
 public final class HttpServer extends HawthornObject
+	implements Statistics.InstantStatisticHandler
 {
-	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000,
-		STATS_EVERY = 60000;
+	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000;
+	private final static String STATISTICS_CONNECTION_COUNT = "CONNECTION_COUNT";
+
+	/** Statistic: request time for all HTTP events from users */
+	final static String STATISTICS_USER_REQUEST_TIME = "USER_REQUEST_TIME";
+	/** Statistic: request time for all HTTP events from servers */
+	final static String STATISTICS_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
 
 	private final static int BACKLOG = 16;
 
@@ -54,6 +60,13 @@ public final class HttpServer extends HawthornObject
 	public HttpServer(Hawthorn app) throws StartupException
 	{
 		super(app);
+		getStatistics().registerInstantStatistic(STATISTICS_CONNECTION_COUNT, this);
+		getStatistics().registerTimeStatistic(STATISTICS_USER_REQUEST_TIME);
+		if(getConfig().getOtherServers().length > 0)
+		{
+			getStatistics().registerTimeStatistic(STATISTICS_SERVER_REQUEST_TIME);
+		}
+
 		try
 		{
 			selector = Selector.open();
@@ -77,6 +90,13 @@ public final class HttpServer extends HawthornObject
 				serverThread();
 			}
 		}, "Main server thread");
+
+		// Increase the main server thread priority (this is because there is only
+		// one main server thread versus numerous event threads; and I want the
+		// recorded time from connect to HTTP result handling to be as accurate
+		// as possible).
+		t.setPriority(Thread.MAX_PRIORITY);
+
 		t.start();
 	}
 
@@ -88,18 +108,12 @@ public final class HttpServer extends HawthornObject
 		private final static int BUFFERSIZE = 8192;
 
 		private SelectionKey key;
-
 		private SocketChannel channel;
-
 		private ByteBuffer buffer;
 
 		private long lastAction;
-
 		private String hostAddress;
-
-		private boolean otherServer;
-
-		private boolean serverAuthenticated;
+		private boolean otherServer, serverAuthenticated;
 
 		private final static String CRLF = "\r\n";
 
@@ -488,7 +502,7 @@ public final class HttpServer extends HawthornObject
 
 	private void serverThread()
 	{
-		long lastCleanup = System.currentTimeMillis(),lastStats = lastCleanup;
+		long lastCleanup = System.currentTimeMillis();
 		try
 		{
 			while (true)
@@ -560,19 +574,6 @@ public final class HttpServer extends HawthornObject
 						connection.checkTimeout(now);
 					}
 				}
-
-				if (now - lastStats > STATS_EVERY)
-				{
-					lastStats = now;
-					int count;
-					synchronized (connections)
-					{
-						count = connections.size();
-					}
-					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						"Server stats: connection count " + count);
-
-				}
 			}
 		}
 		catch (Throwable t)
@@ -600,6 +601,14 @@ public final class HttpServer extends HawthornObject
 			catch (InterruptedException ie)
 			{
 			}
+		}
+	}
+
+	public int getValue()
+	{
+		synchronized (connections)
+		{
+			return connections.size();
 		}
 	}
 }

@@ -33,6 +33,9 @@ public class Hawthorn
 	/** Configuration file details. */
 	private Configuration config;
 
+	/** Statistics data */
+	private Statistics statistics;
+
 	/** Server that handles requests. */
 	private HttpServer server;
 
@@ -57,10 +60,12 @@ public class Hawthorn
 	private Hawthorn(File configFile) throws StartupException
 	{
 		config = new Configuration(configFile);
+		statistics = new Statistics(this);
 		channels = new Channels(this);
 		otherServers = new OtherServers(this);
 		eventHandler = new EventHandler(this);
 		server = new HttpServer(this);
+		statistics.start();
 
 		if (config.getTestKeys().size() > 0)
 		{
@@ -123,11 +128,18 @@ public class Hawthorn
 		return otherServers;
 	}
 
+	/** @return Statistics system */
+	public Statistics getStatistics()
+	{
+		return statistics;
+	}
+
 	/**
 	 * Closes the app, shutting all threads.
 	 */
 	public void close()
 	{
+		statistics.close();
 		server.close();
 		channels.close();
 		eventHandler.close();

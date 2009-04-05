@@ -19,24 +19,20 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
-import java.text.*;
 import java.util.*;
 
 /** Event handler that dispatches events from a queue to multiple threads. */
 public class EventHandler extends HawthornObject
+	implements Statistics.InstantStatisticHandler
 {
+	private final static String STATISTIC_QUEUE_SIZE = "QUEUE_SIZE";
+
 	private LinkedList<Event> queue = new LinkedList<Event>();
 	private TreeSet<TimedEvent> timerQueue = new TreeSet<TimedEvent>();
 	private boolean close;
-	private boolean statsClosed, timerClosed;
+	private boolean timerClosed;
 	private int openThreads;
-	private Object statsSynch = new Object();
-	private int[] eventCounts;
 	private int timedEventID;
-	private int eventCount;
-	private long eventTime;
-
-	private final static int STATS_PERIOD = 60 * 1000;
 
 	/** So that we can make events happen at a future time. */
 	private static class TimedEvent implements Comparable<TimedEvent>
@@ -91,14 +87,14 @@ public class EventHandler extends HawthornObject
 	{
 		super(app);
 
+		getStatistics().registerInstantStatistic(STATISTIC_QUEUE_SIZE,this);
+
 		int threads = getConfig().getEventThreads();
-		eventCounts = new int[threads];
 		for (int i = 0; i < threads; i++)
 		{
 			new EventThread(i);
 		}
 		new TimerThread();
-		new StatsThread();
 		openThreads = threads;
 	}
 
@@ -195,52 +191,26 @@ public class EventHandler extends HawthornObject
 				}
 			}
 		}
-
-		synchronized (statsSynch)
-		{
-			statsSynch.notifyAll();
-			while (!statsClosed)
-			{
-				try
-				{
-					statsSynch.wait();
-				}
-				catch (InterruptedException e)
-				{
-				}
-			}
-		}
 	}
 
 	/** Thread that works on events. */
 	private class EventThread extends Thread
 	{
-		private int index;
-
 		EventThread(int index)
 		{
 			super("Event thread " + index);
-			this.index = index;
 			start();
 		}
 
 		@Override
 		public void run()
 		{
-			long before = -1;
 			while (true)
 			{
 				// Get next event to handle
 				Event next;
 				synchronized (queue)
 				{
-					long after = System.currentTimeMillis();
-					if (before != -1)
-					{
-						eventTime += (after - before);
-						eventCount++;
-					}
-
 					while (queue.isEmpty())
 					{
 						// If close requested, abort
@@ -263,10 +233,6 @@ public class EventHandler extends HawthornObject
 
 					// Get first event from queue
 					next = queue.removeFirst();
-					eventCounts[index]++;
-
-					// Time before processing event
-					before = System.currentTimeMillis();
 				}
 
 				// Handle event
@@ -346,77 +312,11 @@ public class EventHandler extends HawthornObject
 		}
 	}
 
-	/** Thread that produces stats on the queue. */
-	private class StatsThread extends Thread
+	public int getValue()
 	{
-		StatsThread()
+		synchronized (queue)
 		{
-			super("Event stats thread");
-			setPriority(Thread.MIN_PRIORITY);
-			start();
-		}
-
-		@Override
-		public void run()
-		{
-			while (true)
-			{
-				synchronized (statsSynch)
-				{
-					// Wait for given period
-					try
-					{
-						statsSynch.wait(STATS_PERIOD);
-					}
-					catch (InterruptedException e)
-					{
-					}
-
-					// If close requested, abort
-					if (close)
-					{
-						statsClosed = true;
-						statsSynch.notifyAll();
-						return;
-					}
-				}
-
-				int size;
-				StringBuilder events = new StringBuilder();
-				double average;
-				synchronized (queue)
-				{
-					size = queue.size();
-					for (int i = 0; i < eventCounts.length; i++)
-					{
-						if (i != 0)
-						{
-							events.append(" / ");
-						}
-						events.append(eventCounts[i]);
-						eventCounts[i] = 0;
-					}
-					if (eventCount == 0)
-					{
-						average = -1;
-					}
-					else
-					{
-						average = (double)eventTime / eventCount;
-					}
-					eventCount=0;
-					eventTime=0;
-				}
-
-				NumberFormat decimal = DecimalFormat.getNumberInstance();
-				decimal.setMaximumFractionDigits(1);
-				decimal.setMinimumFractionDigits(1);
-				getLogger().log(
-					Logger.SYSTEM_LOG,
-					Logger.Level.NORMAL,
-					"Event stats: queue size " + size + ", events retrieved [ " + events
-						+ " ], mean event time " + decimal.format(average) + "ms");
-			}
+			return queue.size();
 		}
 	}
 }

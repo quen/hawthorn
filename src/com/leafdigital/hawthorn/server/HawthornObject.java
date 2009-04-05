@@ -58,4 +58,10 @@ public abstract class HawthornObject
 	{
 		return app.getChannels();
 	}
+
+	/** @return Statistics object */
+	public Statistics getStatistics()
+	{
+		return app.getStatistics();
+	}
 }

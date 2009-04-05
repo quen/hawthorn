@@ -31,6 +31,8 @@ public class ServerEvent extends Event
 
 	private Connection connection;
 
+	private long requestTime;
+
 	/**
 	 * @param app Main app object
 	 * @param request Server request string
@@ -41,6 +43,7 @@ public class ServerEvent extends Event
 		super(app);
 		this.request = request;
 		this.connection = connection;
+		requestTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -64,6 +67,12 @@ public class ServerEvent extends Event
 		catch (InvocationTargetException e)
 		{
 			fail();
+		}
+		finally
+		{
+			long time = System.currentTimeMillis() - requestTime;
+			getStatistics().updateTimeStatistic(
+				HttpServer.STATISTICS_SERVER_REQUEST_TIME, (int)time);
 		}
 	}
 
