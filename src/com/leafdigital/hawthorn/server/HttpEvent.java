@@ -34,9 +34,6 @@ public class HttpEvent extends Event
 	/** Regular expression matching positive ints */
 	private static final String REGEXP_INT = "[0-9]{1,9}";
 
-	/** How long keys last before expiring */
-	private final static int KEY_EXPIRY = 60 * 60 * 1000;
-
 	private String request;
 
 	private HttpServer.Connection connection;
@@ -384,7 +381,7 @@ public class HttpEvent extends Event
 		{
 			error = "Missing or invalid keytime=";
 		}
-		else if (Long.parseLong(keytime) + KEY_EXPIRY < System.currentTimeMillis())
+		else if (Long.parseLong(keytime) < System.currentTimeMillis())
 		{
 			error = "Expired key";
 		}

@@ -419,7 +419,8 @@ HawthornPopup.prototype.startWait = function()
 					message.text, message.user == p.user)
 			}
 		}
-		if(lastTime - p.keyTime > 55*60*1000)
+		// If there's only 5 minutes until the key expires, request another
+		if(p.keyTime - lastTime < 5*60*1000)
 		{
 			p.reAcquire(function() { p.startWait(); });
 		}

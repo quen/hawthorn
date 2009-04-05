@@ -88,6 +88,15 @@ jsptaglibrary_2_0.xsd"
 			<type>boolean</type>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
+		<attribute>
+			<description>
+				How long before keys expire, in milliseconds (default = 1 hour)
+			</description>
+			<name>keyExpiry</name>
+			<required>false</required>
+			<type>long</type>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 	
 	<tag>

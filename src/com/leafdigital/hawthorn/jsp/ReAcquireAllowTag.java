@@ -22,8 +22,8 @@ public class ReAcquireAllowTag extends SimpleTagSupport
 		}
 
 		// Get auth code
-		long time=System.currentTimeMillis();
-		String key=init.getKey(channel,time);
+		long time = System.currentTimeMillis() + init.getKeyExpiry();
+		String key = init.getKey(channel,time);
 
 		// Print JavaScript
 		getJspContext().getOut().println("hawthorn.reAcquireComplete('"+

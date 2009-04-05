@@ -35,6 +35,9 @@ import com.leafdigital.hawthorn.util.XML;
 /** Configuration file reader. */
 public class Configuration
 {
+	/** Test keys expire after 1 hour */
+	private final static long TEST_KEY_EXPIRY = 60*60*1000;
+
 	private String magicNumber;
 	private boolean logChat = true;
 	private int historyHours = 4;
@@ -43,7 +46,7 @@ public class Configuration
 	private ServerInfo thisServer;
 	private Logger.Level minLogLevel = Logger.Level.NORMAL;
 	private LinkedList<TestKey> testKeys = new LinkedList<TestKey>();
-	private static long testKeyTime = System.currentTimeMillis();
+	private static long testKeyTime = System.currentTimeMillis() + TEST_KEY_EXPIRY;
 
 	private Logger logger;
 

@@ -46,7 +46,7 @@ public class GetRecentTag extends SimpleTagSupport
 			"</noscript>");
 
 		// Work out JavaScript
-		long keyTime = System.currentTimeMillis();
+		long keyTime = System.currentTimeMillis() + init.getKeyExpiry();
 		String js = "{user:'" + init.getUser() + "',displayName:'"
 			+	JS.escapeJS(init.getDisplayName()) + "',channel:'"+channel
 			+ "',maxMessages:" + maxMessages + ",maxAge:" + maxAge

@@ -33,8 +33,8 @@ public class LinkToChatTag extends SimpleTagSupport
 		getJspContext().setAttribute(HAWTHORN_LINK_TO_CHAT_COUNT, index+1);
 
 		// Get auth code
-		long time=System.currentTimeMillis();
-		String key=init.getKey(channel,time);
+		long time = System.currentTimeMillis() + init.getKeyExpiry();
+		String key = init.getKey(channel,time);
 
 		// Output div
 		getJspContext().getOut().println("<div class='hawthorn_linktochat' "

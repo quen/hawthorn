@@ -36,8 +36,10 @@ public class InitTag extends BodyTagSupport
 {
 	/** Attribute used on page context. */
 	static final String HAWTHORN_INIT_TAG = "hawthorn.initTag";
+	private static final long DEFAULT_KEY_EXPIRY = 60*60*1000;
 
 	private String magicNumber, user, displayName, jsUrl, popupUrl, reAcquireUrl;
+	private long keyExpiry = DEFAULT_KEY_EXPIRY;
 	private URL[] servers;
 	private int preferredServer;
 	private boolean defer;
@@ -178,6 +180,12 @@ public class InitTag extends BodyTagSupport
 		this.reAcquireUrl = reAcquireUrl;
 	}
 
+	/** @param keyExpiry Expiry time for generated keys in milliseconds */
+	public void setKeyExpiry(long keyExpiry)
+	{
+		this.keyExpiry = keyExpiry;
+	}
+
 	/**
 	 * Gets an authentication key based on the known data.
 	 *
@@ -246,6 +254,12 @@ public class InitTag extends BodyTagSupport
 	boolean getDefer()
 	{
 		return defer;
+	}
+
+	/** @return Expiry time for generated keys in milliseconds */
+	public long getKeyExpiry()
+	{
+		return keyExpiry;
 	}
 
 	/**

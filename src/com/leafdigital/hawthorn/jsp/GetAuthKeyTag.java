@@ -22,8 +22,8 @@ public class GetAuthKeyTag extends SimpleTagSupport
 		}
 
 		// Get auth code
-		long time=System.currentTimeMillis();
-		String key=init.getKey(channel,time);
+		long time = System.currentTimeMillis() + init.getKeyExpiry();
+		String key = init.getKey(channel,time);
 
 		// Set variables
 	  getJspContext().setAttribute("hawthornKey",key);
