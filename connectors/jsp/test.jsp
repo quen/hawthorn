@@ -1,5 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://www.leafdigital.com/tld/hawthorn" prefix="hawthorn" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <%--
 Copyright 2009 Samuel Marshall
 
@@ -19,9 +23,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 --%>
-<!DOCTYPE html
-	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<% request.setCharacterEncoding("UTF-8"); %>
+<%--
+If using the Tomcat application server, you must be aware that YOU
+NEED TO CHANGE A SETTING TO MAKE CHARACTER ENCODING WORK. Otherwise
+anyone who has a display name containing a non-ASCII character will
+not get valid keys.
+
+The setting is in your server.xml - the <Connector> tag must include
+the attribute:
+
+URIEncoding="UTF-8"
+
+(This affects all web applications, so make sure it doesn't break
+anything else you run.)
+--%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Hawthorn JSP example (minimal)</title>
