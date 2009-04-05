@@ -43,6 +43,7 @@ public abstract class Auth
 		String hashData =
 			channel + "\n" + user + "\n" + displayName + "\n" + keyTime + "\n"
 				+ magicNumber;
+
 		byte[] hashDataBytes;
 		try
 		{
@@ -62,6 +63,11 @@ public abstract class Auth
 		{
 			sha1 = "0" + sha1;
 		}
+
+		// Note: I checked this method for performance. It runs in about 0.1ms,
+		// compared to about 0.03ms if the results are cached in a HashMap. Since
+		// the difference is only a factor of three, I decided it wasn't worth
+		// the complexity of caching results.
 
 		return sha1;
 	}
