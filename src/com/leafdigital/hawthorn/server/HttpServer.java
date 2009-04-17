@@ -517,7 +517,22 @@ public final class HttpServer extends HawthornObject
 		{
 			while (true)
 			{
-				selector.select(5000);
+				// Select may throw exceptions - even though it isn't supposed to.
+				// To avoid this causing problems, we just cancel them and re-call
+				// select.
+				do
+				{
+					try
+					{
+						selector.select(5000);
+					}
+					catch (CancelledKeyException e)
+					{
+						continue;
+					}
+				}
+				while (false);
+
 				if (close)
 				{
 					closed = true;
@@ -527,45 +542,52 @@ public final class HttpServer extends HawthornObject
 
 				for (SelectionKey key : selector.selectedKeys())
 				{
-					if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
+					try
 					{
-						try
+						if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
 						{
-							Socket newSocket = server.socket().accept();
-							newSocket.getChannel().configureBlocking(false);
-							SelectionKey newKey =
-								newSocket.getChannel().register(selector, SelectionKey.OP_READ);
-							Connection newConnection = new Connection(newKey);
+							try
+							{
+								Socket newSocket = server.socket().accept();
+								newSocket.getChannel().configureBlocking(false);
+								SelectionKey newKey =
+									newSocket.getChannel().register(selector, SelectionKey.OP_READ);
+								Connection newConnection = new Connection(newKey);
+								synchronized (connections)
+								{
+									connections.put(newKey, newConnection);
+								}
+							}
+							catch (IOException e)
+							{
+								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
+									"Failed to accept connection", e);
+							}
+						}
+						if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
+						{
+							Connection c;
 							synchronized (connections)
 							{
-								connections.put(newKey, newConnection);
+								c = connections.get(key);
+								if (c == null)
+								{
+									continue;
+								}
 							}
+							c.read();
 						}
-						catch (IOException e)
+						if (!key.isValid())
 						{
-							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-								"Failed to accept connection", e);
-						}
-					}
-					if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
-					{
-						Connection c;
-						synchronized (connections)
-						{
-							c = connections.get(key);
-							if (c == null)
+							synchronized (connections)
 							{
-								continue;
+								connections.remove(key);
 							}
 						}
-						c.read();
 					}
-					if (!key.isValid())
+					catch(CancelledKeyException e)
 					{
-						synchronized (connections)
-						{
-							connections.remove(key);
-						}
+						continue;
 					}
 				}
 				selector.selectedKeys().clear();
