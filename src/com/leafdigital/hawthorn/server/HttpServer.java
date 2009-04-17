@@ -42,9 +42,6 @@ public final class HttpServer extends HawthornObject
 	final static String STATISTICS_USER_REQUEST_TIME = "USER_REQUEST_TIME";
 	/** Statistic: request time for all HTTP events from servers */
 	final static String STATISTICS_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
-	/** Statistic: number of annoying Java exceptions */
-	final static String STATISTICS_ANNOYING_JAVA_EXCEPTIONS =
-		"ANNOYING_JAVA_EXCEPTIONS";
 	/** Statistic: size of close queue */
 	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
 
@@ -84,7 +81,6 @@ public final class HttpServer extends HawthornObject
 		{
 			getStatistics().registerTimeStatistic(STATISTICS_SERVER_REQUEST_TIME);
 		}
-		getStatistics().registerCountStatistic(STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
 		getStatistics().registerInstantStatistic(STATISTICS_CLOSE_QUEUE_SIZE,
 			new Statistics.InstantStatisticHandler()
 			{
@@ -540,21 +536,8 @@ public final class HttpServer extends HawthornObject
 		{
 			while (true)
 			{
-				// Select may throw exceptions - even though it isn't supposed to.
-				// To avoid this causing problems, we just ignore them and re-call
-				// select.
 				cancelKeys();
-				try
-				{
-					selector.select(5000);
-				}
-				catch (CancelledKeyException e)
-				{
-					e.printStackTrace();
-					getStatistics().updateCountStatistic(
-						STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
-					continue;
-				}
+				selector.select(5000);
 
 				if (close)
 				{
@@ -564,48 +547,38 @@ public final class HttpServer extends HawthornObject
 
 				for (SelectionKey key : selector.selectedKeys())
 				{
-					try
+					if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
 					{
-						if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
+						try
 						{
-							try
-							{
-								Socket newSocket = server.socket().accept();
-								newSocket.getChannel().configureBlocking(false);
-								SelectionKey newKey =
-									newSocket.getChannel().register(selector, SelectionKey.OP_READ);
-								Connection newConnection = new Connection(newKey);
-								synchronized (connections)
-								{
-									connections.put(newKey, newConnection);
-								}
-							}
-							catch (IOException e)
-							{
-								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-									"Failed to accept connection", e);
-							}
-						}
-						if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
-						{
-							Connection c;
+							Socket newSocket = server.socket().accept();
+							newSocket.getChannel().configureBlocking(false);
+							SelectionKey newKey =
+								newSocket.getChannel().register(selector, SelectionKey.OP_READ);
+							Connection newConnection = new Connection(newKey);
 							synchronized (connections)
 							{
-								c = connections.get(key);
-								if (c == null)
-								{
-									continue;
-								}
+								connections.put(newKey, newConnection);
 							}
-							c.read();
+						}
+						catch (IOException e)
+						{
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
+								"Failed to accept connection", e);
 						}
 					}
-					catch(CancelledKeyException e)
+					if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
 					{
-						e.printStackTrace();
-						getStatistics().updateCountStatistic(
-							STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
-						continue;
+						Connection c;
+						synchronized (connections)
+						{
+							c = connections.get(key);
+							if (c == null)
+							{
+								continue;
+							}
+						}
+						c.read();
 					}
 				}
 				selector.selectedKeys().clear();
@@ -646,6 +619,7 @@ public final class HttpServer extends HawthornObject
 				SelectionKey key = keysToClose.removeFirst();
 				key.cancel();
 				channelsToClose.add(key.channel());
+				some = true;
 			}
 		}
 		if(some)
