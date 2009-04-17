@@ -42,6 +42,11 @@ public final class HttpServer extends HawthornObject
 	final static String STATISTICS_USER_REQUEST_TIME = "USER_REQUEST_TIME";
 	/** Statistic: request time for all HTTP events from servers */
 	final static String STATISTICS_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
+	/** Statistic: number of annoying Java exceptions */
+	final static String STATISTICS_ANNOYING_JAVA_EXCEPTIONS =
+		"ANNOYING_JAVA_EXCEPTIONS";
+	/** Statistic: size of close queue */
+	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
 
 	private final static int BACKLOG = 16;
 
@@ -56,7 +61,15 @@ public final class HttpServer extends HawthornObject
 	private HashMap<SelectionKey, Connection> connections =
 		new HashMap<SelectionKey, Connection>();
 
-	private boolean close, closed;
+	private LinkedList<SelectionKey> keysToClose =
+		new LinkedList<SelectionKey>();
+
+	private LinkedList<SelectableChannel> channelsToClose =
+		new LinkedList<SelectableChannel>();
+
+	private Object closeSynch = new Object();
+
+	private boolean close, closed, closeThreadClosed;
 
 	/**
 	 * @param app Main app object
@@ -71,6 +84,18 @@ public final class HttpServer extends HawthornObject
 		{
 			getStatistics().registerTimeStatistic(STATISTICS_SERVER_REQUEST_TIME);
 		}
+		getStatistics().registerCountStatistic(STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
+		getStatistics().registerInstantStatistic(STATISTICS_CLOSE_QUEUE_SIZE,
+			new Statistics.InstantStatisticHandler()
+			{
+				public int getValue()
+				{
+					synchronized(connections)
+					{
+						return channelsToClose.size() + keysToClose.size();
+					}
+				}
+			});
 
 		try
 		{
@@ -96,13 +121,23 @@ public final class HttpServer extends HawthornObject
 			}
 		}, "Main server thread");
 
+		Thread t2 = new Thread(new Runnable()
+		{
+			public void run()
+			{
+				closeThread();
+			}
+		}, "Connection closer thread");
+
 		// Increase the main server thread priority (this is because there is only
 		// one main server thread versus numerous event threads; and I want the
 		// recorded time from connect to HTTP result handling to be as accurate
 		// as possible).
 		t.setPriority(Thread.MAX_PRIORITY);
+		t2.setPriority(Thread.MAX_PRIORITY);
 
 		t.start();
+		t2.start();
 	}
 
 	/**
@@ -137,19 +172,7 @@ public final class HttpServer extends HawthornObject
 		/** Closes the connection */
 		public void close()
 		{
-			try
-			{
-				key.cancel();
-				channel.close();
-			}
-			catch (IOException e)
-			{
-				// Ignore exceptions when closing
-			}
-			synchronized (connections)
-			{
-				connections.remove(key);
-			}
+			closeChannel(key);
 		}
 
 		/**
@@ -518,25 +541,24 @@ public final class HttpServer extends HawthornObject
 			while (true)
 			{
 				// Select may throw exceptions - even though it isn't supposed to.
-				// To avoid this causing problems, we just cancel them and re-call
+				// To avoid this causing problems, we just ignore them and re-call
 				// select.
-				do
+				cancelKeys();
+				try
 				{
-					try
-					{
-						selector.select(5000);
-					}
-					catch (CancelledKeyException e)
-					{
-						continue;
-					}
+					selector.select(5000);
 				}
-				while (false);
+				catch (CancelledKeyException e)
+				{
+					e.printStackTrace();
+					getStatistics().updateCountStatistic(
+						STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
+					continue;
+				}
 
 				if (close)
 				{
 					closed = true;
-					;
 					return;
 				}
 
@@ -577,16 +599,12 @@ public final class HttpServer extends HawthornObject
 							}
 							c.read();
 						}
-						if (!key.isValid())
-						{
-							synchronized (connections)
-							{
-								connections.remove(key);
-							}
-						}
 					}
 					catch(CancelledKeyException e)
 					{
+						e.printStackTrace();
+						getStatistics().updateCountStatistic(
+							STATISTICS_ANNOYING_JAVA_EXCEPTIONS);
 						continue;
 					}
 				}
@@ -618,6 +636,95 @@ public final class HttpServer extends HawthornObject
 		}
 	}
 
+	private void cancelKeys()
+	{
+		boolean some = false;
+		synchronized (connections)
+		{
+			while (!keysToClose.isEmpty())
+			{
+				SelectionKey key = keysToClose.removeFirst();
+				key.cancel();
+				channelsToClose.add(key.channel());
+			}
+		}
+		if(some)
+		{
+			synchronized (closeSynch)
+			{
+				closeSynch.notify();
+			}
+		}
+	}
+
+	private void closeThread()
+	{
+		try
+		{
+			while (true)
+			{
+				// Wait for notification
+				synchronized (closeSynch)
+				{
+					try
+					{
+						closeSynch.wait();
+					}
+					catch (InterruptedException e)
+					{
+					}
+
+					if (close)
+					{
+						return;
+					}
+				}
+
+				// Close all channels
+				SelectableChannel[] channels;
+				synchronized (connections)
+				{
+					channels = channelsToClose.toArray(
+						new SelectableChannel[channelsToClose.size()]);
+					channelsToClose.clear();
+				}
+				for(SelectableChannel channel : channels)
+				{
+					try
+					{
+						channel.close();
+					}
+					catch(Throwable t)
+					{
+					}
+				}
+			}
+		}
+		finally
+		{
+			synchronized(closeSynch)
+			{
+				closeThreadClosed = true;
+				closeSynch.notifyAll();
+			}
+		}
+	}
+
+	/**
+	 * Adds the key to a list which the selector thread will cancel. Once it
+	 * is cancelled, the channel will be closed in a separate thread (in case
+	 * it blocks).
+	 * @param key Key to cancel
+	 */
+	private void closeChannel(SelectionKey key)
+	{
+		synchronized (connections)
+		{
+			keysToClose.add(key);
+			connections.remove(key);
+		}
+	}
+
 	/**
 	 * Closes the HTTP server. Note that this will block for a little while.
 	 */
@@ -632,6 +739,21 @@ public final class HttpServer extends HawthornObject
 			}
 			catch (InterruptedException ie)
 			{
+			}
+		}
+
+		synchronized (closeSynch)
+		{
+			closeSynch.notifyAll();
+			while (!closeThreadClosed)
+			{
+				try
+				{
+					closeSynch.wait();
+				}
+				catch (InterruptedException e)
+				{
+				}
 			}
 		}
 	}
