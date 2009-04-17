@@ -25,7 +25,7 @@ import java.util.*;
 public class EventHandler extends HawthornObject
 	implements Statistics.InstantStatisticHandler
 {
-	private final static String STATISTIC_QUEUE_SIZE = "QUEUE_SIZE";
+	private final static String STATISTIC_EVENT_QUEUE_SIZE = "EVENT_QUEUE_SIZE";
 
 	private LinkedList<Event> queue = new LinkedList<Event>();
 	private TreeSet<TimedEvent> timerQueue = new TreeSet<TimedEvent>();
@@ -87,7 +87,7 @@ public class EventHandler extends HawthornObject
 	{
 		super(app);
 
-		getStatistics().registerInstantStatistic(STATISTIC_QUEUE_SIZE,this);
+		getStatistics().registerInstantStatistic(STATISTIC_EVENT_QUEUE_SIZE,this);
 
 		int threads = getConfig().getEventThreads();
 		for (int i = 0; i < threads; i++)
