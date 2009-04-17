@@ -33,6 +33,11 @@ public final class HttpServer extends HawthornObject
 	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000;
 	private final static String STATISTICS_CONNECTION_COUNT = "CONNECTION_COUNT";
 
+	/** Content type for UTF-8 JavaScript */
+	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
+	/** Content type for UTF-8 HTML */
+	final static String CONTENT_TYPE_HTML = "text/html; charset=UTF-8";
+
 	/** Statistic: request time for all HTTP events from users */
 	final static String STATISTICS_USER_REQUEST_TIME = "USER_REQUEST_TIME";
 	/** Statistic: request time for all HTTP events from servers */
@@ -156,7 +161,7 @@ public final class HttpServer extends HawthornObject
 		 */
 		public void send(String data)
 		{
-			send(200, data);
+			send(200, data, CONTENT_TYPE_JAVASCRIPT);
 		}
 
 		/**
@@ -165,9 +170,10 @@ public final class HttpServer extends HawthornObject
 		 * @param code HTTP code. Use 200 except for fatal errors where we don't
 		 *        know which callback function to call
 		 * @param data Data to send (will be turned into UTF-8)
+		 * @param contentType Content type to send
 		 * @throws IllegalArgumentException If the HTTP code isn't supported
 		 */
-		public void send(int code, String data) throws IllegalArgumentException
+		public void send(int code, String data, String contentType) throws IllegalArgumentException
 		{
 			try
 			{
@@ -182,6 +188,9 @@ public final class HttpServer extends HawthornObject
 				{
 				case 200:
 					codeText = "OK";
+					break;
+				case 403:
+					codeText = "Access denied";
 					break;
 				case 404:
 					codeText = "Not found";
@@ -202,7 +211,8 @@ public final class HttpServer extends HawthornObject
 				header.append("Connection: close");
 				header.append(CRLF);
 
-				header.append("Content-Type: application/javascript; charset=UTF-8");
+				header.append("Content-Type: ");
+				header.append(contentType);
 				header.append(CRLF);
 
 				header.append("Content-Length: ");

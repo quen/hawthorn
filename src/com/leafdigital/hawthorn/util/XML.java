@@ -72,4 +72,23 @@ public abstract class XML
 		return original.replace("&","&amp;").replace("<","&lt;").
 			replace("'","&apos;").replace("\"","&quot;");
 	}
+
+	/**
+	 * Returns a framework XHTML Strict document.
+	 * @param title Contents of title tag (need not be escaped)
+	 * @param headContent Head content apart from title (HTML). Null if none.
+	 * @param bodyContent Body content apart from initial H1 (HTML)
+	 * @return String containing full XHTML document
+	 */
+	public static String getXHTML(String title, String headContent,
+		String bodyContent)
+	{
+		return
+			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" " +
+			"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n" +
+			"<html>\n  <head>\n    <title>" + XML.esc(title) + "</title>\n" +
+			(headContent == null ? "" : headContent) + "\n</head>\n" +
+			"  <body>\n    <h1>"+XML.esc(title)+"</h1>\n" + bodyContent +
+			"  </body>\n</html>";
+	}
 }
