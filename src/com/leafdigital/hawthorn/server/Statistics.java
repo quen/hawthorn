@@ -8,8 +8,8 @@ import com.leafdigital.hawthorn.util.XML;
 /** Class that tracks statistics every minute. */
 public class Statistics extends HawthornObject
 {
-	private HashMap<String, TimeStatisticBunch> timeStatistics =
-		new HashMap<String, TimeStatisticBunch>();
+	private HashMap<String, CountStatisticBunch> countStatistics =
+		new HashMap<String, CountStatisticBunch>();
 
 	private HashMap<String, InstantStatisticBunch> instantStatistics =
 		new HashMap<String, InstantStatisticBunch>();
@@ -95,10 +95,10 @@ public class Statistics extends HawthornObject
 		public void handle() throws OperationException
 		{
 			// Update time statistics
-			for(Map.Entry<String, TimeStatisticBunch> entry
-				: timeStatistics.entrySet())
+			for(Map.Entry<String, CountStatisticBunch> entry
+				: countStatistics.entrySet())
 			{
-				TimeStatistic minute = entry.getValue().getMinute();
+				CountStatistic minute = entry.getValue().getMinute();
 				String log;
 				synchronized(minute)
 				{
@@ -133,9 +133,9 @@ public class Statistics extends HawthornObject
 			if(thisHour != currentHour)
 			{
 				// Update time statistics
-				for(Map.Entry<String,TimeStatisticBunch> entry : timeStatistics.entrySet())
+				for(Map.Entry<String,CountStatisticBunch> entry : countStatistics.entrySet())
 				{
-					TimeStatistic hour = entry.getValue().getHour();
+					CountStatistic hour = entry.getValue().getHour();
 					String log;
 					synchronized(hour)
 					{
@@ -165,9 +165,9 @@ public class Statistics extends HawthornObject
 			if(thisDay != currentDay)
 			{
 				// Update time statistics
-				for(Map.Entry<String,TimeStatisticBunch> entry : timeStatistics.entrySet())
+				for(Map.Entry<String,CountStatisticBunch> entry : countStatistics.entrySet())
 				{
-					TimeStatistic day = entry.getValue().getDay();
+					CountStatistic day = entry.getValue().getDay();
 					String log;
 					synchronized(day)
 					{
@@ -205,24 +205,58 @@ public class Statistics extends HawthornObject
 	 */
 	public void registerTimeStatistic(String name)
 	{
-		timeStatistics.put(name, new TimeStatisticBunch());
+		countStatistics.put(name, new CountStatisticBunch(TimeStatistic.class));
 	}
 
 	/**
 	 * Adds an entry to a time statistic.
 	 * @param name Name for statistic
 	 * @param ms Time in milliseconds
-	 * @throws IllegalArgumentException If the name is not registered
+	 * @throws IllegalArgumentException If the name is not registered or wrong
 	 */
-	public void updateTimeStatistic(String name,int ms)
+	public void updateTimeStatistic(String name, int ms)
 		throws IllegalArgumentException
 	{
-		TimeStatisticBunch collection = timeStatistics.get(name);
+		CountStatisticBunch collection = countStatistics.get(name);
 		if (collection == null)
 		{
 			throw new IllegalArgumentException("Unknown time statistic: "+name);
 		}
-		collection.getMinute().add(ms);
+		CountStatistic minute = collection.getMinute();
+		if (minute.getClass() != TimeStatistic.class)
+		{
+			throw new IllegalArgumentException("Not a time statistic: "+name);
+		}
+		((TimeStatistic)minute).add(ms);
+	}
+
+	/**
+	 * Registers a statistic so that the system will track it.
+	 * @param name Name for statistic
+	 */
+	public void registerCountStatistic(String name)
+	{
+		countStatistics.put(name, new CountStatisticBunch(CountStatistic.class));
+	}
+
+	/**
+	 * Adds an entry to a count statistic.
+	 * @param name Name for statistic
+	 * @throws IllegalArgumentException If the name is not registered or wrong
+	 */
+	public void updateCountStatistic(String name)
+	{
+		CountStatisticBunch collection = countStatistics.get(name);
+		if (collection == null)
+		{
+			throw new IllegalArgumentException("Unknown count statistic: "+name);
+		}
+		CountStatistic minute = collection.getMinute();
+		if (minute.getClass() != CountStatistic.class)
+		{
+			throw new IllegalArgumentException("Not a count statistic: "+name);
+		}
+		minute.count();
 	}
 
 	/**
@@ -351,39 +385,12 @@ public class Statistics extends HawthornObject
 	}
 
 	/**
-	 * Holds the time statistics for various time periods.
-	 */
-	private static class TimeStatisticBunch
-	{
-		private TimeStatistic minute = new TimeStatistic(),
-			hour = new TimeStatistic(), day = new TimeStatistic();
-
-		/** @return Statistics for current minute */
-		public TimeStatistic getMinute()
-		{
-			return minute;
-		}
-
-		/** @return Statistics for current hour */
-		public TimeStatistic getHour()
-		{
-			return hour;
-		}
-
-		/** @return Statistics for current day */
-		public TimeStatistic getDay()
-		{
-			return day;
-		}
-	}
-
-	/**
 	 * Tracks statistics about events that occur periodically and take a
 	 * certain amount of time. Best used for times between 0 and 5000ms.
 	 */
-	private static class TimeStatistic
+	private static class TimeStatistic extends CountStatistic
 	{
-		private int count, totalTime;
+		private int totalTime;
 		private int[] histogram = new int[33];
 
 		/**
@@ -393,7 +400,7 @@ public class Statistics extends HawthornObject
 		public synchronized void add(int ms)
 		{
 			totalTime += ms;
-			count++;
+			super.count();
 
 			// Histogram stores >0ms, >1ms, >2ms, >3ms, >4ms...
 			if (ms < 5)
@@ -422,10 +429,22 @@ public class Statistics extends HawthornObject
 			}
 		}
 
+		/**
+		 * @throws UnsupportedOperationException You cannot call the base class
+		 *   count() with a TimeStatistic
+		 */
+		@Override
+		public synchronized void count()
+		{
+			throw new UnsupportedOperationException(
+				"Cannot count with TimeStatistic");
+		}
+
+		@Override
 		/** Clear these statistics. */
 		public synchronized void clear()
 		{
-			count = 0;
+			super.clear();
 			totalTime = 0;
 			for (int i=0; i<histogram.length; i++)
 			{
@@ -439,7 +458,7 @@ public class Statistics extends HawthornObject
 		 */
 		public synchronized void add(TimeStatistic other)
 		{
-			count += other.count;
+			super.add(other);
 			totalTime += other.totalTime;
 			for (int i=0; i<histogram.length; i++)
 			{
@@ -577,6 +596,7 @@ public class Statistics extends HawthornObject
 		/**
 		 * @return HTML version of the data
 		 */
+		@Override
 		public synchronized String toHtml()
 		{
 			StringBuilder result = new StringBuilder();
@@ -644,6 +664,90 @@ public class Statistics extends HawthornObject
 	}
 
 	/**
+	 * Holds the time statistics for various time periods.
+	 */
+	private static class CountStatisticBunch
+	{
+		private CountStatistic minute, hour, day;
+
+		CountStatisticBunch(Class<? extends CountStatistic> c)
+		{
+			try
+			{
+				minute = c.newInstance();
+				hour = c.newInstance();
+				day = c.newInstance();
+			}
+			catch(Throwable t)
+			{
+				throw new Error(t);
+			}
+		}
+
+		/** @return Statistics for current minute */
+		public CountStatistic getMinute()
+		{
+			return minute;
+		}
+
+		/** @return Statistics for current hour */
+		public CountStatistic getHour()
+		{
+			return hour;
+		}
+
+		/** @return Statistics for current day */
+		public CountStatistic getDay()
+		{
+			return day;
+		}
+	}
+
+	/** Statistic that counts events */
+	private static class CountStatistic
+	{
+		protected int count;
+
+		public synchronized void count()
+		{
+			count++;
+		}
+
+		public synchronized void clear()
+		{
+			count = 0;
+		}
+
+		/**
+		 * Adds an entire other object to this one.
+		 * @param other Object to add
+		 */
+		public synchronized void add(CountStatistic other)
+		{
+			count += other.count;
+		}
+
+		/**
+		 * Converts these statistics to a string suitable for including in logs.
+		 * @return String containing statistical data
+		 */
+		@Override
+		public synchronized String toString()
+		{
+			return count+"";
+		}
+
+		/**
+		 * @return HTML version of the data
+		 */
+		public synchronized String toHtml()
+		{
+			return count+"";
+		}
+	}
+
+
+	/**
 	 * Administration function to get statistics in HTML.
 	 * @return An HTML summary of current statistics
 	 */
@@ -654,10 +758,10 @@ public class Statistics extends HawthornObject
 		output.append("<h2>Current minute</h2><ul>");
 
 		// Get time statistics
-		for(Map.Entry<String, TimeStatisticBunch> entry
-			: timeStatistics.entrySet())
+		for(Map.Entry<String, CountStatisticBunch> entry
+			: countStatistics.entrySet())
 		{
-			TimeStatistic minute = entry.getValue().getMinute();
+			CountStatistic minute = entry.getValue().getMinute();
 			String log = minute.toHtml();
 			output.append("<li><strong>");
 			output.append(XML.esc(entry.getKey()));
@@ -683,10 +787,10 @@ public class Statistics extends HawthornObject
 		output.append("</p><h2>Current hour</h2><ul>");
 
 		// Get time statistics
-		for(Map.Entry<String, TimeStatisticBunch> entry
-			: timeStatistics.entrySet())
+		for(Map.Entry<String, CountStatisticBunch> entry
+			: countStatistics.entrySet())
 		{
-			TimeStatistic hour = entry.getValue().getHour();
+			CountStatistic hour = entry.getValue().getHour();
 			String log = hour.toHtml();
 			output.append("<li><strong>");
 			output.append(XML.esc(entry.getKey()));
@@ -710,10 +814,10 @@ public class Statistics extends HawthornObject
 		output.append("</ul><h2>Current day</h2><ul>");
 
 		// Get time statistics
-		for(Map.Entry<String, TimeStatisticBunch> entry
-			: timeStatistics.entrySet())
+		for(Map.Entry<String, CountStatisticBunch> entry
+			: countStatistics.entrySet())
 		{
-			TimeStatistic day = entry.getValue().getDay();
+			CountStatistic day = entry.getValue().getDay();
 			String log = day.toHtml();
 			output.append("<li><strong>");
 			output.append(XML.esc(entry.getKey()));
