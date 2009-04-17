@@ -8,11 +8,11 @@ import com.leafdigital.hawthorn.util.XML;
 /** Class that tracks statistics every minute. */
 public class Statistics extends HawthornObject
 {
-	private HashMap<String, CountStatisticBunch> countStatistics =
-		new HashMap<String, CountStatisticBunch>();
+	private Map<String, CountStatisticBunch> countStatistics =
+		new TreeMap<String, CountStatisticBunch>();
 
-	private HashMap<String, InstantStatisticBunch> instantStatistics =
-		new HashMap<String, InstantStatisticBunch>();
+	private Map<String, InstantStatisticBunch> instantStatistics =
+		new TreeMap<String, InstantStatisticBunch>();
 
 	private int currentHour, currentDay;
 
@@ -205,7 +205,8 @@ public class Statistics extends HawthornObject
 	 */
 	public void registerTimeStatistic(String name)
 	{
-		countStatistics.put(name, new CountStatisticBunch(TimeStatistic.class));
+		countStatistics.put(name, new CountStatisticBunch(
+			new TimeStatistic(), new TimeStatistic(), new TimeStatistic()));
 	}
 
 	/**
@@ -236,7 +237,8 @@ public class Statistics extends HawthornObject
 	 */
 	public void registerCountStatistic(String name)
 	{
-		countStatistics.put(name, new CountStatisticBunch(CountStatistic.class));
+		countStatistics.put(name, new CountStatisticBunch(
+			new CountStatistic(), new CountStatistic(), new CountStatistic()));
 	}
 
 	/**
@@ -456,13 +458,15 @@ public class Statistics extends HawthornObject
 		 * Adds an entire other object to this one.
 		 * @param other Object to add
 		 */
-		public synchronized void add(TimeStatistic other)
+		@Override
+		public synchronized void add(CountStatistic other)
 		{
 			super.add(other);
-			totalTime += other.totalTime;
+			TimeStatistic otherTime = (TimeStatistic)other;
+			totalTime += otherTime.totalTime;
 			for (int i=0; i<histogram.length; i++)
 			{
-				histogram[i] += other.histogram[i];
+				histogram[i] += otherTime.histogram[i];
 			}
 		}
 
@@ -670,18 +674,12 @@ public class Statistics extends HawthornObject
 	{
 		private CountStatistic minute, hour, day;
 
-		CountStatisticBunch(Class<? extends CountStatistic> c)
+		CountStatisticBunch(CountStatistic minute, CountStatistic hour,
+			CountStatistic day)
 		{
-			try
-			{
-				minute = c.newInstance();
-				hour = c.newInstance();
-				day = c.newInstance();
-			}
-			catch(Throwable t)
-			{
-				throw new Error(t);
-			}
+			this.minute = minute;
+			this.hour = hour;
+			this.day = day;
 		}
 
 		/** @return Statistics for current minute */
