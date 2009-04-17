@@ -34,7 +34,9 @@ public class Statistics extends HawthornObject
 		".b { position: absolute; bottom: 0px; width:20px; background: black; }" +
 		".max { position: absolute; left: 660px; top:0; border-top:1px solid black; }" +
 		".l { position: absolute; top: 100px; }" +
-		".t { height:2px; border-left:1px solid black; }";
+		".t { height:2px; border-left:1px solid black; }" +
+		".d { position: absolute; top: 0; height:100px; width: 1px; " +
+			"border-left: dotted 1px black; }";
 
 	/**
 	 * @param app Main app object
@@ -639,6 +641,15 @@ public class Statistics extends HawthornObject
 				result.append("px'></div>");
 			}
 
+			// Draw dividing lines where step size changes
+			int[] changes = { 5, 14, 23, 32 };
+			for(int i : changes)
+			{
+				result.append("<div class='d' style='left: ");
+				result.append(i*20);
+				result.append("px;'></div>");
+			}
+
 			// Draw max scale
 			result.append("</div><div class='max'>");
 			result.append(max);
@@ -768,6 +779,11 @@ public class Statistics extends HawthornObject
 			output.append("</li>");
 		}
 
+		output.append("</ul><p class='note'>");
+		output.append("Hourly and daily stats do not include current minute.");
+
+		output.append("</p><h2>Last minute (snapshot)</h2><ul>");
+
 		// Get instant statistics
 		for(Map.Entry<String, InstantStatisticBunch> entry
 			: instantStatistics.entrySet())
@@ -780,9 +796,7 @@ public class Statistics extends HawthornObject
 			output.append("</li>");
 		}
 
-		output.append("</ul><p class='note'>");
-		output.append("Hourly and daily stats do not include current minute.");
-		output.append("</p><h2>Current hour</h2><ul>");
+		output.append("</ul><h2>Current hour</h2><ul>");
 
 		// Get time statistics
 		for(Map.Entry<String, CountStatisticBunch> entry
