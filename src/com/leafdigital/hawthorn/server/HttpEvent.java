@@ -116,6 +116,10 @@ public class HttpEvent extends Event
 			{
 				handleLeave(params);
 			}
+			else if (path.equals("/hawthorn/poll"))
+			{
+				handlePoll(params);
+			}
 			else if (path.equals("/hawthorn/waitForMessage"))
 			{
 				handleWaitForMessage(params);
@@ -255,8 +259,8 @@ public class HttpEvent extends Event
 
 		String id = getID(params);
 
-		String maxAge = params.get("maxage"), maxNumber = params.get("maxnumber"), maxNames =
-			params.get("maxnames");
+		String maxAge = params.get("maxage"), maxNumber = params.get("maxnumber"),
+			maxNames = params.get("maxnames");
 		String error = null;
 		if (maxAge == null || !maxAge.matches(REGEXP_INT))
 		{
@@ -284,16 +288,7 @@ public class HttpEvent extends Event
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.getRecentComplete(" + id + ",[");
-		long timestamp=c.getPreviousTimestamp();
-		for (int i = 0; i < recent.length; i++)
-		{
-			if (i != 0)
-			{
-				output.append(',');
-			}
-			output.append(recent[i].getJSFormat());
-			timestamp=recent[i].getTime();
-		}
+		long timestamp = buildMessageArray(c, recent, output);
 		output.append("],[");
 		for (int i = 0; i < names.length; i++)
 		{
@@ -336,6 +331,71 @@ public class HttpEvent extends Event
 
 		c.waitForMessage(connection, params.get("user"), params.get("displayname"),
 			id, lastTime);
+	}
+
+	private void handlePoll(HashMap<String, String> params)
+		throws OperationException
+	{
+		if (!checkAuth(params, "pollError", false, false))
+		{
+			return;
+		}
+		Channel c = getChannels().get(params.get("channel"));
+
+		String id = getID(params);
+
+		String lastTimeString = params.get("lasttime");
+		String error = null;
+		if (!lastTimeString.matches(REGEXP_LONG))
+		{
+			error = "hawthorn.pollError(" + id + ",'Invalid lasttime=');";
+		}
+		long lastTime = Long.parseLong(lastTimeString);
+		if (error != null)
+		{
+			connection.send("hawthorn.pollError(" + id + ",'"
+				+ JS.escapeJS(error) + "');");
+			return;
+		}
+
+		long delay = c.poll(c.toString(),
+			params.get("user"), params.get("displayname"));
+		Message[] messages = c.getSince(lastTime, Channel.ANY);
+
+		StringBuilder output = new StringBuilder();
+		output.append("hawthorn.pollComplete(" + id + ",[");
+		long timestamp = buildMessageArray(c, messages, output);
+		output.append("],");
+		output.append(timestamp);
+		output.append(",");
+		output.append(delay);
+		output.append(");");
+		connection.send(output.toString());
+	}
+
+	/**
+	 * Creates a comma-separated list of messages from a channel, and
+	 * obtains the timestamp of the last message.
+	 * @param c Channel
+	 * @param messages Messages to list
+	 * @param output StringBuilder that receives list
+	 * @return Timestamp of most recent message in list, or of just before now
+	 *   if none are in list
+	 */
+	private long buildMessageArray(Channel c, Message[] messages,
+		StringBuilder output)
+	{
+		long timestamp = c.getPreviousTimestamp();
+		for (int i = 0; i < messages.length; i++)
+		{
+			if (i != 0)
+			{
+				output.append(',');
+			}
+			output.append(messages[i].getJSFormat());
+			timestamp = messages[i].getTime();
+		}
+		return timestamp;
 	}
 
 	private void handleGetLog(HashMap<String, String> params)

@@ -117,6 +117,32 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
+	poll : function(channel, user, displayName, keyTime, key, lastTime,
+		continuation, failure)
+	{
+		this.handlers.push(
+		{
+			id : this.id,
+			continuation : continuation,
+			failure : failure
+		});
+		this.addTag('hawthorn/poll?channel=' + channel + '&user=' + user
+			+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' 
+			+	keyTime	+ "&key=" + key + "&lasttime=" + lastTime);
+	},
+
+	pollComplete : function(id, messages, lastTime, delay)
+	{
+		this.removeTag(id);
+		this.getHandler(id).continuation(messages, lastTime, delay);
+	},
+
+	pollError : function(id, error)
+	{
+		this.removeTag(id);
+		this.getHandler(id).failure(error);
+	},
+
 	say : function(channel,user,displayName,keyTime,key,message,continuation,
 			failure)
 	{

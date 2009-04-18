@@ -24,7 +24,7 @@ import java.util.HashMap;
 /** List of current channels. */
 public class Channels extends HawthornObject
 {
-	private final static int CHANNEL_DUMP_FREQUENCY = 60 * 1000;
+	private final static int CHANNEL_DUMP_FREQUENCY = 5 * 1000;
 
 	/** Stores data about each available channel. */
 	private HashMap<String, Channel> channels = new HashMap<String, Channel>();
@@ -139,7 +139,6 @@ public class Channels extends HawthornObject
 				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 					"Channel stats: channels open " + count);
 			}
-
 		}
 	}
 

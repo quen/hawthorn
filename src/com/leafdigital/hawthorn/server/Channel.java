@@ -35,7 +35,7 @@ public class Channel extends HawthornObject
 	private final static int WAIT_TIME = 60 * 1000;
 
 	/** Time to wait with no activity before assuming a user is absent */
-	private final static int PRESENT_TIMEOUT = 31 * 1000;
+	private final static int PRESENT_TIMEOUT = 10 * 1000;
 
 	private final static Message[] NO_MESSAGES = {};
 
@@ -244,9 +244,10 @@ public class Channel extends HawthornObject
 
 	/**
 	 * Cleans up old messsages and sends leave message for timed-out users.
-	 *
+	 * Called every few seconds.
+	 * @see Channels
 	 * @return True if there are no messages in this channel and nobody is
-	 *         listening so it should be thrown away
+	 *   listening so it should be thrown away
 	 */
 	synchronized boolean cleanup()
 	{
@@ -397,12 +398,24 @@ public class Channel extends HawthornObject
 
 	/**
 	 * @param maxAge Maximum age in milliseconds
-	 * @param maxNumber Maximum number of messages
+	 * @param maxNumber Maximum number of messages (or ANY)
 	 * @return Array of messages that match the criteria
 	 */
 	public synchronized Message[] getRecent(int maxAge, int maxNumber)
 	{
 		long then = System.currentTimeMillis() - maxAge;
+		return getSince(then, maxNumber);
+	}
+
+	/**
+	 * Obtains all messages after (but not including) the given time.
+	 * @param then Time
+	 * @param maxNumber Maximum number of messages (or ANY); if limited, only
+	 *   the newest messages will be retrieved
+	 * @return Array of messages, empty if none
+	 */
+	public synchronized Message[] getSince(long then, int maxNumber)
+	{
 		int count = 0;
 		ListIterator<Message> iterator = messages.listIterator(messages.size());
 		while (iterator.hasPrevious() && count < maxNumber)
@@ -423,6 +436,55 @@ public class Channel extends HawthornObject
 		}
 
 		return result;
+	}
+
+	/**
+	 * Informs the channel that a user is polling it.
+	 * @param ip IP address
+	 * @param user User
+	 * @param displayName Name
+	 * @return Delay in milliseconds that the user should wait for new messages
+	 */
+	public synchronized long poll(String ip, String user, String displayName)
+	{
+		long now = System.currentTimeMillis();
+
+		// User is now present in channel
+		UserInfo existing = present.get(user);
+		if (existing == null)
+		{
+			// Send a join message to local and remote servers
+			JoinMessage join =
+				new JoinMessage(now + 1, getName(), ip, user,	displayName);
+			getApp().getOtherServers().sendMessage(join);
+			message(join, false);
+			existing = present.get(user);
+		}
+
+		// Work out time we recommend polling again at
+		int minPollTime = getConfig().getMinPollTime(),
+			maxPollTime = getConfig().getMaxPollTime(),
+			pollScaleTime = getConfig().getPollScaleTime();
+		int delay;
+		if (messages.isEmpty())
+		{
+			// If there are no messages at all, use the maximum delay
+			delay = maxPollTime;
+		}
+		else
+		{
+			// Use a delay between min and max, linearly scaled up to pollScaleTime
+			int sinceLast = (int)(now - messages.getLast().getTime());
+			sinceLast = Math.min(sinceLast, pollScaleTime);
+			delay = minPollTime +
+				((maxPollTime - minPollTime) * sinceLast) / pollScaleTime;
+		}
+
+		// Set user so it doesn't time out until after the recommended poll time
+		// (plus a bit)
+		existing.access(now + delay);
+
+		return delay;
 	}
 
 	/**

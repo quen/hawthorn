@@ -82,6 +82,10 @@ function setMessages(id, messages, names)
 				messages[i].user+' ('+messages[i].displayName+'): '+
 				text));
 	}
+	if(!names)
+	{
+		return;
+	}
 	intro=document.createElement('p');
 	intro.appendChild(document.createTextNode(names.length+' names:'));
 	var ul=document.createElement('ul');
@@ -93,7 +97,6 @@ function setMessages(id, messages, names)
 		li.appendChild(document.createTextNode(
 				names[i].user+' ('+names[i].displayName+')'));
 	}
-	
 }
 
 function getRecent()
@@ -105,14 +108,42 @@ function getRecent()
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		60*60*1000,
-		10,
-		function(messages)
+		10, null,
+		function(messages, names, lastTime)
 		{
 			setMessages('recent', messages, names);
 		},
 		function(error)
 		{
 			setText('recent','ERROR! '+error);
+		});
+}
+
+var lastPollTime = (new Date()).getTime();
+
+function poll()
+{
+	hawthorn.poll(
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		lastPollTime,
+		function(messages, lastTime, delay)
+		{
+			setMessages('poll', messages, null);
+			var el = document.getElementById('poll');
+			var p = document.createElement('p');
+			el.appendChild(p);
+			var displayTime = new Date();
+			displayTime.setTime(lastTime);
+			p.appendChild(document.createTextNode(
+				'Last time: ' + lastTime + " ("+ displayTime + "); poll delay " + delay));
+		},
+		function(error)
+		{
+			setText('poll','ERROR! '+error);
 		});
 }
 
@@ -345,6 +376,10 @@ Key <input id="key" type="text" size="40" /></div>
 <div>Message <input id="message" type="text" size="40" />
 <div><input type="button" value="Say" onclick="say()" /></div>
 </div>
+
+<h2>Poll</h2>
+<div id="poll">Not polled yet</div>
+<div><input type="button" value="Poll" onclick="poll()" /></div>
 
 <h2>Leave</h2>
 <div id="leave">Not left yet</div>

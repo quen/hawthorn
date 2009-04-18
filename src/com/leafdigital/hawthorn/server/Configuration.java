@@ -42,6 +42,7 @@ public class Configuration
 	private boolean logChat = true;
 	private int historyHours = 4;
 	private int eventThreads = 4;
+	private int minPollTime = 2000, maxPollTime = 15000, pollScaleTime = 60000;
 	private ServerInfo[] otherServers;
 	private ServerInfo thisServer;
 	private Logger.Level minLogLevel = Logger.Level.NORMAL;
@@ -239,6 +240,54 @@ public class Configuration
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <historyhours> value is not a valid number.");
+					}
+				}
+				else if (child.getTagName().equals("minpoll"))
+				{
+					try
+					{
+						minPollTime = Integer.parseInt(getText(child));
+						if (minPollTime <= 0)
+						{
+							throw new NumberFormatException();
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
+							"The <minpoll> value is not a valid number.");
+					}
+				}
+				else if (child.getTagName().equals("maxpoll"))
+				{
+					try
+					{
+						maxPollTime = Integer.parseInt(getText(child));
+						if (maxPollTime <= 0)
+						{
+							throw new NumberFormatException();
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
+							"The <maxpoll> value is not a valid number.");
+					}
+				}
+				else if (child.getTagName().equals("pollscale"))
+				{
+					try
+					{
+						pollScaleTime = Integer.parseInt(getText(child));
+						if (pollScaleTime <= 0)
+						{
+							throw new NumberFormatException();
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
+							"The <pollscale> value is not a valid number.");
 					}
 				}
 				else if (child.getTagName().equals("servers"))
@@ -488,6 +537,26 @@ public class Configuration
 	public boolean logChat()
 	{
 		return logChat;
+	}
+
+	/** @return Minimum suggested time for clients to poll (ms) */
+	public int getMinPollTime()
+	{
+		return minPollTime;
+	}
+
+	/** @return Maximum suggested time for clients to poll (ms) */
+	public int getMaxPollTime()
+	{
+		return maxPollTime;
+	}
+
+	/** @return Time since last message at which the suggested poll time
+	 *   will reach max poll time (immediately after a message, it is at
+	 *   the minimum time) */
+	public int getPollScaleTime()
+	{
+		return pollScaleTime;
 	}
 
 	/**
