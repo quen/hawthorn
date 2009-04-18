@@ -308,4 +308,18 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 	</tag>
 
+	<tag>
+		<description>
+			Provides a link to the server statistics page for each server. The links
+			are formatted as an unordered list. The top level ul tag has class
+			hawthorn_statslinks. Note that the auth key also gives access to
+			the system log, so this tag should only be run for system
+			administrators.
+		</description>
+		<display-name>Link to server statistics</display-name>
+		<name>linkToStatistics</name>
+		<tag-class>com.leafdigital.hawthorn.jsp.LinkToStatisticsTag</tag-class>
+		<body-content>empty</body-content>
+	</tag>
+
 </taglib>

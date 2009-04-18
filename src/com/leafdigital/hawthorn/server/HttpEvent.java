@@ -132,7 +132,7 @@ public class HttpEvent extends Event
 			{
 				handleGetLog(params);
 			}
-			else if (path.equals("/hawthorn/html/displayStatistics"))
+			else if (path.equals("/hawthorn/html/statistics"))
 			{
 				handleDisplayStatistics(params);
 			}

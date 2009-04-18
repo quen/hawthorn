@@ -187,7 +187,8 @@ public class InitTag extends BodyTagSupport
 	}
 
 	/**
-	 * Gets an authentication key based on the known data.
+	 * Gets an authentication key based on the known data. Uses the inited user
+	 * and display name.
 	 *
 	 * @param channel Channel ID
 	 * @param keyTime Key time
@@ -196,9 +197,26 @@ public class InitTag extends BodyTagSupport
 	 */
 	String getKey(String channel, long keyTime) throws JspException
 	{
+		return getKey(channel, keyTime, user, displayName);
+	}
+
+	/**
+	 * Gets an authentication key based on the known data.
+	 *
+	 * @param channel Channel ID
+	 * @param keyTime Key time
+	 * @param overrideUser User ID
+	 * @param overrideDisplayName User display name
+	 * @return Key
+	 * @throws JspException
+	 */
+	String getKey(String channel, long keyTime, String overrideUser,
+		String overrideDisplayName) throws JspException
+	{
 		try
 		{
-			return Auth.getKey(magicNumber, user, displayName, channel, keyTime);
+			return Auth.getKey(magicNumber, overrideUser, overrideDisplayName,
+				channel, keyTime);
 		}
 		catch (NoSuchAlgorithmException e)
 		{

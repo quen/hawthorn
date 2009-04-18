@@ -1,8 +1,10 @@
 package com.leafdigital.hawthorn.server;
 
+import java.net.*;
 import java.text.NumberFormat;
 import java.util.*;
 
+import com.leafdigital.hawthorn.server.Configuration.ServerInfo;
 import com.leafdigital.hawthorn.util.XML;
 
 /** Class that tracks statistics every minute. */
@@ -852,7 +854,20 @@ public class Statistics extends HawthornObject
 
 		output.append("</ul>");
 
-		return XML.getXHTML("Hawthorn statistics",
+		ServerInfo thisServer = getConfig().getThisServer();
+		String serverDetails;
+		String addressPort = thisServer.getAddress().getHostAddress() + ":"
+			+ thisServer.getPort();
+		try
+		{
+			String serverName = InetAddress.getLocalHost().getHostName();
+			serverDetails = serverName + " (" + addressPort + ")";
+		}
+		catch (UnknownHostException e)
+		{
+			serverDetails = addressPort;
+		}
+		return XML.getXHTML(serverDetails	+ " - Hawthorn statistics",
 			"<style type='text/css'>\n" + STATS_STYLE + "</style>", output.toString());
 	}
 
