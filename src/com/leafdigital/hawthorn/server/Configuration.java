@@ -35,8 +35,8 @@ import com.leafdigital.hawthorn.util.XML;
 /** Configuration file reader. */
 public class Configuration
 {
-	/** Test keys expire after 1 hour */
-	private final static long TEST_KEY_EXPIRY = 60*60*1000;
+	/** Test keys expire after 12 hours */
+	private final static long TEST_KEY_EXPIRY = 12*60*60*1000;
 
 	private String magicNumber;
 	private boolean logChat = true;
