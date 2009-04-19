@@ -187,7 +187,7 @@ public class HttpEvent extends Event
 			if (requestType!=null && getConfig().isDetailedStats())
 			{
 				getStatistics().updateTimeStatistic(
-					HttpServer.STATISTIC_REQUEST_TIME + requestType, (int)time);
+					HttpServer.STATISTIC_SPECIFIC_REQUEST + requestType, (int)time);
 			}
 		}
 	}

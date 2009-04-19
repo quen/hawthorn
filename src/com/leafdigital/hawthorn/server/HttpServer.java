@@ -44,9 +44,9 @@ public final class HttpServer extends HawthornObject
 	/** Statistic: size of close queue */
 	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
 	/** Statistic: request time for specific type */
-	final static String STATISTIC_REQUEST_TIME = "REQUEST_TIME_";
+	final static String STATISTIC_SPECIFIC_REQUEST = "REQUEST_TIME_";
 
-	private final static int BACKLOG = 16;
+	private final static int BACKLOG = 256;
 
 	private final static Pattern REGEXP_HTTPREQUEST =
 		Pattern.compile("GET (.+) HTTP/1\\.[01]");
@@ -84,19 +84,19 @@ public final class HttpServer extends HawthornObject
 		}
 		if(getConfig().isDetailedStats())
 		{
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.SAY);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.LEAVE);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.POLL);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.WAIT);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.RECENT);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.LOG);
-			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.STATISTICS);
 		}
 		getStatistics().registerInstantStatistic(STATISTICS_CLOSE_QUEUE_SIZE,
@@ -570,6 +570,7 @@ public final class HttpServer extends HawthornObject
 						try
 						{
 							Socket newSocket = server.socket().accept();
+							newSocket.setSoLinger(true, 2);
 							newSocket.getChannel().configureBlocking(false);
 							SelectionKey newKey =
 								newSocket.getChannel().register(selector, SelectionKey.OP_READ);
