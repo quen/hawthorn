@@ -642,7 +642,10 @@ public final class HttpServer extends HawthornObject
 				{
 					try
 					{
-						closeSynch.wait();
+						if(!close)
+						{
+							closeSynch.wait();
+						}
 					}
 					catch (InterruptedException e)
 					{

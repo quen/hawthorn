@@ -465,12 +465,18 @@ public class Statistics extends HawthornObject
 		@Override
 		public synchronized void add(CountStatistic other)
 		{
-			super.add(other);
-			TimeStatistic otherTime = (TimeStatistic)other;
-			totalTime += otherTime.totalTime;
-			for (int i=0; i<histogram.length; i++)
+			// Note: Since it is usually the 'minute' field being added, we
+			// are actually already synchronized on it, and this is unlikely
+			// to cause a deadlock (but it clears a FindBugs warning).
+			synchronized(other)
 			{
-				histogram[i] += otherTime.histogram[i];
+				super.add(other);
+				TimeStatistic otherTime = (TimeStatistic)other;
+				totalTime += otherTime.totalTime;
+				for (int i=0; i<histogram.length; i++)
+				{
+					histogram[i] += otherTime.histogram[i];
+				}
 			}
 		}
 
@@ -735,7 +741,13 @@ public class Statistics extends HawthornObject
 		 */
 		public synchronized void add(CountStatistic other)
 		{
-			count += other.count;
+			// Note: Since it is usually the 'minute' field being added, we
+			// are actually already synchronized on it, and this is unlikely
+			// to cause a deadlock (but it clears a FindBugs warning).
+			synchronized(other)
+			{
+				count += other.count;
+			}
 		}
 
 		/**

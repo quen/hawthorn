@@ -26,8 +26,10 @@ import java.util.LinkedList;
 
 import javax.servlet.jsp.*;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import com.leafdigital.hawthorn.util.*;
 
@@ -71,7 +73,15 @@ public class InitTag extends BodyTagSupport
 				("<?xml version='1.0' encoding='UTF-8' ?><servers>" + content
 					+ "</servers>").getBytes("UTF-8")));
 		}
-		catch (Exception e)
+		catch (IOException e)
+		{
+			throw new JspException("<init> content is not valid XML.");
+		}
+		catch (SAXException e)
+		{
+			throw new JspException("<init> content is not valid XML.");
+		}
+		catch (ParserConfigurationException e)
 		{
 			throw new JspException("<init> content is not valid XML.");
 		}
@@ -253,7 +263,9 @@ public class InitTag extends BodyTagSupport
 	/** @return Server list */
 	public URL[] getServers()
 	{
-		return servers;
+		URL[] serversCopy = new URL[servers.length];
+		System.arraycopy(servers, 0, serversCopy, 0, servers.length);
+		return serversCopy;
 	}
 
 	/** @return Preferred server or -1 if no preference */
