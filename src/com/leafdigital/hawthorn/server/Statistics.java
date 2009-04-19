@@ -488,6 +488,10 @@ public class Statistics extends HawthornObject
 		 */
 		private static String getHistogramRange(int index)
 		{
+			if (index < 5)
+			{
+				return index + "";
+			}
 			return getHistogramRangeStart(index, false) + "-" +
 				(index==33 ? "" : getHistogramRangeStart(index+1, false));
 		}
