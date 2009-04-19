@@ -275,6 +275,28 @@ function openPopup()
 			document.getElementById('title').value);	
 }
 
+function stats()
+{
+	urls = hawthorn.getStatisticsURLs(
+		document.getElementById('keytime').value,
+		document.getElementById('key').value);
+	var target = document.getElementById('stats');
+	while (target.firstChild)
+	{
+		target.removeChild(target.firstChild);
+	}
+	var ul = document.createElement('ul');
+	target.appendChild(ul);
+	for (var i = 0; i<urls.length; i++)
+	{
+		var li = document.createElement('li');
+		ul.appendChild(li);
+		var a = document.createElement('a');
+		li.appendChild(a);
+		a.href = urls[i];
+		a.appendChild(document.createTextNode('View stats on this server'));
+	}
+}
 
 function saveSettings()
 {
@@ -417,6 +439,14 @@ the special reserved channel name !system to get the system log.</p>
 
 <div>Date <input id="date" type="text" size="20" /><br />
 <input type="button" value="Get logs" onclick="getLog()" /></div>
+
+<h2>View statistics</h2>
+
+<p>In order to view statistics, you need to have the username <strong>_admin</strong>
+and display name <strong>_</strong> on channel <strong>!system</strong>.</p>
+
+<div id="stats">Not yet generated</div>
+<div><input type="button" value="Show stats links" onclick="stats()" /></div>
 
 </body>
 </html>

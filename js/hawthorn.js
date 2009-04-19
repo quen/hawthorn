@@ -281,6 +281,17 @@ var hawthorn =
 			'scrollbars=no');
 	},
 	
+	getStatisticsURLs : function(keyTime, key)
+	{
+		var result = new Array();
+		for (var i = 0; i<this.servers.length; i++)
+		{
+			result[i] = this.servers[i] + 'hawthorn/html/statistics?channel=!system&user='
+				+ '_admin&displayname=_&keytime=' + keyTime	+ "&key=" + key;
+		}
+		return result;
+	},
+
 	handleRecent : function(details)
 	{
 		var el=document.getElementById(details.id);
