@@ -26,6 +26,8 @@ public class Channels extends HawthornObject
 {
 	private final static int CHANNEL_DUMP_FREQUENCY = 5 * 1000;
 
+	private final static String STATISTIC_CHANNELS = "CHANNELS";
+
 	/** Stores data about each available channel. */
 	private HashMap<String, Channel> channels = new HashMap<String, Channel>();
 
@@ -36,6 +38,18 @@ public class Channels extends HawthornObject
 	public Channels(Hawthorn app)
 	{
 		super(app);
+
+		getStatistics().registerInstantStatistic(STATISTIC_CHANNELS,
+			new Statistics.InstantStatisticHandler()
+			{
+				public int getValue()
+				{
+					synchronized (channels)
+					{
+						return channels.size();
+					}
+				}
+			});
 
 		new ChannelDumpThread();
 	}
@@ -134,10 +148,6 @@ public class Channels extends HawthornObject
 						}
 					}
 				}
-
-				// Log status
-				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-					"Channel stats: channels open " + count);
 			}
 		}
 	}
