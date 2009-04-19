@@ -8,10 +8,10 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import com.leafdigital.hawthorn.util.*;
 
 /** Tag displays recent messages and users on a Hawthorn chat channel. */
-public class GetRecentTag extends SimpleTagSupport
+public class RecentTag extends SimpleTagSupport
 {
 	static final String HAWTHORN_GET_RECENT_COUNT =
-		"hawthorn.getRecentCount";
+		"hawthorn.recentCount";
 
 	private String channel,
 		loadingText="(Loading chat information, please wait...)",
@@ -27,18 +27,18 @@ public class GetRecentTag extends SimpleTagSupport
 			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
 		if (init==null)
 		{
-			throw new JspException("Cannot use <getRecent> without <init>");
+			throw new JspException("Cannot use <recent> without <init>");
 		}
 
-		// Get index of this getRecent within page
+		// Get index of this recent within page
 		Integer previousCount =
 			(Integer)getJspContext().getAttribute(HAWTHORN_GET_RECENT_COUNT);
 		int index = previousCount==null ? 0 : previousCount;
 		getJspContext().setAttribute(HAWTHORN_GET_RECENT_COUNT, index+1);
 
 		// Output div
-		getJspContext().getOut().println("<div id='hawthorn_getrecent" + index
-			+ "' class='hawthorn_getrecent' style='display:none'>" +
+		getJspContext().getOut().println("<div id='hawthorn_recent" + index
+			+ "' class='hawthorn_recent' style='display:none'>" +
 			XML.esc(loadingText) + "</div>");
 
 		// Output no-script text
@@ -51,7 +51,7 @@ public class GetRecentTag extends SimpleTagSupport
 			+	JS.escapeJS(init.getDisplayName()) + "',channel:'"+channel
 			+ "',maxMessages:" + maxMessages + ",maxAge:" + maxAge
 			+ ",maxNames:" + maxNames + ",key:'" + init.getKey(channel, keyTime)
-			+ "',keyTime:" + keyTime+",id:'hawthorn_getrecent"+index+"'}";
+			+ "',keyTime:" + keyTime+",id:'hawthorn_recent"+index+"'}";
 
 		// Print script tag if included
 		init.printJS(getJspContext().getOut(),false);
@@ -60,22 +60,22 @@ public class GetRecentTag extends SimpleTagSupport
 		getJspContext().getOut().println("<script type='text/javascript'>\n"
 			+ "/* <![CDATA[ */");
 		getJspContext().getOut().println(
-			"document.getElementById('hawthorn_getrecent" + index + "')." +
+			"document.getElementById('hawthorn_recent" + index + "')." +
 			"style.display='block';");
 		if(init.getDefer())
 		{
 			if(index==0)
 			{
 				getJspContext().getOut().println(
-					"var hawthorn_getrecent = new Array();");
+					"var hawthorn_recent = new Array();");
 			}
 			getJspContext().getOut().println(
-				"hawthorn_getrecent.push("+js+");");
+				"hawthorn_recent.push("+js+");");
 		}
 		else
 		{
 			getJspContext().getOut().println(
-				"hawthorn.handleGetRecent("+js+");");
+				"hawthorn.handleRecent("+js+");");
 		}
 		getJspContext().getOut().println("/* ]]> */\n</script>");
 	}

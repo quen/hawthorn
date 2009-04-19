@@ -23,7 +23,7 @@ public class LinkToChatTag extends SimpleTagSupport
 			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
 		if (init==null)
 		{
-			throw new JspException("Cannot use <getRecent> without <init>");
+			throw new JspException("Cannot use <linkToChat> without <init>");
 		}
 
 		// Get index of this tag within page

@@ -26,11 +26,11 @@ public class IncludeJavaScriptTag extends SimpleTagSupport
 		}
 
 		// If no relevant tags, do nothing
-		boolean usedGetRecent = getJspContext().getAttribute(
-			GetRecentTag.HAWTHORN_GET_RECENT_COUNT)	!= null;
+		boolean usedRecent = getJspContext().getAttribute(
+			RecentTag.HAWTHORN_GET_RECENT_COUNT) != null;
 		boolean usedLinkToChat = getJspContext().getAttribute(
 			LinkToChatTag.HAWTHORN_LINK_TO_CHAT_COUNT) != null;
-		if(!usedGetRecent && !usedLinkToChat)
+		if(!usedRecent && !usedLinkToChat)
 		{
 			return;
 		}
@@ -38,14 +38,14 @@ public class IncludeJavaScriptTag extends SimpleTagSupport
 		// Print script tag
 		init.printJS(getJspContext().getOut(),true);
 
-		// Run all the deferred getRecent tags
-		if(usedGetRecent)
+		// Run all the deferred recent tags
+		if(usedRecent)
 		{
 			getJspContext().getOut().println("<script type='text/javascript'>");
 			getJspContext().getOut().println(
-				"for(var i=0;i<hawthorn_getrecent.length;i++)\n" +
+				"for(var i=0;i<hawthorn_recent.length;i++)\n" +
 				"{\n" +
-				"\thawthorn.handleGetRecent(hawthorn_getrecent[i]);\n" +
+				"\thawthorn.handleRecent(hawthorn_recent[i]);\n" +
 				"}");
 			getJspContext().getOut().println("</script>");
 		}

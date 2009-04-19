@@ -99,9 +99,9 @@ function setMessages(id, messages, names)
 	}
 }
 
-function getRecent()
+function recent()
 {
-	hawthorn.getRecent(
+	hawthorn.recent(
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
@@ -186,7 +186,7 @@ function leave()
 
 var lastWait=0;
 
-function waitForMessage()
+function wait()
 {
 	var waitfor=document.getElementById('waitforbutton');
 	waitfor.disabled=true;
@@ -204,7 +204,7 @@ function waitForMessage()
 	};
 	if(lastWait==0)
 	{
-		hawthorn.waitForMessageFirst(
+		hawthorn.waitFirst(
 				document.getElementById('channel').value,
 				document.getElementById('user').value,
 				document.getElementById('displayname').value,
@@ -214,7 +214,7 @@ function waitForMessage()
 	}
 	else
 	{
-		hawthorn.waitForMessage(
+		hawthorn.wait(
 				document.getElementById('channel').value,
 				document.getElementById('user').value,
 				document.getElementById('displayname').value,
@@ -369,7 +369,7 @@ Key <input id="key" type="text" size="40" /></div>
 <div id="recent">Not yet obtained</div>
 
 <div><input type="button" value="Get recent messages"
-	onclick="getRecent()" /></div>
+	onclick="recent()" /></div>
 
 <h2>Say</h2>
 <div id="say">Not said anything yet</div>
@@ -391,7 +391,7 @@ Key <input id="key" type="text" size="40" /></div>
 <div id="waitfor">Not yet requested</div>
 
 <div><input type="button" id="waitforbutton"
-	value="Wait for next message" onclick="waitForMessage()" /></div>
+	value="Wait for next message" onclick="wait()" /></div>
 
 <h2>Open popup</h2>
 

@@ -55,7 +55,7 @@ anything else you run.)
 
 <p>Ok, got past init again. Key is ${hawthornKey}, time ${hawthornKeyTime}.</p>
 
-<hawthorn:getRecent channel="a"/>
+<hawthorn:recent channel="a"/>
 
 <hawthorn:linkToChat channel="a" title="Channel A">
 Chat now!

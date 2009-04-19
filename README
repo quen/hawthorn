@@ -2,7 +2,7 @@ This project is not ready for use yet. Hopefully when it is I will update this R
 
 TODO:
 * Make popup window use poll method and test it.
-* Remove the 'waitForMessage' method from code if poll method is adequate
+* Remove the 'wait' method from code if poll method is adequate
 * Add PHP connector example.
 * Add Moodle block connector example, including example of enhanced display
   (user pictures).

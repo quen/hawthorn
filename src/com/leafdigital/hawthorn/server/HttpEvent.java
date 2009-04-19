@@ -120,17 +120,17 @@ public class HttpEvent extends Event
 			{
 				handlePoll(params);
 			}
-			else if (path.equals("/hawthorn/waitForMessage"))
+			else if (path.equals("/hawthorn/wait"))
 			{
-				handleWaitForMessage(params);
+				handleWait(params);
 			}
-			else if (path.equals("/hawthorn/getRecent"))
+			else if (path.equals("/hawthorn/recent"))
 			{
-				handleGetRecent(params);
+				handleRecent(params);
 			}
-			else if (path.equals("/hawthorn/getLog"))
+			else if (path.equals("/hawthorn/log"))
 			{
-				handleGetLog(params);
+				handleLog(params);
 			}
 			else if (path.equals("/hawthorn/html/statistics"))
 			{
@@ -248,10 +248,10 @@ public class HttpEvent extends Event
 		return id;
 	}
 
-	private void handleGetRecent(HashMap<String, String> params)
+	private void handleRecent(HashMap<String, String> params)
 		throws OperationException
 	{
-		if (!checkAuth(params, "getRecentError", false, false))
+		if (!checkAuth(params, "recentError", false, false))
 		{
 			return;
 		}
@@ -276,18 +276,18 @@ public class HttpEvent extends Event
 		}
 		if (error != null)
 		{
-			connection.send("hawthorn.getRecentError(" + id + ",'"
+			connection.send("hawthorn.recentError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
 			return;
 		}
 
 		Message[] recent =
-			c.getRecent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber));
+			c.recent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber));
 		Name[] names = c.getNames(maxNames == null ? Channel.ANY
 			:	Integer.parseInt(maxNames));
 
 		StringBuilder output = new StringBuilder();
-		output.append("hawthorn.getRecentComplete(" + id + ",[");
+		output.append("hawthorn.recentComplete(" + id + ",[");
 		long timestamp = buildMessageArray(c, recent, output);
 		output.append("],[");
 		for (int i = 0; i < names.length; i++)
@@ -304,10 +304,10 @@ public class HttpEvent extends Event
 		connection.send(output.toString());
 	}
 
-	private void handleWaitForMessage(HashMap<String, String> params)
+	private void handleWait(HashMap<String, String> params)
 		throws OperationException
 	{
-		if (!checkAuth(params, "waitForMessageError", false, false))
+		if (!checkAuth(params, "waitError", false, false))
 		{
 			return;
 		}
@@ -319,17 +319,17 @@ public class HttpEvent extends Event
 		String error = null;
 		if (!lastTimeString.matches(REGEXP_LONG))
 		{
-			error = "hawthorn.waitForMessageError(" + id + ",'Invalid lasttime=');";
+			error = "hawthorn.waitError(" + id + ",'Invalid lasttime=');";
 		}
 		long lastTime = Long.parseLong(lastTimeString);
 		if (error != null)
 		{
-			connection.send("hawthorn.waitForMessageError(" + id + ",'"
+			connection.send("hawthorn.waitError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
 			return;
 		}
 
-		c.waitForMessage(connection, params.get("user"), params.get("displayname"),
+		c.wait(connection, params.get("user"), params.get("displayname"),
 			id, lastTime);
 	}
 
@@ -398,10 +398,10 @@ public class HttpEvent extends Event
 		return timestamp;
 	}
 
-	private void handleGetLog(HashMap<String, String> params)
+	private void handleLog(HashMap<String, String> params)
 		throws OperationException
 	{
-		if (!checkAuth(params, "getLogError", true, false))
+		if (!checkAuth(params, "logError", true, false))
 		{
 			return;
 		}
@@ -428,12 +428,12 @@ public class HttpEvent extends Event
 		}
 		if (error != null)
 		{
-			connection.send("hawthorn.getLogError(" + getID(params) + ",'"
+			connection.send("hawthorn.logError(" + getID(params) + ",'"
 				+ JS.escapeJS(error) + "');");
 			return;
 		}
 
-		connection.send("hawthorn.getLogComplete(" + getID(params) + ","
+		connection.send("hawthorn.logComplete(" + getID(params) + ","
 			+ getLogger().getLogJS(channel, date) + ");");
 	}
 

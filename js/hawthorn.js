@@ -90,7 +90,7 @@ var hawthorn =
 		}
 	},
 
-	getRecent : function(channel,user,displayName,keyTime,key,maxAge,maxNumber,
+	recent : function(channel,user,displayName,keyTime,key,maxAge,maxNumber,
 		maxNames,continuation,failure)
 	{
 		this.handlers.push(
@@ -99,19 +99,19 @@ var hawthorn =
 			continuation : continuation,
 			failure : failure
 		});
-		this.addTag('hawthorn/getRecent?channel=' + channel + '&user=' + user
+		this.addTag('hawthorn/recent?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
 				+ (maxNames==null ? '' : "&maxnames=" + maxNames));
 	},
 
-	getRecentComplete : function(id, messages, names, lastTime)
+	recentComplete : function(id, messages, names, lastTime)
 	{
 		this.removeTag(id);
 		this.getHandler(id).continuation(messages, names, lastTime);
 	},
 
-	getRecentError : function(id,error)
+	recentError : function(id,error)
 	{
 		this.removeTag(id);
 		this.getHandler(id).failure(error);
@@ -194,7 +194,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	waitForMessage : function(channel,user,displayName,keyTime,key,lastTime,
+	wait : function(channel,user,displayName,keyTime,key,lastTime,
 			continuation,failure)
 	{
 		this.handlers.push(
@@ -203,18 +203,18 @@ var hawthorn =
 			continuation : continuation,
 			failure : failure
 		});
-		this.addTag('hawthorn/waitForMessage?channel=' + channel + '&user=' + user
+		this.addTag('hawthorn/wait?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
 				+ "&key=" + key + "&lasttime=" + lastTime);
 	},
 
-	waitForMessageComplete : function(id, lastTime, messages, names)
+	waitComplete : function(id, lastTime, messages, names)
 	{
 		this.removeTag(id);
 		this.getHandler(id).continuation(lastTime, messages, names);
 	},
 
-	waitForMessageError : function(id, error)
+	waitError : function(id, error)
 	{
 		this.removeTag(id);
 		this.getHandler(id).failure(error);
@@ -244,7 +244,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	getLog : function(channel, keyTime, key, date, continuation, failure)
+	log : function(channel, keyTime, key, date, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -252,18 +252,18 @@ var hawthorn =
 			continuation : continuation,
 			failure : failure
 		});
-		this.addTag('hawthorn/getLog?channel=' + channel
+		this.addTag('hawthorn/log?channel=' + channel
 				+ '&user=_admin&displayname=_&keytime=' + keyTime + "&key=" + key
 				+ "&date=" + date);
 	},
 
-	getLogComplete : function(id,lines)
+	logComplete : function(id,lines)
 	{
 		this.removeTag(id);
 		this.getHandler(id).continuation(lines);
 	},
 
-	getLogError : function(id,error)
+	logError : function(id,error)
 	{
 		this.removeTag(id);
 		this.getHandler(id).failure(error);
@@ -281,10 +281,10 @@ var hawthorn =
 			'scrollbars=no');
 	},
 	
-	handleGetRecent : function(details)
+	handleRecent : function(details)
 	{
 		var el=document.getElementById(details.id);
-		this.getRecent(details.channel, details.user, details.displayName, 
+		this.recent(details.channel, details.user, details.displayName,
 			details.keyTime, details.key, details.maxAge, details.maxMessages, 
 			details.maxNames, 
 			function(messages, names, lastTime) 
@@ -471,12 +471,12 @@ HawthornPopup.prototype.startWait = function()
 
 	if(this.lastTime == 0)
 	{
-		hawthorn.getRecent(this.channel, this.user, this.displayName,
+		hawthorn.recent(this.channel, this.user, this.displayName,
 			this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
 	}
 	else
 	{
-		hawthorn.waitForMessage(this.channel, this.user, this.displayName,
+		hawthorn.wait(this.channel, this.user, this.displayName,
 			this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }

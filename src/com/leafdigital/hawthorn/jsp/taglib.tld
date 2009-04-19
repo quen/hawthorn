@@ -105,8 +105,8 @@ jsptaglibrary_2_0.xsd"
 			(Gives user a ticket granting Hawthorn access for one hour.)
 		</description>
 		<display-name>Get recent chat messages and participants</display-name>
-		<name>getRecent</name>
-		<tag-class>com.leafdigital.hawthorn.jsp.GetRecentTag</tag-class>
+		<name>recent</name>
+		<tag-class>com.leafdigital.hawthorn.jsp.RecentTag</tag-class>
 		<body-content>empty</body-content>
 		<attribute>
 			<description>Hawthorn channel ID</description>

@@ -126,7 +126,7 @@ public class Channel extends HawthornObject
 			}
 
 			// Send the no-response message
-			sendWaitForMessageResponse(connection, id, time, NO_MESSAGES);
+			sendWaitResponse(connection, id, time, NO_MESSAGES);
 		}
 
 		/**
@@ -163,7 +163,7 @@ public class Channel extends HawthornObject
 			getEventHandler().removeTimedEvent(timeoutId);
 
 			// Send response
-			sendWaitForMessageResponse(connection, id, messages[messages.length - 1]
+			sendWaitResponse(connection, id, messages[messages.length - 1]
 				.getTime(), messages);
 		}
 	}
@@ -401,7 +401,7 @@ public class Channel extends HawthornObject
 	 * @param maxNumber Maximum number of messages (or ANY)
 	 * @return Array of messages that match the criteria
 	 */
-	public synchronized Message[] getRecent(int maxAge, int maxNumber)
+	public synchronized Message[] recent(int maxAge, int maxNumber)
 	{
 		long then = System.currentTimeMillis() - maxAge;
 		return getSince(then, maxNumber);
@@ -524,7 +524,7 @@ public class Channel extends HawthornObject
 	 *        greater than this)
 	 * @throws IllegalArgumentException If you specify too many parameters
 	 */
-	public synchronized void waitForMessage(Connection connection, String user,
+	public synchronized void wait(Connection connection, String user,
 		String displayName, String id, long lastTime)
 		throws IllegalArgumentException
 	{
@@ -549,10 +549,10 @@ public class Channel extends HawthornObject
 			{
 				result[i] = iterator.next();
 			}
-			sendWaitForMessageResponse(connection, id, result[result.length - 1]
+			sendWaitResponse(connection, id, result[result.length - 1]
 				.getTime(), result);
 			// When it responds straight away, we don't need for the user to
-			// be present, because this is only equivalent to getRecent anyhow.
+			// be present, because this is only equivalent to recent anyhow.
 			// If they're really in the channel they will send another request
 			// immediately.
 			return;
@@ -580,11 +580,11 @@ public class Channel extends HawthornObject
 		existing.access(System.currentTimeMillis()+WAIT_TIME);
 	}
 
-	private void sendWaitForMessageResponse(Connection connection, String id,
+	private void sendWaitResponse(Connection connection, String id,
 		long lastTime, Message[] messages)
 	{
 		StringBuilder output = new StringBuilder();
-		output.append("hawthorn.waitForMessageComplete(");
+		output.append("hawthorn.waitComplete(");
 		output.append(id);
 		output.append(',');
 		output.append(lastTime);
