@@ -418,10 +418,10 @@ public class Channel extends HawthornObject
 	{
 		int count = 0;
 		ListIterator<Message> iterator = messages.listIterator(messages.size());
-		while (iterator.hasPrevious() && count < maxNumber)
+		while (iterator.hasPrevious() && (maxNumber == ANY || count < maxNumber))
 		{
 			Message m = iterator.previous();
-			if (m.getTime() < then)
+			if (m.getTime() <= then)
 			{
 				iterator.next();
 				break;

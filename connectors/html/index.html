@@ -138,6 +138,7 @@ function poll()
 			el.appendChild(p);
 			var displayTime = new Date();
 			displayTime.setTime(lastTime);
+			lastPollTime = lastTime;
 			p.appendChild(document.createTextNode(
 				'Last time: ' + lastTime + " ("+ displayTime + "); poll delay " + delay));
 		},
