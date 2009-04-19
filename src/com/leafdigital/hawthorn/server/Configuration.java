@@ -48,6 +48,7 @@ public class Configuration
 	private Logger.Level minLogLevel = Logger.Level.NORMAL;
 	private LinkedList<TestKey> testKeys = new LinkedList<TestKey>();
 	private static long testKeyTime = System.currentTimeMillis() + TEST_KEY_EXPIRY;
+	private boolean detailedStats = false;
 
 	private Logger logger;
 
@@ -222,7 +223,24 @@ public class Configuration
 					else
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-							"The <logchat> value is not a valid log chat setting. "
+							"The <logchat> value is not valid. "
+								+ "Please use y or n.");
+					}
+				}
+				else if (child.getTagName().equals("detailedstats"))
+				{
+					if (getText(child).equals("y"))
+					{
+						detailedStats = true;
+					}
+					else if (getText(child).equals("n"))
+					{
+						detailedStats = false;
+					}
+					else
+					{
+						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
+							"The <detailedstats> value is not valid. "
 								+ "Please use y or n.");
 					}
 				}
@@ -557,6 +575,12 @@ public class Configuration
 	public int getPollScaleTime()
 	{
 		return pollScaleTime;
+	}
+
+	/** @return True if stats should be tracked for specific event types */
+	public boolean isDetailedStats()
+	{
+		return detailedStats;
 	}
 
 	/**

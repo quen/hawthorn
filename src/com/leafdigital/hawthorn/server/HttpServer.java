@@ -32,7 +32,6 @@ public final class HttpServer extends HawthornObject
 {
 	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000;
 	private final static String STATISTICS_CONNECTION_COUNT = "CONNECTION_COUNT";
-
 	/** Content type for UTF-8 JavaScript */
 	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
 	/** Content type for UTF-8 HTML */
@@ -44,6 +43,8 @@ public final class HttpServer extends HawthornObject
 	final static String STATISTICS_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
 	/** Statistic: size of close queue */
 	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
+	/** Statistic: request time for specific type */
+	final static String STATISTIC_REQUEST_TIME = "REQUEST_TIME_";
 
 	private final static int BACKLOG = 16;
 
@@ -80,6 +81,23 @@ public final class HttpServer extends HawthornObject
 		if(getConfig().getOtherServers().length > 0)
 		{
 			getStatistics().registerTimeStatistic(STATISTICS_SERVER_REQUEST_TIME);
+		}
+		if(getConfig().isDetailedStats())
+		{
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.SAY);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.LEAVE);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.POLL);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.WAIT);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.RECENT);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.LOG);
+			getStatistics().registerTimeStatistic(STATISTIC_REQUEST_TIME +
+				HttpEvent.STATISTICS);
 		}
 		getStatistics().registerInstantStatistic(STATISTICS_CLOSE_QUEUE_SIZE,
 			new Statistics.InstantStatisticHandler()
