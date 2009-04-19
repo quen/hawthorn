@@ -191,10 +191,16 @@ function wait()
 	var waitfor=document.getElementById('waitforbutton');
 	waitfor.disabled=true;
 	setText('waitfor','Waiting for new message...');
-	var yes=function(lastTime,messages,names)
+	var yes = function(lastTime, messages)
 	{
 		lastWait=lastTime;
-		setMessages("waitfor", messages, names);				
+		setMessages("waitfor", messages, null);
+		waitfor.disabled=false;
+	};
+	var first = function(messages, names, lastTime)
+	{
+		lastWait=lastTime;
+		setMessages("waitfor", messages, names);
 		waitfor.disabled=false;
 	};
 	var no=function(error)
@@ -204,13 +210,13 @@ function wait()
 	};
 	if(lastWait==0)
 	{
-		hawthorn.waitFirst(
+		hawthorn.recent(
 				document.getElementById('channel').value,
 				document.getElementById('user').value,
 				document.getElementById('displayname').value,
 				document.getElementById('keytime').value,
 				document.getElementById('key').value,
-				60*60*1000,10,yes,no);
+				60*60*1000, 10, null, first, no);
 	}
 	else
 	{
