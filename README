@@ -1,7 +1,6 @@
 This project is not ready for use yet. Hopefully when it is I will update this README.
 
 TODO:
-* Make popup window use poll method and test it.
 * Remove the 'wait' method from code if poll method is adequate
 * Add PHP connector example.
 * Add Moodle block connector example, including example of enhanced display

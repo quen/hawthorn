@@ -337,7 +337,7 @@ var hawthorn =
  * It inits the Hawthorn system and starts listening for events.
  * @constructor
  */
-function HawthornPopup()
+function HawthornPopup(useWait)
 {
 	this.keyAcquireURL = this.getPageParam('reacquire');
 	this.server = this.getPageParam('server');
@@ -352,6 +352,7 @@ function HawthornPopup()
 	this.maxAge = 10*60*1000; // 10 minutes old (default)
 	this.maxNumber = 10; // 10 messages (default)
 	this.lastTime = 0;
+	this.pollTime = 0;
 	this.lastDisplayTime = '';
 
 	this.strJoined = ' joined the chat';
@@ -383,7 +384,14 @@ function HawthornPopup()
 		hawthorn.leave(p.channel, p.user, p.displayName, p.keyTime,
 			p.key, function() { window.close(); }, function(error) { window.close(); });
 	};
-	this.startWait();
+	if (useWait)
+	{
+		this.startWait();
+	}
+	else
+	{
+		this.startPoll();
+	}
 }
 
 HawthornPopup.prototype.getPageParam = function(name)
@@ -416,6 +424,84 @@ HawthornPopup.prototype.reAcquire = function(continuation)
 		});
 }
 
+HawthornPopup.prototype.handleMessages = function(messages)
+{
+	for(var i = 0; i < messages.length; i++)
+	{
+		var message = messages[i];
+		if(message.type == 'JOIN')
+		{
+			this.addJoin(message.time, message.user, message.displayName,
+				message.user == this.user);
+		}
+		else if(message.type == 'LEAVE')
+		{
+			this.addLeave(message.time, message.user, message.displayName,
+				message.user == this.user);
+		}
+		else if(message.type == 'SAY')
+		{
+			this.addMessage(message.time, message.user, message.displayName,
+				message.text, message.user == this.user)
+		}
+	}
+}
+
+HawthornPopup.prototype.startPoll = function()
+{
+	var p = this;
+	setTimeout(function() { p.poll(); }, 50);
+}
+
+HawthornPopup.prototype.poll = function()
+{
+	// Is it time to poll?
+	var now = (new Date()).getTime();
+	if (now < this.pollTime)
+	{
+		// No, try again later
+		this.startPoll();
+		return;
+	}
+
+	// Result handler functions
+	var p = this;
+	var ok = function(messages, lastTime, delay)
+	{
+		p.handleMessages(messages);
+		var now = (new Date()).getTime();
+		p.pollTime = now + delay;
+		p.lastTime = lastTime;
+		p.startPoll();
+	};
+	var first = function(messages,names,lastTime)
+	{
+		for(var i = 0; i < names.length; i++)
+		{
+			var name=names[i];
+			p.addName(name.user, name.displayName);
+		}
+		ok(messages, lastTime, 2000);
+	};
+	var fail = function(error)
+	{
+		p.addError(error);
+		// And don't continue polling
+	};
+
+	// Poll
+	if (this.lastTime == 0)
+	{
+		hawthorn.recent(this.channel, this.user, this.displayName,
+				this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
+	}
+	else
+	{
+		hawthorn.poll(this.channel, this.user, this.displayName,
+			this.keyTime, this.key, this.lastTime, ok, fail);
+	}
+}
+
 HawthornPopup.prototype.startWait = function()
 {
 	if(this.left)
@@ -426,25 +512,7 @@ HawthornPopup.prototype.startWait = function()
 	var ok = function(lastTime,messages)
 	{
 		p.lastTime = lastTime;
-		for(var i = 0; i < messages.length; i++)
-		{
-			var message = messages[i];
-			if(message.type == 'JOIN')
-			{
-				p.addJoin(message.time, message.user, message.displayName,
-					message.user == p.user);
-			}
-			else if(message.type == 'LEAVE')
-			{
-				p.addLeave(message.time, message.user, message.displayName,
-					message.user == p.user);
-			}
-			else if(message.type == 'SAY')
-			{
-				p.addMessage(message.time, message.user, message.displayName,
-					message.text, message.user == p.user)
-			}
-		}
+		p.handleMessages(messages);
 		// If there's only 5 minutes until the key expires, request another
 		if(p.keyTime - lastTime < 5*60*1000)
 		{
@@ -675,4 +743,6 @@ HawthornPopup.prototype.say = function()
 	this.textBox.value = '';
 	hawthorn.say(this.channel, this.user, this.displayName, this.keyTime,
 		this.key, text, function() {}, this.addError);
+	// Make it poll again real soon to get this (if polling)
+	this.pollTime = 0;
 }
