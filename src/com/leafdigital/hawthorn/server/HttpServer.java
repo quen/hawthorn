@@ -590,7 +590,6 @@ public final class HttpServer extends HawthornObject
 						try
 						{
 							Socket newSocket = server.socket().accept();
-							newSocket.setSoLinger(true, 2);
 							newSocket.getChannel().configureBlocking(false);
 							SelectionKey newKey =
 								newSocket.getChannel().register(selector, SelectionKey.OP_READ);
@@ -708,6 +707,7 @@ public final class HttpServer extends HawthornObject
 				{
 					try
 					{
+						((SocketChannel)channel).socket().shutdownOutput();
 						channel.close();
 					}
 					catch(Throwable t)
