@@ -440,15 +440,26 @@ public class Configuration
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"Hawthorn system startup");
 
-			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Log folder: "
-				+ logFolder);
-			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Log level: "
-				+ minLogLevel);
-			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Logs deleted after: "
-				+ (logDays == 0 ? "never" : logDays + " days"));
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Logs: "
+				+ logFolder + " (level "+ minLogLevel + "; deleted after "
+				+ (logDays == 0 ? "never" : logDays + " days; ")
+				+ (logChat ? "chat logged" : "chat not logged") + ")");
+
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"Poll delay scale: " + minPollTime + "-" + maxPollTime + "ms, over "
+				+ pollScaleTime + "ms");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"History retained for: " + historyHours + " hours");
+
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"Event threads: " + eventThreads);
+
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"Detailed stats: " + (detailedStats ? "tracked" : "not tracked"));
+
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"IP header: " + (ipHeader==null ? "(none)" : ipHeader));
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "This server: "
 				+ thisServer);
