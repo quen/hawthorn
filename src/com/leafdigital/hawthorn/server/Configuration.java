@@ -49,6 +49,7 @@ public class Configuration
 	private LinkedList<TestKey> testKeys = new LinkedList<TestKey>();
 	private static long testKeyTime = System.currentTimeMillis() + TEST_KEY_EXPIRY;
 	private boolean detailedStats = false;
+	private String ipHeader = null;
 
 	private Logger logger;
 
@@ -307,6 +308,10 @@ public class Configuration
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <pollscale> value is not a valid number.");
 					}
+				}
+				else if (child.getTagName().equals("ipheader"))
+				{
+					ipHeader = getText(child);
 				}
 				else if (child.getTagName().equals("servers"))
 				{
@@ -581,6 +586,15 @@ public class Configuration
 	public boolean isDetailedStats()
 	{
 		return detailedStats;
+	}
+
+	/**
+	 * @return Name (not case-sensitive) of HTTP header that is trusted to
+	 *   provide the source IP address, or null if none; applies only to
+	 *   user connections, as server connections must be direct */
+	public String getIpHeader()
+	{
+		return ipHeader;
 	}
 
 	/**

@@ -392,6 +392,26 @@ public final class HttpServer extends HawthornObject
 						return;
 					}
 
+					String ipHeader = getConfig().getIpHeader();
+					if (ipHeader != null)
+					{
+						// Get rest of header in lower-case
+						String remainingHeader = new String(array, i+2, bufferPos-(i+2),
+							"US-ASCII").toLowerCase();
+						// Find header
+						int pos = remainingHeader.indexOf(ipHeader.toLowerCase()+":");
+						if (pos != -1)
+						{
+							int cr = remainingHeader.indexOf('\r',
+								pos + ipHeader.length() + 1);
+							if (cr != -1)
+							{
+								hostAddress = remainingHeader.substring(
+									pos + ipHeader.length() + 1, cr).trim();
+							}
+						}
+					}
+
 					buffer = null;
 					receivedRequest(m.group(1));
 					return;
