@@ -4,14 +4,16 @@ package com.leafdigital.hawthorn.loadtest;
 public final class TestThread extends Thread
 {
 	private LoadTest test;
+	private int index;
 
 	/**
 	 * @param test Main class
 	 */
-	public TestThread(LoadTest test)
+	public TestThread(LoadTest test, int index)
 	{
 		super("Load test thread");
 		this.test = test;
+		this.index = index;
 		start();
 	}
 
@@ -25,7 +27,7 @@ public final class TestThread extends Thread
 			{
 				return;
 			}
-			user.event();
+			user.event(index);
 		}
 	}
 }

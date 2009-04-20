@@ -1,7 +1,7 @@
 package com.leafdigital.hawthorn.loadtest;
 
 import java.io.*;
-import java.net.URL;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.*;
@@ -78,6 +78,8 @@ public class LoadTest
 	private SiteUser[] userPool;
 	private String[] channelPool;
 	private ActiveUser[] activeUsers;
+
+	private char[] threadStatus;
 
 	private TreeSet<UserEvent> userQueue = new TreeSet<UserEvent>();
 
@@ -279,9 +281,11 @@ public class LoadTest
 
 		// Start threads
 		System.err.println("Threads: " + threads);
+		threadStatus = new char[threads];
 		for (int i=0; i<threads; i++)
 		{
-			new TestThread(this);
+			threadStatus[i] = '.';
+			new TestThread(this, i);
 		}
 
 		// Wait for warmup period
@@ -332,15 +336,22 @@ public class LoadTest
 			System.err.println("@" + time + "s: Events " + pad(7, ""+countEvents) +
 				"; Errors " + pad(7, ""+countErrors) + "; Exceptions "+
 				pad(7, ""+countExceptions) + "; Queue " + pad(7, ""+queueDelay));
+			System.err.print("Threads: ");
+			for (int i=0; i<threads; i++)
+			{
+				System.err.print(threadStatus[i]);
+			}
+			System.err.println();
 
 			if(timeToClose)
+
 			{
 				break;
 			}
 
 			try
 			{
-				Thread.sleep(10000);
+				Thread.sleep(2000);
 			}
 			catch (InterruptedException e)
 			{
@@ -480,14 +491,19 @@ public class LoadTest
 	 * Makes a request of the Hawthorn server.
 	 * @param command Server command path (beginning with /hawthorn)
 	 * @param parameters Extra parameters to stick on the end
+	 * @param thread Index of thread
 	 * @return Result as a string, or null in the event of any error
 	 */
-	private String getResult(String command, String parameters)
+	private String getResult(String command, String parameters, int thread)
 	{
+		URL u=null;
 		try
 		{
-			URL u = new URL("http://" + host + ":" + port +	command + parameters);
-			InputStream stream = u.openStream();
+			u = new URL("http://" + host + ":" + port +	command + parameters);
+			threadStatus[thread] = 'C';
+			HttpURLConnection connection = (HttpURLConnection)u.openConnection();
+			InputStream stream = connection.getInputStream();
+			threadStatus[thread] = 'R';
 
 			byte[] buffer = new byte[4096];
 			ByteArrayOutputStream extraBuffer = null;
@@ -512,6 +528,8 @@ public class LoadTest
 				}
 			}
 			stream.close();
+			connection.disconnect();
+			threadStatus[thread] = '.';
 
 			if(extraBuffer != null)
 			{
@@ -523,7 +541,7 @@ public class LoadTest
 		}
 		catch(IOException e)
 		{
-			e.printStackTrace();
+			System.err.print("Exception: " + e.toString());
 			synchronized(countSynch)
 			{
 				countExceptions++;
@@ -550,12 +568,13 @@ public class LoadTest
 	/**
 	 * Executes the server 'request' command.
 	 * @param parameters Channel, user, and authentication URL params
+	 * @param thread Index of thread
 	 * @return Result of command
 	 */
-	public TimeResult doRecent(String parameters)
+	public TimeResult doRecent(String parameters, int thread)
 	{
 		String result = getResult(
-			"/hawthorn/recent?maxage=600000&maxnumber=10&id=1",	parameters);
+			"/hawthorn/recent?maxage=600000&maxnumber=10&id=1",	parameters, thread);
 		if(result == null)
 		{
 			// Handle failure gracefully so user can keep on keeping on
@@ -582,12 +601,13 @@ public class LoadTest
 	 * Executes the server 'poll' command.
 	 * @param parameters Channel, user, and authentication URL params
 	 * @param lastTimeStamp Timestamp of last response from server
+	 * @param thread Index of thread
 	 * @return Result of command
 	 */
-	public TimeResult doPoll(String parameters, long lastTimeStamp)
+	public TimeResult doPoll(String parameters, long lastTimeStamp, int thread)
 	{
 		String result = getResult(
-			"/hawthorn/poll?lasttime=" + lastTimeStamp + "&id=1", parameters);
+			"/hawthorn/poll?lasttime=" + lastTimeStamp + "&id=1", parameters, thread);
 		if(result == null)
 		{
 			// Handle failure gracefully so user can keep on keeping on
@@ -615,11 +635,13 @@ public class LoadTest
 	/**
 	 * Executes the server 'say' command.
 	 * @param parameters Channel, user, and authentication URL params
+	 * @param thread Index of thread
 	 */
-	public void doSay(String parameters)
+	public void doSay(String parameters, int thread)
 	{
 		String result = getResult(
-			"/hawthorn/say?message=Load%20testing%20chat&id=1", parameters);
+			"/hawthorn/say?message=Load%20testing%20chat&id=1", parameters,
+			thread);
 		if(result == null)
 		{
 			// Handle failure gracefully so user can keep on keeping on
@@ -638,11 +660,12 @@ public class LoadTest
 	/**
 	 * Executes the server 'leave' command.
 	 * @param parameters Channel, user, and authentication URL params
+	 * @param thread Index of thread
 	 */
-	public void doLeave(String parameters)
+	public void doLeave(String parameters, int thread)
 	{
 		String result = getResult(
-			"/hawthorn/leave?id=1", parameters);
+			"/hawthorn/leave?id=1", parameters, thread);
 		if(result == null)
 		{
 			// Handle failure gracefully so user can keep on keeping on

@@ -41,7 +41,7 @@ public class ActiveUser
 		nextType[CLOSE] = now + test.pickSessionLength();
 	}
 
-	public void event()
+	public void event(int threadIndex)
 	{
 		// Find the first event
 		long min = Long.MAX_VALUE;
@@ -59,16 +59,16 @@ public class ActiveUser
 		switch(minType)
 		{
 		case REQUEST:
-			doRequest();
+			doRequest(threadIndex);
 			break;
 		case POLL:
-			doPoll();
+			doPoll(threadIndex);
 			break;
 		case SAY:
-			doSay();
+			doSay(threadIndex);
 			break;
 		case CLOSE:
-			doClose();
+			doClose(threadIndex);
 			break;
 		}
 
@@ -76,33 +76,34 @@ public class ActiveUser
 		updateNextEvent();
 	}
 
-	private void doRequest()
+	private void doRequest(int threadIndex)
 	{
 		nextType[REQUEST] = 0;
-		LoadTest.TimeResult result = test.doRecent(parameters);
+		LoadTest.TimeResult result = test.doRecent(parameters, threadIndex);
 		nextType[POLL] = result.getNextRequest();
 		lastTimeStamp = result.getTimeStamp();
 	}
 
-	private void doPoll()
+	private void doPoll(int threadIndex)
 	{
-		LoadTest.TimeResult result = test.doPoll(parameters, lastTimeStamp);
+		LoadTest.TimeResult result = test.doPoll(parameters, lastTimeStamp,
+			threadIndex);
 		nextType[POLL] = result.getNextRequest();
 		lastTimeStamp = result.getTimeStamp();
 	}
 
-	private void doSay()
+	private void doSay(int threadIndex)
 	{
 		nextType[SAY] = System.currentTimeMillis() + test.pickSayPause();
-		test.doSay(parameters);
+		test.doSay(parameters, threadIndex);
 	}
 
-	private void doClose()
+	private void doClose(int threadIndex)
 	{
 		nextType[CLOSE] = System.currentTimeMillis() + test.pickSessionLength();
 		if (test.pickSendLeave())
 		{
-			test.doLeave(parameters);
+			test.doLeave(parameters, threadIndex);
 		}
 		newUser();
 	}
