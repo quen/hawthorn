@@ -4,7 +4,7 @@ package com.leafdigital.hawthorn.loadtest;
  * Represents one of the users who is currently active. (May change which
  * user it actually is periodically!)
  */
-public class ActiveUser
+public class ActiveUser implements EventSource
 {
 	private LoadTest test;
 	private LoadTest.SiteUser user;

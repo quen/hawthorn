@@ -3,8 +3,11 @@ package com.leafdigital.hawthorn.loadtest;
 import java.io.*;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
+
+import javax.swing.text.NumberFormatter;
 
 import com.leafdigital.hawthorn.util.Auth;
 
@@ -45,7 +48,7 @@ import com.leafdigital.hawthorn.util.Auth;
  *   can redirect them separately.) Default: 5.</dt>
  * <dd>siteusers</dd>
  * <dt>Size of pool that the driveby and active users are picked from. Default:
- *   users * 10</dt>
+ *   max ( users * 10, drivebys * 10)</dt>
  * <dd>channels</dd>
  * <dt>Number of chat channels in use. Default: users / 10 (min 1).</dt>
  * <dd>sessionminutes</dd>
@@ -57,8 +60,11 @@ import com.leafdigital.hawthorn.util.Auth;
  *   only happens if the user closes the window via the link and not the X
  *   button). Default: 30</dt>
  * <dd>threads</dd>
- * <dt>Number of work threads used by the load-tester. Default: 100.</dt>
+ * <dt>Number of work threads used by the load-tester. Default:
+ *   max(drivebys/250, users/100) + 1.</dt>
  * </dl>
+ * If you want to watch the simulation in action, connect to the Hawthorn server
+ * in channel "loadtestchan0" (or another such number).
  */
 public class LoadTest
 {
@@ -73,6 +79,7 @@ public class LoadTest
 	private long keyTime, endWarmupTime;
 
 	private int countEvents, countExceptions, countErrors;
+	private long eventTime;
 	private Object countSynch = new Object();
 
 	private SiteUser[] userPool;
@@ -120,10 +127,10 @@ public class LoadTest
 	/** A user event. Queues required user actions. */
 	static class UserEvent implements Comparable<UserEvent>
 	{
-		private ActiveUser u;
+		private EventSource u;
 		private long time;
 
-		public UserEvent(ActiveUser u, long time)
+		public UserEvent(EventSource u, long time)
 		{
 			this.u = u;
 			this.time = time;
@@ -137,11 +144,11 @@ public class LoadTest
 	}
 
 	/**
-	 * Adds this user to the queue of users waiting for action.
-	 * @param u User
+	 * Adds this user/source to the queue of events waiting for action.
+	 * @param u Event source
 	 * @param time Time they want to be active
 	 */
-	public void queueUser(ActiveUser u, long time)
+	public void queueUser(EventSource u, long time)
 	{
 		UserEvent event = new UserEvent(u, time);
 		synchronized(userQueue)
@@ -157,9 +164,9 @@ public class LoadTest
 	 * @return User to process - or null if the queue end has been reached
 	 *   and testing is over
 	 */
-	public ActiveUser getNextEvent()
+	public EventSource getNextEvent()
 	{
-		ActiveUser u;
+		EventSource u;
 		synchronized(userQueue)
 		{
 			while(true)
@@ -243,14 +250,27 @@ public class LoadTest
 		return (int)(Math.random()*100) < leaveChance;
 	}
 
+	/**
+	 * @return Delay before next drive-by event, in microseconds (not ms)
+	 */
+	public int pickDriveByDelay()
+	{
+		return (int)(Math.random() * 2 * 60000000.0 / drivebys);
+	}
+
 	private void test()
 	{
+		// Display initial stuff
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd,kk:mm");
+		System.out.println("Hawthorn load test,"+sdf.format(new Date()));
+		System.out.println();
+
 		// Initialise key time
 		long now = System.currentTimeMillis();
 		keyTime = now + (minutes+1) * 60000;
 
 		// Initialise user pool
-		System.err.println("User pool: " + siteUsers);
+		System.out.println("User pool," + siteUsers);
 		userPool = new SiteUser[siteUsers];
 		for (int i=0; i<siteUsers; i++)
 		{
@@ -258,7 +278,7 @@ public class LoadTest
 		}
 
 		// Initialise channels
-		System.err.println("Channel pool: " + channels);
+		System.out.println("Channel pool," + channels);
 		channelPool = new String[channels];
 		for (int i=0; i<channels; i++)
 		{
@@ -266,21 +286,25 @@ public class LoadTest
 		}
 
 		// Initialise active users
-		System.err.println("Active users: " + users);
+		System.out.println("Active users," + users);
 		activeUsers = new ActiveUser[users];
 		for (int i=0; i<users; i++)
 		{
 			activeUsers[i] = new ActiveUser(this);
 		}
 
+		// Initialise driveby source
+		System.out.println("Drivebys per minute," + drivebys);
+		new DriveBySource(this);
+
 		// Initialise event queue
-		System.err.println("Test minutes: " + minutes);
+		System.out.println("Test minutes," + minutes);
 		endWarmupTime = now + WARMUP_TIME;
 		long testEndTime = minutes * 60000L + endWarmupTime;
 		userQueue.add(new UserEvent(null, testEndTime));
 
 		// Start threads
-		System.err.println("Threads: " + threads);
+		System.out.println("Threads," + threads);
 		threadStatus = new char[threads];
 		for (int i=0; i<threads; i++)
 		{
@@ -308,6 +332,11 @@ public class LoadTest
 		}
 		long start = System.currentTimeMillis();
 
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		nf.setMinimumFractionDigits(2);
+		nf.setMinimumIntegerDigits(2);
+
 		// Now display information about test every 10 seconds
 		while (true)
 		{
@@ -318,7 +347,7 @@ public class LoadTest
 			int queueDelay = 0;
 			synchronized(userQueue)
 			{
-				if(userQueue.size() == 1)
+				if(userQueue.iterator().next().u == null)
 				{
 					timeToClose = true;
 				}
@@ -333,10 +362,11 @@ public class LoadTest
 				}
 			}
 
-			System.err.println("@" + time + "s: Events " + pad(7, ""+countEvents) +
+			double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
+			System.err.print("@" + time + "s: Events " + pad(7, ""+countEvents) +
 				"; Errors " + pad(7, ""+countErrors) + "; Exceptions "+
-				pad(7, ""+countExceptions) + "; Queue " + pad(7, ""+queueDelay));
-			System.err.print("Threads: ");
+				pad(7, ""+countExceptions) + "; Queue " + pad(7, ""+queueDelay) +
+				"; Event mean " + nf.format(meanTime) + "ms; Threads: ");
 			for (int i=0; i<threads; i++)
 			{
 				System.err.print(threadStatus[i]);
@@ -344,19 +374,24 @@ public class LoadTest
 			System.err.println();
 
 			if(timeToClose)
-
 			{
 				break;
 			}
 
 			try
 			{
-				Thread.sleep(2000);
+				Thread.sleep(5000);
 			}
 			catch (InterruptedException e)
 			{
 			}
 		}
+
+		double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
+		System.out.println();
+		System.out.println("Events,Errors,Exceptions,Event mean");
+		System.out.println(countEvents + "," + countErrors + "," + countExceptions
+			 + "," + nf.format(meanTime));
 	}
 
 	private static String pad(int length, String string)
@@ -383,16 +418,22 @@ public class LoadTest
 			t.magicNumber = getStringParameter(args, "magicnumber");
 			t.drivebys = getIntParameter(args, "drivebys", REQUIRED, 0);
 			t.users = getIntParameter(args, "users", REQUIRED, 0);
+			if (t.drivebys == 0 && t.users == 0)
+			{
+				throw new IllegalArgumentException(
+					"You must have at least 1 active user or driveby user");
+			}
 
 			// Optional parameters
 			t.port = getIntParameter(args, "port", 13370, 1);
 			t.minutes = getIntParameter(args, "minutes", 5, 1);
-			t.siteUsers = getIntParameter(args, "siteusers", t.users*10, t.users);
+			t.siteUsers = getIntParameter(args, "siteusers",
+				Math.max(t.users*10, t.drivebys * 10), Math.max(t.users, 1));
 			t.channels = getIntParameter(args, "channels", Math.max(t.users/10, 1), 1);
 			t.sessionMinutes = getIntParameter(args, "sessionminutes", 10, 1);
 			t.saySeconds = getIntParameter(args, "sayseconds", 60, 1);
 			t.leaveChance = getIntParameter(args, "leavechance", 30, 0);
-			t.threads = getIntParameter(args, "threads", 100, 1);
+			t.threads = getIntParameter(args, "threads", 1+Math.max(t.users/100, t.drivebys/250), 1);
 		}
 		catch(IllegalArgumentException e)
 		{
@@ -499,6 +540,7 @@ public class LoadTest
 		URL u=null;
 		try
 		{
+			long before = System.currentTimeMillis();
 			u = new URL("http://" + host + ":" + port +	command + parameters);
 			threadStatus[thread] = 'C';
 			HttpURLConnection connection = (HttpURLConnection)u.openConnection();
@@ -537,6 +579,14 @@ public class LoadTest
 				buffer = extraBuffer.toByteArray();
 				pos = buffer.length;
 			}
+
+			long time = System.currentTimeMillis() - before;
+
+			synchronized(countSynch)
+			{
+				eventTime += time;
+			}
+
 			return new String(buffer, 0, pos, "UTF-8");
 		}
 		catch(IOException e)
@@ -566,7 +616,8 @@ public class LoadTest
 		"^hawthorn\\.leaveComplete.*");
 
 	/**
-	 * Executes the server 'request' command.
+	 * Executes the server 'request' command that is immediately followed
+	 * by a poll request.
 	 * @param parameters Channel, user, and authentication URL params
 	 * @param thread Index of thread
 	 * @return Result of command
@@ -594,7 +645,7 @@ public class LoadTest
 		long
 		  now = System.currentTimeMillis(),
 			timestamp = Long.parseLong(m.group(1));
-		return new TimeResult(timestamp, now + 2000);
+		return new TimeResult(timestamp, now);
 	}
 
 	/**

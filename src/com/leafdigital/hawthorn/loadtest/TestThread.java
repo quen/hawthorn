@@ -22,7 +22,7 @@ public final class TestThread extends Thread
 	{
 		while(true)
 		{
-			ActiveUser user = test.getNextEvent();
+			EventSource user = test.getNextEvent();
 			if(user == null)
 			{
 				return;
