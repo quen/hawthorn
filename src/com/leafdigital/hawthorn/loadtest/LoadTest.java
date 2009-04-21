@@ -528,6 +528,8 @@ public class LoadTest
 		}
 	}
 
+	private HashSet<String> shownExceptions = new HashSet<String>();
+
 	/**
 	 * Makes a request of the Hawthorn server.
 	 * @param command Server command path (beginning with /hawthorn)
@@ -591,7 +593,14 @@ public class LoadTest
 		}
 		catch(IOException e)
 		{
-			System.err.print("Exception: " + e.toString());
+			String exception = e.toString();
+			synchronized(shownExceptions)
+			{
+				if(shownExceptions.add(exception))
+				{
+					System.err.print("Exception '" + e.toString() + "' [Further instances not shown]");
+				}
+			}
 			synchronized(countSynch)
 			{
 				countExceptions++;
