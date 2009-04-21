@@ -40,7 +40,7 @@ public class Configuration
 
 	private String magicNumber;
 	private boolean logChat = true;
-	private int historyHours = 4;
+	private int historyHours = 1;
 	private int eventThreads = 4;
 	private int minPollTime = 2000, maxPollTime = 15000, pollScaleTime = 60000;
 	private ServerInfo[] otherServers;
