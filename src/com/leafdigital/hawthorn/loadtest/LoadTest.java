@@ -7,8 +7,6 @@ import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
-import javax.swing.text.NumberFormatter;
-
 import com.leafdigital.hawthorn.util.Auth;
 
 /**

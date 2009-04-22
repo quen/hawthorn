@@ -8,6 +8,7 @@ public final class TestThread extends Thread
 
 	/**
 	 * @param test Main class
+	 * @param index Index of thread
 	 */
 	public TestThread(LoadTest test, int index)
 	{
