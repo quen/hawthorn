@@ -43,7 +43,6 @@ public class InitTag extends BodyTagSupport
 	private String magicNumber, user, displayName, jsUrl, popupUrl, reAcquireUrl;
 	private long keyExpiry = DEFAULT_KEY_EXPIRY;
 	private URL[] servers;
-	private int preferredServer;
 	private boolean defer;
 
 	@Override
@@ -88,7 +87,6 @@ public class InitTag extends BodyTagSupport
 
 		// Check list
 		LinkedList<URL> serverList = new LinkedList<URL>();
-		preferredServer = -1;
 		for (Node n = doc.getDocumentElement().getFirstChild(); n != null;
 			n =	n.getNextSibling())
 		{
@@ -110,11 +108,6 @@ public class InitTag extends BodyTagSupport
 				catch (MalformedURLException e1)
 				{
 					throw new JspException("Not a valid server URL: " + serverName);
-				}
-
-				if("true".equals(e.getAttribute("preferred")))
-				{
-					preferredServer=serverList.size()-1;
 				}
 			}
 		}
@@ -268,12 +261,6 @@ public class InitTag extends BodyTagSupport
 		return serversCopy;
 	}
 
-	/** @return Preferred server or -1 if no preference */
-	public int getPreferredServer()
-	{
-		return preferredServer;
-	}
-
 	/** @param defer True to defer JavaScript */
 	public void setDefer(boolean defer)
 	{
@@ -322,7 +309,7 @@ public class InitTag extends BodyTagSupport
 				out.print(server);
 				out.print('\'');
 			}
-			out.println("],"+getPreferredServer()+");");
+			out.println("]);");
 			out.println("</script>");
 		}
 	}

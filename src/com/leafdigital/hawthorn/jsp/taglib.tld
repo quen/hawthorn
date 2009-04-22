@@ -18,8 +18,7 @@ jsptaglibrary_2_0.xsd"
 		<description>
 			Initialises Hawthorn settings. You must include this tag on each
 			page that uses other Hawthorn tags. This tag must contain at least one
-			&lt;server>http://whatever:123/&lt;/server>. You can specify 
-			preferred='true' to mark a preferred server if you like.
+			&lt;server>http://whatever:123/&lt;/server>.
 		</description>
 		<display-name>Initialise Hawthorn tags</display-name>
 		<name>init</name>

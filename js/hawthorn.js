@@ -24,48 +24,100 @@ var hawthorn =
 	id : 1,
 	handlers : [],
 	currentServer : null,
+	servers : null,
 
-	init : function(servers,preferred)
+	init : function(servers)
 	{
 		this.servers = servers;
-		if (preferred == -1)
-		{
-			preferred = Math.floor(Math.random() * servers.length);
-		}
-		this.currentServer = servers[preferred];
+		this.currentServer = Math.floor(Math.random() * servers.length);
 	},
 
 	addTag : function(path)
 	{
-		if(!hawthorn.currentServer)
+		if (!this.servers)
 		{
-			hawthorn.getHandler(currentId).failure('Not inited');
+			this.getHandler(currentId).failure('Not inited');
 			this.id++;
 			return;
 		}
-		this.addTagAnyServer(this.currentServer + path);
+
+		// Make an array that does this request on each available server,
+		// with the current server being first.
+		var urlArray = [];
+		var index = this.currentServer;
+		for (var i=0; i<this.servers.length; i++)
+		{
+			if (index == this.servers.length)
+			{
+				index = 0;
+			}
+			urlArray[i] = this.servers[index] + path;
+			index++;
+		}
+
+		this.addTagAnyServer(urlArray, true);
 	},
 
-	addTagAnyServer : function(url)
+	addTagAnyServer : function(url, updateCurrent)
 	{
 		var head = document.getElementsByTagName("head")[0];
 		var newScript = document.createElement('script');
 		newScript.id = 'hawthorn_script' + this.id;
 		newScript.type = 'text/javascript';
-		var src = url;
-		if(src.indexOf('?') == -1)
+
+		// Make sure input variable is an array
+		if (url.constructor != Array)
 		{
-			src += '?id=' + this.id;
+			url = [url];
 		}
-		else
+
+		// Add ID to each input URL
+		for (var i=0; i<url.length; i++)
 		{
-			src += '&id=' + this.id;
+			if (url[i].indexOf('?') == -1)
+			{
+				url[i] += '?id=' + this.id;
+			}
+			else
+			{
+				url[i] += '&id=' + this.id;
+			}
 		}
-		newScript.src = src;
+
+		newScript.src = url.shift();
+		newScript.otherUrls = url;
+
 		var currentId = this.id;
 		newScript.onerror = function()
 		{
-			hawthorn.getHandler(currentId).failure('Error accessing chat server');
+			var currentTag = document.getElementById('hawthorn_script' + currentId);
+			currentTag.parentNode.removeChild(currentTag);
+		  var urls = currentTag.otherUrls;
+			if (urls.length == 0)
+			{
+				hawthorn.getHandler(currentId).failure('Error accessing chat server');
+			}
+			else
+			{
+				// Retry with next URL
+				var anotherScript = document.createElement('script');
+				anotherScript.id = currentTag.id;
+				anotherScript.type = 'text/javascript';
+				anotherScript.src = urls.shift();
+				anotherScript.otherUrls = urls;
+				anotherScript.onerror = currentTag.onerror;
+				head.appendChild(anotherScript);
+
+				// Update current server
+				if (updateCurrent)
+				{
+					hawthorn.currentServer++;
+					if (hawthorn.currentServer >= hawthorn.servers.length)
+					{
+						hawthorn.currentServer = 0;
+					}
+				}
+			}
 		};
 		head.appendChild(newScript);
 		this.id++;
@@ -229,7 +281,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTagAnyServer(url + '?channel=' + channel + '&user=' + user
-		+ '&displayname=' + encodeURIComponent(displayName));
+			+ '&displayname=' + encodeURIComponent(displayName), false);
 	},
 
 	reAcquireComplete : function(id, key, keyTime)
@@ -271,11 +323,20 @@ var hawthorn =
 
 	openPopup : function(url,reAcquireUrl,channel,user,displayName,keyTime,key,title)
 	{
+		var servers = '';
+		for (var i=0; i<this.servers.length; i++)
+		{
+			if (i!=0)
+			{
+				servers += ',';
+			}
+			servers += this.servers[i];
+		}
 		this.chatWindow = window.open(url + '?reacquire=' +
 			encodeURIComponent(reAcquireUrl) + '&channel=' + channel + '&user=' +
 			user + '&displayName=' + encodeURIComponent(displayName) + '&keyTime=' +
 			keyTime + '&key=' + key + '&title=' + encodeURIComponent(title) +
-			'&server=' + encodeURIComponent(this.currentServer), '_' + channel,
+			'&servers=' + encodeURIComponent(servers), '_' + channel,
 			'width=500,height=400,menubar=no,'+
 			'toolbar=no,location=no,directories=no,status=no,resizable=yes,'+
 			'scrollbars=no');
@@ -351,8 +412,8 @@ var hawthorn =
 function HawthornPopup(useWait)
 {
 	this.keyAcquireURL = this.getPageParam('reacquire');
-	this.server = this.getPageParam('server');
-	hawthorn.init([this.server], 0);
+	this.servers = this.getPageParam('servers').split(',');
+	hawthorn.init(this.servers);
 
 	this.channel = this.getPageParam('channel');
 	this.user = this.getPageParam('user');
