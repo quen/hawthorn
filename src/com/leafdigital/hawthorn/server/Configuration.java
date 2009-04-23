@@ -40,7 +40,7 @@ public class Configuration
 
 	private String magicNumber;
 	private boolean logChat = true;
-	private int historyHours = 1;
+	private long historyTime = 60*60*1000;
 	private int eventThreads = 4;
 	private int minPollTime = 2000, maxPollTime = 15000, pollScaleTime = 60000;
 	private ServerInfo[] otherServers;
@@ -245,12 +245,12 @@ public class Configuration
 								+ "Please use y or n.");
 					}
 				}
-				else if (child.getTagName().equals("historyhours"))
+				else if (child.getTagName().equals("historytime"))
 				{
 					try
 					{
-						historyHours = Integer.parseInt(getText(child));
-						if (historyHours < 0)
+						historyTime = Long.parseLong(getText(child));
+						if (historyTime < 0)
 						{
 							throw new NumberFormatException();
 						}
@@ -258,7 +258,7 @@ public class Configuration
 					catch (NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-							"The <historyhours> value is not a valid number.");
+							"The <historytime> value is not a valid number.");
 					}
 				}
 				else if (child.getTagName().equals("minpoll"))
@@ -450,7 +450,7 @@ public class Configuration
 				+ pollScaleTime + "ms");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"History retained for: " + historyHours + " hours");
+				"History retained for: " + (historyTime/60000L) + " minutes");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"Event threads: " + eventThreads);
@@ -561,10 +561,10 @@ public class Configuration
 		return magicNumber;
 	}
 
-	/** @return History time to keep messages for */
-	public int getHistoryHours()
+	/** @return History time to keep messages for (ms) */
+	public long getHistoryTime()
 	{
-		return historyHours;
+		return historyTime;
 	}
 
 	/** @return True if chat messages should be logged at this server */

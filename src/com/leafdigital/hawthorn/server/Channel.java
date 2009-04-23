@@ -266,9 +266,7 @@ public class Channel extends HawthornObject
 	synchronized boolean cleanup()
 	{
 		// Remove old messages
-		long then =
-			System.currentTimeMillis()
-				- (getConfig().getHistoryHours() * 60L * 60L * 1000L);
+		long then = System.currentTimeMillis() - getConfig().getHistoryTime();
 		for (Iterator<Message> i = messages.iterator(); i.hasNext();)
 		{
 			Message m = i.next();
