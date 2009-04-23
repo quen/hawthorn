@@ -227,14 +227,19 @@ public class HttpEvent extends Event
 		// Don't allow control characters
 		if (message == null || !message.matches(Hawthorn.REGEXP_MESSAGE))
 		{
-			connection.send("sayEror(" + id + ",'Missing or invalid message=');");
+			connection.send("hawthorn.sayEror(" + id + ",'Missing or invalid message=');");
 			return;
+		}
+		String unique = params.get("unique");
+		if (unique == null || !unique.matches(REGEXP_LONG))
+		{
+			connection.send("hawthorn.sayError(" + id + ",'Missing unique=');");
 		}
 
 		Message m =
 			new SayMessage(System.currentTimeMillis(), channel,
 				connection.toString(), params.get("user"), params.get("displayname"),
-				message);
+				message, unique);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.sayComplete(" + id + ");");

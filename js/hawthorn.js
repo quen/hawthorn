@@ -85,28 +85,38 @@ var hawthorn =
 		}
 
 		newScript.src = url.shift();
-		newScript.otherUrls = url;
 
-		var currentId = this.id;
-		newScript.onerror = function()
+		var data = new Object();
+		data.tag = newScript;
+		data.urls = url;
+		data.eventId = this.id;
+
+		// onerror function: retries or calls the error handler
+		var errorFunction = function()
 		{
-			var currentTag = document.getElementById('hawthorn_script' + currentId);
-			currentTag.parentNode.removeChild(currentTag);
-		  var urls = currentTag.otherUrls;
-			if (urls.length == 0)
+			// Clear timeout
+			window.clearTimeout(data.timeoutId);
+
+			// Remove tag
+			data.tag.parentNode.removeChild(data.tag);
+
+			// Retry or give error
+			if (data.urls.length == 0)
 			{
-				hawthorn.getHandler(currentId).failure('Error accessing chat server');
+				hawthorn.getHandler(data.eventId).failure('Error accessing chat server');
 			}
 			else
 			{
 				// Retry with next URL
 				var anotherScript = document.createElement('script');
-				anotherScript.id = currentTag.id;
+				anotherScript.id = data.tag.id;
 				anotherScript.type = 'text/javascript';
-				anotherScript.src = urls.shift();
-				anotherScript.otherUrls = urls;
-				anotherScript.onerror = currentTag.onerror;
+				anotherScript.src = data.urls.shift();
+				anotherScript.onerror = errorFunction;
+				anotherScript.onload = loadFunction;
+				data.timeoutId = window.setTimeout(errorFunction, 20000);
 				head.appendChild(anotherScript);
+				data.tag = anotherScript;
 
 				// Update current server
 				if (updateCurrent)
@@ -119,7 +129,21 @@ var hawthorn =
 				}
 			}
 		};
+
+		// onload function: clears the timeout
+		var loadFunction = function()
+		{
+			var currentTag = data.tag;
+			window.clearTimeout(data.timeoutId);
+		}
+
+		newScript.onerror = errorFunction;
+		newScript.onload = loadFunction;
 		head.appendChild(newScript);
+
+		// Timeout 20s
+		data.timeoutId = window.setTimeout(errorFunction, 20000);
+
 		this.id++;
 	},
 
@@ -206,7 +230,11 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/say?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
-				+ "&key=" + key + "&message=" + encodeURIComponent(message));
+				+ "&key=" + key + "&message=" + encodeURIComponent(message)
+				+ "&unique=" + (new Date()).getTime());
+
+		// Unique ID ensures we don't duplicate messages
+		sayUnique++;
 	},
 
 	sayComplete : function(id)

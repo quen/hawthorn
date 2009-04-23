@@ -57,6 +57,9 @@ public class Channel extends HawthornObject
 	/** Map from user ID of everyone present in the channel */
 	private HashMap<String, UserInfo> present = new HashMap<String, UserInfo>();
 
+	/** Set containing the userid and unique of all messages in this chan */
+	private HashSet<String> uniqueMessages = new HashSet<String>();
+
 	private long lastMessage = 0;
 
 	/** Class handles a user/connection listening for an upcoming message. */
@@ -243,6 +246,17 @@ public class Channel extends HawthornObject
 	}
 
 	/**
+	 * Obtains a unique identifier within this channel (userid + unique id)
+	 * for a SayMessage.
+	 * @param m Message
+	 * @return Unique identifier
+	 */
+	private static String getUniqueKey(SayMessage m)
+	{
+		return m.getUser() + ":" + m.getUnique();
+	}
+
+	/**
 	 * Cleans up old messsages and sends leave message for timed-out users.
 	 * Called every few seconds.
 	 * @see Channels
@@ -261,6 +275,10 @@ public class Channel extends HawthornObject
 			if (m.getTime() > then)
 			{
 				break;
+			}
+			if (m instanceof SayMessage)
+			{
+				uniqueMessages.remove(getUniqueKey((SayMessage)m));
 			}
 			i.remove();
 		}
@@ -302,6 +320,11 @@ public class Channel extends HawthornObject
 		// Handle presence information
 		if (m instanceof SayMessage)
 		{
+			if (!uniqueMessages.add(getUniqueKey((SayMessage)m)))
+			{
+				// Message is already in channel, so don't add it again
+				return;
+			}
 			UserInfo existing = present.get(m.getUser());
 			if (existing == null)
 			{
