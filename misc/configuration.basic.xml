@@ -2,7 +2,7 @@
   This is an example of the most basic config file possible, plus
   a few additions to make it more suitable for a test system.
   -->
-<jschat>
+<hawthorn>
 <!-- Folder where logs will be stored. This folder must exist. -->
 <logfolder>/tmp/hawthorn/1</logfolder>
 <!-- Level of logging. DETAIL logs a lot of extra info. -->
@@ -25,4 +25,4 @@
 <testkey channel="a" user="c" displayname="User C"/>
 <testkey channel="a" user="_admin" displayname="_"/>
 <testkey channel="!system" user="_admin" displayname="_"/>
-</jschat>
+</hawthorn>

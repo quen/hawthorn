@@ -152,10 +152,10 @@ public class Configuration
 		{
 			// Parse file
 			Document xml = XML.getDocumentBuilder().parse(configFile);
-			if (!xml.getDocumentElement().getTagName().equals("jschat"))
+			if (!xml.getDocumentElement().getTagName().equals("hawthorn"))
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
-					"Configuration file root element must be <jschat>.");
+					"Configuration file root element must be <hawthorn>.");
 			}
 
 			// Go through each child element

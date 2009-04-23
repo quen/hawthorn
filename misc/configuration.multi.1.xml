@@ -6,7 +6,7 @@
      more than a handful of servers. 
      
      The .2 and .3 configuration files are not commented, but are similar. -->
-<jschat>
+<hawthorn>
 <!-- All servers must use the same magic number. -->
 <magicnumber>6a8c0a401876992fe153a9963ba237f93eb25a94</magicnumber>
 <!-- Servers can share the same log folder if they have shared storage; I 
@@ -23,4 +23,4 @@
 </servers>
 <!-- Generate a test key on stdout -->
 <testkey channel="a" user="b" displayname="User B"/>
-</jschat>
+</hawthorn>
