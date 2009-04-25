@@ -58,7 +58,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				URL of hawthorn popup HTML/JSP (may be relative to current page).
+				URL of hawthorn popup HTML (may be relative to current page).
 			</description>
 			<name>popupUrl</name>
 			<required>true</required>
@@ -101,7 +101,7 @@ jsptaglibrary_2_0.xsd"
 	<tag>
 		<description>
 			Displays recent messages and names from a Hawthorn chat channel.
-			(Gives user a ticket granting Hawthorn access for one hour.)
+			(Gives user a key granting Hawthorn access for one hour.)
 		</description>
 		<display-name>Get recent chat messages and participants</display-name>
 		<name>recent</name>
@@ -174,7 +174,7 @@ jsptaglibrary_2_0.xsd"
 	<tag>
 		<description>
 			Provides a link to a popup window for use to chat in a
-			Hawthorn chat channel. (Gives user a ticket granting Hawthorn access
+			Hawthorn chat channel. (Gives user a key granting Hawthorn access
 			for one hour.) Content of tag is link text.
 		</description>
 		<display-name>Link to open a popup chat window</display-name>
