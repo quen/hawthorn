@@ -32,18 +32,18 @@ public final class HttpServer extends HawthornObject
 {
 	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000,
 		LOGTIME_EVERY = 10000;
-	private final static String STATISTICS_CONNECTION_COUNT = "CONNECTION_COUNT";
+	private final static String STATISTIC_CONNECTION_COUNT = "CONNECTION_COUNT";
 	/** Content type for UTF-8 JavaScript */
 	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
 	/** Content type for UTF-8 HTML */
 	final static String CONTENT_TYPE_HTML = "text/html; charset=UTF-8";
 
 	/** Statistic: request time for all HTTP events from users */
-	final static String STATISTICS_USER_REQUEST_TIME = "USER_REQUEST_TIME";
+	final static String STATISTIC_USER_REQUEST_TIME = "USER_REQUEST_TIME";
 	/** Statistic: request time for all HTTP events from servers */
-	final static String STATISTICS_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
+	final static String STATISTIC_SERVER_REQUEST_TIME = "SERVER_REQUEST_TIME";
 	/** Statistic: size of close queue */
-	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
+	final static String STATISTIC_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
 	/** Statistic: request time for specific type */
 	final static String STATISTIC_SPECIFIC_REQUEST = "REQUEST_TIME_";
 	/** Statistic: main thread busy percentage */
@@ -81,11 +81,11 @@ public final class HttpServer extends HawthornObject
 	public HttpServer(Hawthorn app) throws StartupException
 	{
 		super(app);
-		getStatistics().registerInstantStatistic(STATISTICS_CONNECTION_COUNT, this);
-		getStatistics().registerTimeStatistic(STATISTICS_USER_REQUEST_TIME);
+		getStatistics().registerInstantStatistic(STATISTIC_CONNECTION_COUNT, this);
+		getStatistics().registerTimeStatistic(STATISTIC_USER_REQUEST_TIME);
 		if(getConfig().getOtherServers().length > 0)
 		{
-			getStatistics().registerTimeStatistic(STATISTICS_SERVER_REQUEST_TIME);
+			getStatistics().registerTimeStatistic(STATISTIC_SERVER_REQUEST_TIME);
 		}
 		if(getConfig().isDetailedStats())
 		{
@@ -104,7 +104,7 @@ public final class HttpServer extends HawthornObject
 			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.STATISTICS);
 		}
-		getStatistics().registerInstantStatistic(STATISTICS_CLOSE_QUEUE_SIZE,
+		getStatistics().registerInstantStatistic(STATISTIC_CLOSE_QUEUE_SIZE,
 			new Statistics.InstantStatisticHandler()
 			{
 				public int getValue()

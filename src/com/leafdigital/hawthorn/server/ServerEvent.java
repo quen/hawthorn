@@ -72,7 +72,7 @@ public class ServerEvent extends Event
 		{
 			long time = System.currentTimeMillis() - requestTime;
 			getStatistics().updateTimeStatistic(
-				HttpServer.STATISTICS_SERVER_REQUEST_TIME, (int)time);
+				HttpServer.STATISTIC_SERVER_REQUEST_TIME, (int)time);
 		}
 	}
 

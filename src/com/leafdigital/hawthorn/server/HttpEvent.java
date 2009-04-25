@@ -183,7 +183,7 @@ public class HttpEvent extends Event
 		{
 			long time = System.currentTimeMillis() - requestTime;
 			getStatistics().updateTimeStatistic(
-				HttpServer.STATISTICS_USER_REQUEST_TIME, (int)time);
+				HttpServer.STATISTIC_USER_REQUEST_TIME, (int)time);
 			if (requestType!=null && getConfig().isDetailedStats())
 			{
 				getStatistics().updateTimeStatistic(
