@@ -30,7 +30,8 @@ import java.util.regex.*;
 public final class HttpServer extends HawthornObject
 	implements Statistics.InstantStatisticHandler
 {
-	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000;
+	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000,
+		LOGTIME_EVERY = 10000;
 	private final static String STATISTICS_CONNECTION_COUNT = "CONNECTION_COUNT";
 	/** Content type for UTF-8 JavaScript */
 	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
@@ -45,6 +46,8 @@ public final class HttpServer extends HawthornObject
 	final static String STATISTICS_CLOSE_QUEUE_SIZE = "CLOSE_QUEUE_SIZE";
 	/** Statistic: request time for specific type */
 	final static String STATISTIC_SPECIFIC_REQUEST = "REQUEST_TIME_";
+	/** Statistic: main thread busy percentage */
+	final static String STATISTIC_MAIN_THREAD_BUSY_PERCENT = "MAIN_THREAD_BUSY_PERCENT";
 
 	private final static int BACKLOG = 256;
 
@@ -65,9 +68,11 @@ public final class HttpServer extends HawthornObject
 	private LinkedList<SelectableChannel> channelsToClose =
 		new LinkedList<SelectableChannel>();
 
-	private Object closeSynch = new Object();
+	private Object closeSynch = new Object(), timeLogSynch = new Object();
 
 	private boolean close, closed, closeThreadClosed;
+
+	private int timeBusy, timeInSelect;
 
 	/**
 	 * @param app Main app object
@@ -107,6 +112,21 @@ public final class HttpServer extends HawthornObject
 					synchronized(connections)
 					{
 						return channelsToClose.size() + keysToClose.size();
+					}
+				}
+			});
+		getStatistics().registerInstantStatistic(STATISTIC_MAIN_THREAD_BUSY_PERCENT,
+			new Statistics.InstantStatisticHandler()
+			{
+				public int getValue()
+				{
+					synchronized(timeLogSynch)
+					{
+						int total = timeBusy + timeInSelect;
+						int percent = (timeBusy*100 + total/2) / total;
+						timeBusy = 0;
+						timeInSelect = 0;
+						return percent;
 					}
 				}
 			});
@@ -567,16 +587,26 @@ public final class HttpServer extends HawthornObject
 		}
 	}
 
+
 	private void serverThread()
 	{
 		long lastCleanup = System.currentTimeMillis();
+		long lastTime = lastCleanup;
+		int localTimeInSelect = 0, localTimeBusy = 0;
+
 		try
 		{
 			while (true)
 			{
 				cancelKeys();
+
+				long beforeSelect = System.currentTimeMillis();
+				localTimeBusy += (int)(beforeSelect - lastTime);
+
 				selector.select(5000);
 
+				lastTime = System.currentTimeMillis();
+				localTimeInSelect += (int)(lastTime - beforeSelect);
 				if (close)
 				{
 					closed = true;
@@ -621,10 +651,9 @@ public final class HttpServer extends HawthornObject
 				}
 				selector.selectedKeys().clear();
 
-				long now = System.currentTimeMillis();
-				if (now - lastCleanup > CLEANUP_EVERY)
+				if (lastTime - lastCleanup > CLEANUP_EVERY)
 				{
-					lastCleanup = now;
+					lastCleanup = lastTime;
 					LinkedList<Connection> consider;
 					synchronized (connections)
 					{
@@ -632,7 +661,18 @@ public final class HttpServer extends HawthornObject
 					}
 					for (Connection connection : consider)
 					{
-						connection.checkTimeout(now);
+						connection.checkTimeout(lastTime);
+					}
+				}
+
+				if (localTimeBusy + localTimeInSelect > LOGTIME_EVERY)
+				{
+					synchronized (timeLogSynch)
+					{
+						timeBusy += localTimeBusy;
+						timeInSelect += localTimeInSelect;
+						localTimeBusy = 0;
+						localTimeInSelect = 0;
 					}
 				}
 			}
