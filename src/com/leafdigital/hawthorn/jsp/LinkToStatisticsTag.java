@@ -24,7 +24,7 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 
 		// Get auth code
 		long time = System.currentTimeMillis() + init.getKeyExpiry();
-		String key = init.getKey("!system", time, "_admin", "_");
+		String key = init.getKey("!system", time, "_admin", "_", true);
 
 		// Output list
 		getJspContext().getOut().println("<ul class='hawthorn_statslinks'>");
@@ -37,5 +37,6 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 				+ time + "&amp;key=" + key + "'>"
 				+ XML.esc(server.toString()) + "</a></li>");
 		}
+		getJspContext().getOut().println("</ul>");
 	}
 }

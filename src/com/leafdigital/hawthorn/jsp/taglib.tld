@@ -142,20 +142,20 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Text to display if JavaScript is not available; if omitted, English
-				default '(Chat features are not available because JavaScript is 
-				disabled.)' is used
+				Text to display while message information is being loaded; if omitted,
+				English default '(Loading chat information, please wait...)' is used
 			</description>
-			<name>noScriptText</name>
+			<name>loadingText</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
 			<description>
-				Text to display while message information is being loaded; if omitted,
-				English default '(Loading chat information, please wait...)' is used
+				Text to display if JavaScript is not available; if omitted, English
+				default '(Chat features are not available because JavaScript is 
+				disabled.)' is used
 			</description>
-			<name>loadingText</name>
+			<name>noScriptText</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>

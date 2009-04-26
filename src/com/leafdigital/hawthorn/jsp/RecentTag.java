@@ -51,7 +51,7 @@ public class RecentTag extends SimpleTagSupport
 			+	JS.escapeJS(init.getDisplayName()) + "',channel:'"+channel
 			+ "',maxMessages:" + maxMessages + ",maxAge:" + maxAge
 			+ ",maxNames:" + maxNames + ",key:'" + init.getKey(channel, keyTime)
-			+ "',keyTime:" + keyTime+",id:'hawthorn_recent"+index+"'}";
+			+ "',keyTime:" + keyTime+ ",id:'hawthorn_recent"+index+"'}";
 
 		// Print script tag if included
 		init.printJS(getJspContext().getOut(),false);

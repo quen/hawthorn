@@ -45,9 +45,18 @@ public class InitTag extends BodyTagSupport
 	private URL[] servers;
 	private boolean defer;
 
+	/** Regular expression for user or channel name: letters, numbers and _ */
+	public static final String REGEXP_USERCHANNEL = "[A-Za-z0-9_]+";
+
 	@Override
 	public int doEndTag() throws JspException
 	{
+		// Check user ID is valid
+		if (!user.matches(REGEXP_USERCHANNEL))
+		{
+			throw new JspException("User ID not valid: "+user);
+		}
+
 		// Store tag reference in context
 		if (pageContext.getAttribute(HAWTHORN_INIT_TAG) != null)
 		{
@@ -200,7 +209,7 @@ public class InitTag extends BodyTagSupport
 	 */
 	String getKey(String channel, long keyTime) throws JspException
 	{
-		return getKey(channel, keyTime, user, displayName);
+		return getKey(channel, keyTime, user, displayName, false);
 	}
 
 	/**
@@ -210,12 +219,18 @@ public class InitTag extends BodyTagSupport
 	 * @param keyTime Key time
 	 * @param overrideUser User ID
 	 * @param overrideDisplayName User display name
+	 * @param allowSystem True to allow system channel
 	 * @return Key
-	 * @throws JspException
+	 * @throws JspException If SHA-1 isn't working, or channel ID is invalid
 	 */
 	String getKey(String channel, long keyTime, String overrideUser,
-		String overrideDisplayName) throws JspException
+		String overrideDisplayName, boolean allowSystem) throws JspException
 	{
+		if (!channel.matches(REGEXP_USERCHANNEL) &&
+			!(channel.equals("!system") && allowSystem))
+		{
+			throw new JspException("Channel ID not valid: "+user);
+		}
 		try
 		{
 			return Auth.getKey(magicNumber, overrideUser, overrideDisplayName,

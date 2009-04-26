@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** Tag prints JavaScript for a failed key re-acquire. */
 public class ReAcquireDenyTag extends SimpleTagSupport
 {
@@ -22,8 +24,8 @@ public class ReAcquireDenyTag extends SimpleTagSupport
 		}
 
 		// Print JavaScript
-		getJspContext().getOut().println("hawthorn.reAcquireDeny('"+
-			id+"','"+error+"');");
+		getJspContext().getOut().println("hawthorn.reAcquireDeny('" +
+			id+"','" + JS.escapeJS(error) + "');");
 	}
 
 	/** @param error Error message */
