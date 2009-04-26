@@ -54,7 +54,7 @@ class Hawthorn
 	 */
 	function __construct($magicNumber, $servers,
 		$user, $displayName, $jsUrl, $popupUrl, $reAcquireUrl,
-		$defer=false, $keyExpiry=60*60*1000)
+		$defer=false, $keyExpiry=3600000)
 	{
 		// Check username
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$user))
@@ -92,7 +92,7 @@ class Hawthorn
 	 *  available because JavaScript is disabled.)' is used
 	 * @throws Exception If channel ID is invalid
 	 */
-	function recent($channel, $maxMessages=3, $maxAge=30*60*1000,
+	function recent($channel, $maxMessages=3, $maxAge=900000,
 		$maxNames=5, $loadingText='', $noScriptText='')
 	{
 		// Get index of this recent block within page
@@ -203,7 +203,7 @@ class Hawthorn
 
 		// Output div
 		print "<div class='hawthorn_linktochat' style='display:none' " .
-			"id='hawthorn_linktochat$index'>\n");
+			"id='hawthorn_linktochat$index'>\n";
 		print "<script type='text/javascript'>document.getElementById(" .
 			"'hawthorn_linktochat$index').style.display='block';</script>\n";
 
@@ -212,7 +212,7 @@ class Hawthorn
 			self::escapeJS($this->popupUrl) . "','" .
 			self::escapeJS($this->reAcquireUrl) . "','$channel'," .
 			"'$this->user','" . self::escapeJS($this->displayName) . "'," .
-			"$time,'$key','" . self::escapeJS($title) . "');\">\n");
+			"$time,'$key','" . self::escapeJS($title) . "');\">\n";
 
 		// Print content
 		print $linkText;
@@ -225,7 +225,7 @@ class Hawthorn
 				$iconAlt = 'Opens in new window';
 			}
 			print " <img src='" . self::escapeXML($icon) . "' alt='" . self::escapeXML($iconAlt) . "' title='" .
-				self::escapeXML($iconAlt) . "' />\n");
+				self::escapeXML($iconAlt) . "' />\n";
 		}
 
 		// Close tags
@@ -270,7 +270,7 @@ class Hawthorn
 		header("Content-Type: text/javascript; charset=UTF-8");
 
 		// Print JavaScript
-		print "hawthorn.reAcquireComplete('$id','$key','$keyTime');\n");
+		print "hawthorn.reAcquireComplete('$id','$key','$keyTime');\n";
 	}
 
 	/**
@@ -332,7 +332,7 @@ class Hawthorn
 	 * @throws Exception If channel name is invalid
 	 */
 	private function getKey($channel, $keyTime, $allowSystem = false,
-		$user = '', $displayName = '';)
+		$user = '', $displayName = '')
 	{
 		// Check channel is valid
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$channel) &&
