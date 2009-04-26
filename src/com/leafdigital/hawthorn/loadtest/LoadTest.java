@@ -105,6 +105,16 @@ public class LoadTest
 
 	private char[] threadStatus;
 
+	/**
+	 * Note: It appears that Random is thread-safe. There was some discussion
+	 * about possible contention-related performance issues, but even with
+	 * 100 threads each generating 500,000 nextInt calls nonstop, moving to
+	 * per-thread Random instances only saved about a third of the time. There
+	 * should be much less contention when threads are mainly doing other things
+	 * than getting random numbers...
+	 */
+	private Random random = new Random();
+
 	private TreeSet<UserEvent> userQueue = new TreeSet<UserEvent>();
 
 	/** Represents a single user in the system */
@@ -157,6 +167,12 @@ public class LoadTest
 		{
 			// Doesn't return 0 unless they are identical
 			return o==this ? 0 : time < o.time ? -1 : 1;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			return obj == this;
 		}
 	}
 
@@ -231,7 +247,7 @@ public class LoadTest
 	 */
 	public SiteUser pickSiteUser()
 	{
-		return userPool[(int)(Math.random()*userPool.length)];
+		return userPool[random.nextInt(userPool.length)];
 	}
 
 	/**
@@ -239,7 +255,7 @@ public class LoadTest
 	 */
 	public String pickChannel()
 	{
-		return channelPool[(int)(Math.random()*channelPool.length)];
+		return channelPool[random.nextInt(channelPool.length)];
 	}
 
 	/**
@@ -247,7 +263,7 @@ public class LoadTest
 	 */
 	public long pickSessionLength()
 	{
-		return (long)(Math.random() * 2 * sessionMinutes * 60000);
+		return (long)(random.nextDouble() * 2 * sessionMinutes * 60000);
 	}
 
 	/**
@@ -255,7 +271,7 @@ public class LoadTest
 	 */
 	public long pickSayPause()
 	{
-		return (long)(Math.random() * 2 * saySeconds * 1000);
+		return (long)(random.nextDouble() * 2 * saySeconds * 1000);
 	}
 
 	/**
@@ -264,7 +280,7 @@ public class LoadTest
 	 */
 	public boolean pickSendLeave()
 	{
-		return (int)(Math.random()*100) < leaveChance;
+		return random.nextInt(100) < leaveChance;
 	}
 
 	/**
@@ -272,7 +288,7 @@ public class LoadTest
 	 */
 	public int pickDriveByDelay()
 	{
-		return (int)(Math.random() * 2 * 60000000.0 / drivebys);
+		return (int)(random.nextDouble() * 2 * 60000000.0 / drivebys);
 	}
 
 	private void test()
@@ -284,7 +300,7 @@ public class LoadTest
 
 		// Initialise key time
 		long now = System.currentTimeMillis();
-		keyTime = now + (minutes+1) * 60000;
+		keyTime = now + (minutes+1) * 60000L;
 
 		// Initialise user pool
 		System.out.println("User pool," + siteUsers);
