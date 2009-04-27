@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import com.leafdigital.hawthorn.util.Auth;
+import com.leafdigital.hawthorn.util.Auth.Permission;
 
 /**
  * Generates simulated load on a Hawthorn server. Do not use on a real server
@@ -142,7 +143,8 @@ public class LoadTest
 			try
 			{
 				return parameters + "&channel=" + channel + "&key=" +
-					Auth.getKey(magicNumber, name, name, channel, keyTime);
+					Auth.getKey(magicNumber, name, name,
+						EnumSet.of(Permission.READ, Permission.WRITE), channel, keyTime);
 			}
 			catch (NoSuchAlgorithmException e)
 			{

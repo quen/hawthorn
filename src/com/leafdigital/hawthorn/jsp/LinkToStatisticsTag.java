@@ -26,6 +26,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import com.leafdigital.hawthorn.util.*;
+import com.leafdigital.hawthorn.util.Auth.Permission;
 
 /** Tag displays recent messages and users on a Hawthorn chat channel. */
 public class LinkToStatisticsTag extends SimpleTagSupport
@@ -41,9 +42,15 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 			throw new JspException("Cannot use <linkToStatistics> without <init>");
 		}
 
+		// Check permission
+		if (!init.getPermissionSet().contains(Permission.ADMIN))
+		{
+			throw new JspException("Current user does not have ADMIN permission");
+		}
+
 		// Get auth code
 		long time = System.currentTimeMillis() + init.getKeyExpiry();
-		String key = init.getKey("!system", time, "_admin", "_", true);
+		String key = init.getKey("!system", time, true);
 
 		// Output list
 		getJspContext().getOut().println("<ul class='hawthorn_statslinks'>");

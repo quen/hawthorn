@@ -22,7 +22,7 @@ package com.leafdigital.hawthorn.jsp;
 import java.io.*;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedList;
+import java.util.*;
 
 import javax.servlet.jsp.*;
 import javax.servlet.jsp.tagext.BodyTagSupport;
@@ -32,6 +32,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import com.leafdigital.hawthorn.util.*;
+import com.leafdigital.hawthorn.util.Auth.Permission;
 
 /** JSP tag that sets up shared Hawthorn variables. */
 public class InitTag extends BodyTagSupport
@@ -44,6 +45,8 @@ public class InitTag extends BodyTagSupport
 	private long keyExpiry = DEFAULT_KEY_EXPIRY;
 	private URL[] servers;
 	private boolean defer;
+	private EnumSet<Permission> permissionSet = EnumSet.of(
+		Permission.READ, Permission.WRITE);
 
 	/** Regular expression for user or channel name: letters, numbers and _ */
 	public static final String REGEXP_USERCHANNEL = "[A-Za-z0-9_]+";
@@ -154,6 +157,14 @@ public class InitTag extends BodyTagSupport
 	}
 
 	/**
+	 * @param permissions Permission string
+	 */
+	public void setPermissions(String permissions)
+	{
+		permissionSet = Auth.getPermissionSet(permissions);
+	}
+
+	/**
 	 * @param user Hawthorn user ID
 	 */
 	public void setUser(String user)
@@ -199,32 +210,15 @@ public class InitTag extends BodyTagSupport
 	}
 
 	/**
-	 * Gets an authentication key based on the known data. Uses the inited user
-	 * and display name.
-	 *
-	 * @param channel Channel ID
-	 * @param keyTime Key time
-	 * @return Key
-	 * @throws JspException
-	 */
-	String getKey(String channel, long keyTime) throws JspException
-	{
-		return getKey(channel, keyTime, user, displayName, false);
-	}
-
-	/**
 	 * Gets an authentication key based on the known data.
 	 *
 	 * @param channel Channel ID
 	 * @param keyTime Key time
-	 * @param overrideUser User ID
-	 * @param overrideDisplayName User display name
 	 * @param allowSystem True to allow system channel
 	 * @return Key
 	 * @throws JspException If SHA-1 isn't working, or channel ID is invalid
 	 */
-	String getKey(String channel, long keyTime, String overrideUser,
-		String overrideDisplayName, boolean allowSystem) throws JspException
+	String getKey(String channel, long keyTime, boolean allowSystem) throws JspException
 	{
 		if (!channel.matches(REGEXP_USERCHANNEL) &&
 			!(channel.equals("!system") && allowSystem))
@@ -233,8 +227,8 @@ public class InitTag extends BodyTagSupport
 		}
 		try
 		{
-			return Auth.getKey(magicNumber, overrideUser, overrideDisplayName,
-				channel, keyTime);
+			return Auth.getKey(magicNumber, user, displayName,
+				permissionSet, channel, keyTime);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -292,6 +286,12 @@ public class InitTag extends BodyTagSupport
 	public long getKeyExpiry()
 	{
 		return keyExpiry;
+	}
+
+	/** @return Permissions */
+	public EnumSet<Permission> getPermissionSet()
+	{
+		return permissionSet;
 	}
 
 	/**

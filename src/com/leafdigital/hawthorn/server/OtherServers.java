@@ -23,6 +23,8 @@ import java.io.*;
 import java.net.*;
 import java.util.LinkedList;
 
+import com.leafdigital.hawthorn.util.Auth;
+
 /**
  * Maintains connections to the other servers and transmits directly-received
  * say commands to them.
@@ -161,7 +163,7 @@ public class OtherServers extends HawthornObject
 					long now = System.currentTimeMillis();
 					String hash =
 						getApp().getValidKey("remote server", address.getHostAddress(), "",
-							now);
+							Auth.getPermissionSet(""), now);
 					writer.write("*" + now + "*" + hash + "\n");
 					writer.flush();
 

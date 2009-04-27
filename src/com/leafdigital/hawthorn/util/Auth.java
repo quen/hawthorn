@@ -22,28 +22,117 @@ package com.leafdigital.hawthorn.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.*;
+import java.util.EnumSet;
 
 /** Calculates Hawthorn authentication keys. */
 public abstract class Auth
 {
+	/** Permissions */
+	public enum Permission
+	{
+		/** Read permission */
+		READ("r"),
+		/** Write permission */
+		WRITE("w"),
+		/** Moderate permission */
+		MODERATE("m"),
+		/** View log (and statistics, etc) permission */
+		ADMIN("l");
+
+		private String code;
+		private Permission(String code)
+		{
+			this.code = code;
+		}
+
+		@Override
+		public String toString()
+		{
+			return code;
+		}
+	}
+
+	/**
+	 * Converts a permission string to an EnumSet.
+	 * @param permissions A string of permission characters in correct order
+	 * @return EnumSet of the equivalent
+	 * @throws IllegalArgumentException If any character in the string is invalid
+	 */
+	public static EnumSet<Permission> getPermissionSet(String permissions)
+		throws IllegalArgumentException
+	{
+		EnumSet<Permission> result = EnumSet.noneOf(Permission.class);
+		int pos = 0;
+		for(Permission p : EnumSet.allOf(Permission.class))
+		{
+			if(pos == permissions.length())
+			{
+				// Happens if string is empty
+				break;
+			}
+			if(permissions.charAt(pos) == p.toString().charAt(0))
+			{
+				result.add(p);
+				pos++;
+			}
+		}
+		if(pos != permissions.length())
+		{
+			throw new IllegalArgumentException("Invalid permissions: " + permissions);
+		}
+		return result;
+	}
+
+	/**
+	 * Converts an EnumSet to a permission string.
+	 * @param permissionSet Set of permissions
+	 * @return String equivalent
+	 */
+	public static String getPermissions(EnumSet<Permission> permissionSet)
+	{
+		StringBuilder out = new StringBuilder();
+		for(Permission p : permissionSet)
+		{
+			out.append(p.toString());
+		}
+		return out.toString();
+	}
+
 	/**
 	 * Generates an authentication key based on SHA-1 hash.
 	 * @param magicNumber Server's secret number
 	 * @param user User ID
 	 * @param displayName Display name
+	 * @param permissionSet Permissions
 	 * @param channel Channel ID
 	 * @param keyTime Time of key
 	 * @return Valid key
 	 * @throws NoSuchAlgorithmException If SHA-1 isn't installed
 	 */
-	public static String getKey(String magicNumber,String user,String displayName,
-		String channel,long keyTime) throws NoSuchAlgorithmException
+	public static String getKey(String magicNumber,
+		String user, String displayName,
+		EnumSet<Permission> permissionSet, String channel,
+		long keyTime) throws NoSuchAlgorithmException
 	{
 		// Obtain data used for hash
-		String hashData =
-			channel + "\n" + user + "\n" + displayName + "\n" + keyTime + "\n"
-				+ magicNumber;
+		StringBuilder out = new StringBuilder();
+		out.append(channel);
+		out.append("\n");
+		out.append(user);
+		out.append("\n");
+		out.append(displayName);
+		out.append("\n");
+		for(Permission p : permissionSet)
+		{
+			out.append(p.toString());
+		}
+		out.append("\n");
+		out.append(Long.toString(keyTime));
+		out.append("\n");
+		out.append(magicNumber);
 
+		// Get bytes
+		String hashData = out.toString();
 		byte[] hashDataBytes;
 		try
 		{

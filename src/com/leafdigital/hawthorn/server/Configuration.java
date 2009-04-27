@@ -30,7 +30,7 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import com.leafdigital.hawthorn.util.XML;
+import com.leafdigital.hawthorn.util.*;
 
 /** Configuration file reader. */
 public class Configuration
@@ -360,9 +360,11 @@ public class Configuration
 				}
 				else if (child.getTagName().equals("testkey"))
 				{
-					String channel = child.getAttribute("channel"),user =
-						child.getAttribute("user"),displayName =
-						child.getAttribute("displayname");
+					String
+						channel = child.getAttribute("channel"),
+						user = child.getAttribute("user"),
+						displayName =	child.getAttribute("displayname"),
+						permissions = child.getAttribute("permissions");
 					if (channel == null
 						|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !channel
 							.equals(Logger.SYSTEM_LOG)))
@@ -381,7 +383,7 @@ public class Configuration
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires displayname=, with no double quotes");
 					}
-					testKeys.add(new TestKey(channel, user, displayName));
+					testKeys.add(new TestKey(channel, user, displayName, permissions));
 				}
 				else
 				{
@@ -491,18 +493,20 @@ public class Configuration
 	 */
 	public static class TestKey
 	{
-		private String channel, user, displayName;
+		private String channel, user, displayName, permissions;
 
 		/**
 		 * @param channel Channel name
 		 * @param user User name
 		 * @param displayName Display name
+		 * @param permissions Permissions
 		 */
-		TestKey(String channel, String user, String displayName)
+		TestKey(String channel, String user, String displayName, String permissions)
 		{
 			this.channel = channel;
 			this.user = user;
 			this.displayName = displayName;
+			this.permissions = permissions == null ? "rw" : permissions;
 		}
 
 		/**
@@ -518,10 +522,12 @@ public class Configuration
 				System.out.println("     Channel: " + channel);
 				System.out.println("        User: " + user);
 				System.out.println("Display name: " + displayName);
+				System.out.println(" Permissions: " + permissions);
 				System.out.println("        Time: " + testKeyTime);
 				System.out.println();
 				String key =
-					app.getValidKey(channel, user, displayName, testKeyTime);
+					app.getValidKey(channel, user, displayName,
+						Auth.getPermissionSet(permissions), testKeyTime);
 				System.out.println("         Key: " + key);
 				System.out.println();
 				System.out.println("channel=" + channel + "&user=" + user

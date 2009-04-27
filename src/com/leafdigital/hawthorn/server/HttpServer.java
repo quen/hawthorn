@@ -26,6 +26,8 @@ import java.nio.channels.*;
 import java.util.*;
 import java.util.regex.*;
 
+import com.leafdigital.hawthorn.util.Auth;
+
 /** Server that accepts incoming HTTP requests and dispatches them as events. */
 public final class HttpServer extends HawthornObject
 	implements Statistics.InstantStatisticHandler
@@ -523,7 +525,8 @@ public final class HttpServer extends HawthornObject
 							// Build hash using time and IP address
 							String valid =
 								getApp()
-									.getValidKey("remote server", toString(), "", time);
+									.getValidKey("remote server", toString(), "",
+										Auth.getPermissionSet(""), time);
 							if (!valid.equals(m.group(2)))
 							{
 								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,

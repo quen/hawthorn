@@ -21,6 +21,7 @@ package com.leafdigital.hawthorn.server;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
+import java.util.EnumSet;
 
 import com.leafdigital.hawthorn.util.Auth;
 
@@ -155,17 +156,19 @@ public class Hawthorn
 	 * @param channel Channel ID
 	 * @param user User ID
 	 * @param displayName User display name
+	 * @param permissions User permissions
 	 * @param keyTime Key issue time
 	 * @return Correct key
 	 * @throws OperationException
 	 */
 	String getValidKey(String channel, String user, String displayName,
-		long keyTime) throws OperationException
+		EnumSet<Auth.Permission> permissions,	long keyTime)
+		throws OperationException
 	{
 		try
 		{
-			return Auth.getKey(
-				getConfig().getMagicNumber(),user,displayName,channel,keyTime);
+			return Auth.getKey(getConfig().getMagicNumber(), user, displayName,
+				permissions, channel, keyTime);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
