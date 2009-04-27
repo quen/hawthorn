@@ -36,7 +36,7 @@ public class NoticeMessage extends Message
 		{
 			Message.registerType(TYPE, NoticeMessage.class);
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);

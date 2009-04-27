@@ -37,13 +37,13 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 		// Get init tag with basic settings
 		InitTag init =
 			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
-		if (init==null)
+		if(init==null)
 		{
 			throw new JspException("Cannot use <linkToStatistics> without <init>");
 		}
 
 		// Check permission
-		if (!init.getPermissionSet().contains(Permission.ADMIN))
+		if(!init.getPermissionSet().contains(Permission.ADMIN))
 		{
 			throw new JspException("Current user does not have ADMIN permission");
 		}

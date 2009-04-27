@@ -242,12 +242,12 @@ public class Statistics extends HawthornObject
 		throws IllegalArgumentException
 	{
 		CountStatisticBunch collection = countStatistics.get(name);
-		if (collection == null)
+		if(collection == null)
 		{
 			throw new IllegalArgumentException("Unknown time statistic: "+name);
 		}
 		CountStatistic minute = collection.getMinute();
-		if (minute.getClass() != TimeStatistic.class)
+		if(minute.getClass() != TimeStatistic.class)
 		{
 			throw new IllegalArgumentException("Not a time statistic: "+name);
 		}
@@ -272,12 +272,12 @@ public class Statistics extends HawthornObject
 	public void updateCountStatistic(String name)
 	{
 		CountStatisticBunch collection = countStatistics.get(name);
-		if (collection == null)
+		if(collection == null)
 		{
 			throw new IllegalArgumentException("Unknown count statistic: "+name);
 		}
 		CountStatistic minute = collection.getMinute();
-		if (minute.getClass() != CountStatistic.class)
+		if(minute.getClass() != CountStatistic.class)
 		{
 			throw new IllegalArgumentException("Not a count statistic: "+name);
 		}
@@ -428,22 +428,22 @@ public class Statistics extends HawthornObject
 			super.count();
 
 			// Histogram stores >0ms, >1ms, >2ms, >3ms, >4ms...
-			if (ms < 5)
+			if(ms < 5)
 			{
 				histogram[ms]++;
 			}
 			// ...>5, >10, >15, >20, >25, >30, >35, >40, >45...
-			else if (ms < 50)
+			else if(ms < 50)
 			{
 				histogram[ms/5 + 4]++;
 			}
 			// ...>50, >100, >150, >200, >250, >300, >350, >400, >450...
-			else if (ms < 500)
+			else if(ms < 500)
 			{
 				histogram[ms/50 + 13]++;
 			}
 			// ...>500, >1000, >1500, >2000, >2500, >3000, >3500, >4000, >4500...
-			else if (ms < 5000)
+			else if(ms < 5000)
 			{
 				histogram[ms/500 + 22]++;
 			}
@@ -471,7 +471,7 @@ public class Statistics extends HawthornObject
 		{
 			super.clear();
 			totalTime = 0;
-			for (int i=0; i<histogram.length; i++)
+			for(int i=0; i<histogram.length; i++)
 			{
 				histogram[i] = 0;
 			}
@@ -492,7 +492,7 @@ public class Statistics extends HawthornObject
 				super.add(other);
 				TimeStatistic otherTime = (TimeStatistic)other;
 				totalTime += otherTime.totalTime;
-				for (int i=0; i<histogram.length; i++)
+				for(int i=0; i<histogram.length; i++)
 				{
 					histogram[i] += otherTime.histogram[i];
 				}
@@ -507,7 +507,7 @@ public class Statistics extends HawthornObject
 		 */
 		private static String getHistogramRange(int index)
 		{
-			if (index < 5)
+			if(index < 5)
 			{
 				return index + "";
 			}
@@ -525,7 +525,7 @@ public class Statistics extends HawthornObject
 		private static String getHistogramRangeStart(int index, boolean legend)
 		{
 			// Convert range to string
-			if (index < 5)
+			if(index < 5)
 			{
 				if(legend && index==0)
 				{
@@ -533,20 +533,20 @@ public class Statistics extends HawthornObject
 				}
 				return ""+index;
 			}
-			else if (index < 14)
+			else if(index < 14)
 			{
 				return ""+((index-4) * 5);
 			}
-			else if (index < 23)
+			else if(index < 23)
 			{
 				return ""+((index-13) * 50);
 			}
-			else if (index < 32)
+			else if(index < 32)
 			{
 				String milliseconds = ""+((index-22) * 500);
-				if (legend)
+				if(legend)
 				{
-					if (index == 23)
+					if(index == 23)
 					{
 						return "0.5s";
 					}
@@ -575,15 +575,15 @@ public class Statistics extends HawthornObject
 		 */
 		public synchronized String getMedian()
 		{
-			if (count == 0)
+			if(count == 0)
 			{
 				return "-";
 			}
 			int countSoFar = 0;
-			for (int i=0; i<histogram.length; i++)
+			for(int i=0; i<histogram.length; i++)
 			{
 				countSoFar += histogram[i];
-				if (countSoFar > count/2)
+				if(countSoFar > count/2)
 				{
 					return getHistogramRange(i);
 				}
@@ -617,9 +617,9 @@ public class Statistics extends HawthornObject
 
 			// Histogram
 			result.append("ms histogram [");
-			for (int i=0; i<histogram.length; i++)
+			for(int i=0; i<histogram.length; i++)
 			{
-				if (i!=0)
+				if(i!=0)
 				{
 					result.append(',');
 				}
@@ -652,9 +652,9 @@ public class Statistics extends HawthornObject
 
 			// Get maximum for scaling
 			int max = 0;
-			for (int i=0; i<histogram.length; i++)
+			for(int i=0; i<histogram.length; i++)
 			{
-				if (histogram[i] > max)
+				if(histogram[i] > max)
 				{
 					max = histogram[i];
 				}
@@ -662,7 +662,7 @@ public class Statistics extends HawthornObject
 
 			// Draw histogram bars
 			int rounding = max / 2;
-			for (int i=0; i<histogram.length; i++)
+			for(int i=0; i<histogram.length; i++)
 			{
 				int val = max == 0 ? 0 : (histogram[i] * 100 + rounding) / max;
 				result.append("<div class='b' style='left: ");
@@ -687,12 +687,12 @@ public class Statistics extends HawthornObject
 			result.append("</div>");
 
 			// Draw legend
-			for (int i=0; i<=histogram.length; i++)
+			for(int i=0; i<=histogram.length; i++)
 			{
 				result.append("<div class='l' style='left:");
 				result.append(i*20);
 				result.append("px'><div class='t'></div>");
-				if (i==histogram.length)
+				if(i==histogram.length)
 				{
 					result.append("&#x221e;");
 				}
@@ -898,7 +898,7 @@ public class Statistics extends HawthornObject
 			String serverName = InetAddress.getLocalHost().getHostName();
 			serverDetails = serverName + " (" + addressPort + ")";
 		}
-		catch (UnknownHostException e)
+		catch(UnknownHostException e)
 		{
 			serverDetails = addressPort;
 		}

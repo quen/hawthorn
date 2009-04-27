@@ -35,7 +35,7 @@ public class SayMessage extends Message
 		{
 			Message.registerType(TYPE, SayMessage.class);
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);

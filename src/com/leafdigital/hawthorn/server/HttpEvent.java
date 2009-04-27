@@ -80,7 +80,7 @@ public class HttpEvent extends Event
 			HashMap<String, String> params = new HashMap<String, String>();
 
 			int question = request.indexOf('?');
-			if (question == -1)
+			if(question == -1)
 			{
 				path = request;
 			}
@@ -88,11 +88,11 @@ public class HttpEvent extends Event
 			{
 				path = request.substring(0, question);
 				String remainder = request.substring(question + 1);
-				while (remainder.length() > 0)
+				while(remainder.length() > 0)
 				{
 					int and = remainder.indexOf('&');
 					String paramPair;
-					if (and == -1)
+					if(and == -1)
 					{
 						paramPair = remainder;
 						remainder = "";
@@ -104,7 +104,7 @@ public class HttpEvent extends Event
 					}
 
 					int equals = paramPair.indexOf('=');
-					if (equals == -1)
+					if(equals == -1)
 					{
 						params.put(paramPair, null);
 					}
@@ -116,7 +116,7 @@ public class HttpEvent extends Event
 							params.put(paramPair.substring(0, equals), URLDecoder.decode(
 								value, "UTF-8"));
 						}
-						catch (UnsupportedEncodingException e)
+						catch(UnsupportedEncodingException e)
 						{
 							throw new Error("UTF-8 not supported?!", e);
 						}
@@ -125,37 +125,37 @@ public class HttpEvent extends Event
 			}
 
 			html = path.startsWith("/hawthorn/html/");
-			if (path.equals("/hawthorn/say"))
+			if(path.equals("/hawthorn/say"))
 			{
 				requestType = SAY;
 				handleSay(params);
 			}
-			else if (path.equals("/hawthorn/leave"))
+			else if(path.equals("/hawthorn/leave"))
 			{
 				requestType = LEAVE;
 				handleLeave(params);
 			}
-			else if (path.equals("/hawthorn/poll"))
+			else if(path.equals("/hawthorn/poll"))
 			{
 				requestType = POLL;
 				handlePoll(params);
 			}
-			else if (path.equals("/hawthorn/wait"))
+			else if(path.equals("/hawthorn/wait"))
 			{
 				requestType = WAIT;
 				handleWait(params);
 			}
-			else if (path.equals("/hawthorn/recent"))
+			else if(path.equals("/hawthorn/recent"))
 			{
 				requestType = RECENT;
 				handleRecent(params);
 			}
-			else if (path.equals("/hawthorn/log"))
+			else if(path.equals("/hawthorn/log"))
 			{
 				requestType = LOG;
 				handleLog(params);
 			}
-			else if (path.equals("/hawthorn/html/statistics"))
+			else if(path.equals("/hawthorn/html/statistics"))
 			{
 				requestType = STATISTICS;
 				handleDisplayStatistics(params);
@@ -165,7 +165,7 @@ public class HttpEvent extends Event
 				handle404(html);
 			}
 		}
-		catch (Throwable t)
+		catch(Throwable t)
 		{
 			if(html)
 			{
@@ -185,7 +185,7 @@ public class HttpEvent extends Event
 			long time = System.currentTimeMillis() - requestTime;
 			getStatistics().updateTimeStatistic(
 				HttpServer.STATISTIC_USER_REQUEST_TIME, (int)time);
-			if (requestType!=null && getConfig().isDetailedStats())
+			if(requestType!=null && getConfig().isDetailedStats())
 			{
 				getStatistics().updateTimeStatistic(
 					HttpServer.STATISTIC_SPECIFIC_REQUEST + requestType, (int)time);
@@ -238,11 +238,11 @@ public class HttpEvent extends Event
 		{
 			error = "Must have write permission to [say]";
 		}
-		else if (unique == null || !unique.matches(REGEXP_LONG))
+		else if(unique == null || !unique.matches(REGEXP_LONG))
 		{
 			error = "Missing unique=";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send("hawthorn.sayError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
@@ -301,7 +301,7 @@ public class HttpEvent extends Event
 	private String getID(HashMap<String, String> params)
 	{
 		String id = params.get("id");
-		if (id == null || !id.matches("[0-9]{1,9}"))
+		if(id == null || !id.matches("[0-9]{1,9}"))
 		{
 			id = "0";
 		}
@@ -324,7 +324,7 @@ public class HttpEvent extends Event
 		String maxAge = params.get("maxage"), maxNumber = params.get("maxnumber"),
 			maxNames = params.get("maxnames");
 		String error = null;
-		if (maxAge == null || !maxAge.matches(REGEXP_INT))
+		if(maxAge == null || !maxAge.matches(REGEXP_INT))
 		{
 			error = "Missing or invalid maxage=";
 		}
@@ -332,15 +332,15 @@ public class HttpEvent extends Event
 		{
 			error = "Must have read permission to [recent]";
 		}
-		else if (maxNumber == null || !maxNumber.matches(REGEXP_INT))
+		else if(maxNumber == null || !maxNumber.matches(REGEXP_INT))
 		{
 			error = "Missing or invalid maxnumber=";
 		}
-		else if (maxNames != null && !maxNames.matches(REGEXP_INT))
+		else if(maxNames != null && !maxNames.matches(REGEXP_INT))
 		{
 			error = "Invalid maxnames=";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send("hawthorn.recentError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
@@ -356,9 +356,9 @@ public class HttpEvent extends Event
 		output.append("hawthorn.recentComplete(" + id + ",[");
 		long timestamp = buildMessageArray(c, recent, output);
 		output.append("],[");
-		for (int i = 0; i < names.length; i++)
+		for(int i = 0; i < names.length; i++)
 		{
-			if (i != 0)
+			if(i != 0)
 			{
 				output.append(',');
 			}
@@ -385,7 +385,7 @@ public class HttpEvent extends Event
 
 		String lastTimeString = params.get("lasttime");
 		String error = null;
-		if (!lastTimeString.matches(REGEXP_LONG))
+		if(!lastTimeString.matches(REGEXP_LONG))
 		{
 			error = "Invalid lasttime=";
 		}
@@ -393,7 +393,7 @@ public class HttpEvent extends Event
 		{
 			error = "Must have read permission to [wait]";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send("hawthorn.waitError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
@@ -420,7 +420,7 @@ public class HttpEvent extends Event
 
 		String lastTimeString = params.get("lasttime");
 		String error = null;
-		if (!lastTimeString.matches(REGEXP_LONG))
+		if(!lastTimeString.matches(REGEXP_LONG))
 		{
 			error = "Invalid lasttime=";
 		}
@@ -428,7 +428,7 @@ public class HttpEvent extends Event
 		{
 			error = "Must have read permission to [poll]";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send("hawthorn.pollError(" + id + ",'"
 				+ JS.escapeJS(error) + "');");
@@ -464,9 +464,9 @@ public class HttpEvent extends Event
 		StringBuilder output)
 	{
 		long timestamp = c.getPreviousTimestamp();
-		for (int i = 0; i < messages.length; i++)
+		for(int i = 0; i < messages.length; i++)
 		{
-			if (i != 0)
+			if(i != 0)
 			{
 				output.append(',');
 			}
@@ -490,19 +490,19 @@ public class HttpEvent extends Event
 		// To retrieve log history, must use special user account
 		String date = params.get("date");
 		String error = null;
-		if (!permissionSet.contains(Permission.ADMIN))
+		if(!permissionSet.contains(Permission.ADMIN))
 		{
 			error = "Must have admin permission to [log]";
 		}
-		else if (date == null || !date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"))
+		else if(date == null || !date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"))
 		{
 			error = "Must set date=YYYY-MM-DD";
 		}
-		else if (!getLogger().hasLog(channel, date))
+		else if(!getLogger().hasLog(channel, date))
 		{
 			error = "Logs not available on this server for specified date";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send("hawthorn.logError(" + getID(params) + ",'"
 				+ JS.escapeJS(error) + "');");
@@ -520,7 +520,7 @@ public class HttpEvent extends Event
 	  throws OperationException
 	{
 		EnumSet<Permission> permissionSet = checkAuth(params, null, true, true);
-		if (permissionSet == null)
+		if(permissionSet == null)
 		{
 			return;
 		}
@@ -529,15 +529,15 @@ public class HttpEvent extends Event
 
 		// To retrieve log history, must use special user account
 		String error = null;
-		if (!channel.equals(Logger.SYSTEM_LOG))
+		if(!channel.equals(Logger.SYSTEM_LOG))
 		{
 			error = "Must request statistics via system channel";
 		}
-		else if (!permissionSet.contains(Permission.ADMIN))
+		else if(!permissionSet.contains(Permission.ADMIN))
 		{
 			error = "Must have admin permission to [statistics]";
 		}
-		if (error != null)
+		if(error != null)
 		{
 			connection.send(403, getHtmlError("Invalid statistics request",error),
 				HttpServer.CONTENT_TYPE_HTML);
@@ -591,41 +591,41 @@ public class HttpEvent extends Event
 		}
 
 		String error = null;
-		if (channel == null
+		if(channel == null
 			|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !(allowSystemChannel && channel
 				.equals(Logger.SYSTEM_LOG))))
 		{
 			error = "Missing or invalid channel=";
 		}
-		else if (user == null || !user.matches(Hawthorn.REGEXP_USERCHANNEL))
+		else if(user == null || !user.matches(Hawthorn.REGEXP_USERCHANNEL))
 		{
 			error = "Missing or invalid user=";
 		}
-		else if (displayname == null
+		else if(displayname == null
 			|| !displayname.matches(Hawthorn.REGEXP_DISPLAYNAME))
 		{
 			// Displayname can't contain control characters or "
 			error = "Missing or invalid displayname=";
 		}
-		else if (key == null)
+		else if(key == null)
 		{
 			error = "Missing key=";
 		}
-		else if (keytime == null || !keytime.matches(REGEXP_LONG))
+		else if(keytime == null || !keytime.matches(REGEXP_LONG))
 		{
 			error = "Missing or invalid keytime=";
 		}
-		else if (Long.parseLong(keytime) < System.currentTimeMillis())
+		else if(Long.parseLong(keytime) < System.currentTimeMillis())
 		{
 			error = "Expired key";
 		}
-		else if (!key.equals(getApp().getValidKey(channel, user, displayname,
+		else if(!key.equals(getApp().getValidKey(channel, user, displayname,
 			permissionSet, Long.parseLong(keytime))))
 		{
 			error = "Invalid key";
 		}
 
-		if (error != null)
+		if(error != null)
 		{
 			sendPermissionError(params, errorFunction, html, error);
 			return null;

@@ -138,7 +138,7 @@ public abstract class Auth
 		{
 			hashDataBytes = hashData.getBytes("UTF-8");
 		}
-		catch (UnsupportedEncodingException e)
+		catch(UnsupportedEncodingException e)
 		{
 			throw new Error("No UTF-8 support?!", e);
 		}
@@ -148,7 +148,7 @@ public abstract class Auth
 		m = MessageDigest.getInstance("SHA-1");
 		m.update(hashDataBytes, 0, hashDataBytes.length);
 		String sha1 = new BigInteger(1, m.digest()).toString(16);
-		while (sha1.length() < 40)
+		while(sha1.length() < 40)
 		{
 			sha1 = "0" + sha1;
 		}

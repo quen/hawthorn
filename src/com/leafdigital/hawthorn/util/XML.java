@@ -50,9 +50,9 @@ public abstract class XML
 	{
 		StringBuilder result = new StringBuilder();
 		NodeList children = container.getChildNodes();
-		for (int i = 0; i < children.getLength(); i++)
+		for(int i = 0; i < children.getLength(); i++)
 		{
-			if (!(children.item(i) instanceof Text))
+			if(!(children.item(i) instanceof Text))
 			{
 				throw new IOException("Element "
 					+ container.getTagName() + " must not include XML tags.");

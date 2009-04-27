@@ -35,7 +35,7 @@ public class JoinMessage extends Message
 		{
 			Message.registerType(TYPE, JoinMessage.class);
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);

@@ -35,7 +35,7 @@ public class ReAcquireAllowTag extends SimpleTagSupport
 		// Get init tag with basic settings
 		InitTag init =
 			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
-		if (init==null)
+		if(init==null)
 		{
 			throw new JspException("Cannot use <reAcquireAllow> without <init>");
 		}

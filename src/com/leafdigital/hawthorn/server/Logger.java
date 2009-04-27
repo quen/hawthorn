@@ -104,7 +104,7 @@ public final class Logger
 			{
 				writer.write(line + "\n");
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				System.err.println("Error writing to logfile:");
 				e.printStackTrace();
@@ -124,7 +124,7 @@ public final class Logger
 				writer.close();
 				writer = null;
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				System.err.println("Error closing logfile:");
 				e.printStackTrace();
@@ -139,14 +139,14 @@ public final class Logger
 		synchronized boolean flush()
 		{
 			// Flush if required
-			if (!flushed)
+			if(!flushed)
 			{
 				try
 				{
 					writer.flush();
 					flushed = true;
 				}
-				catch (IOException e)
+				catch(IOException e)
 				{
 					System.err.println("Error flushing logfile:");
 					e.printStackTrace();
@@ -154,13 +154,13 @@ public final class Logger
 			}
 
 			// Close file if required
-			if (System.currentTimeMillis() - lastWrite > LOG_STAY_OPEN)
+			if(System.currentTimeMillis() - lastWrite > LOG_STAY_OPEN)
 			{
 				try
 				{
 					writer.close();
 				}
-				catch (IOException e)
+				catch(IOException e)
 				{
 					System.err.println("Error closing logfile:");
 					e.printStackTrace();
@@ -206,7 +206,7 @@ public final class Logger
 	private void logThread()
 	{
 		long lastDeleteCheck = 0;
-		while (true)
+		while(true)
 		{
 			// Wait
 			boolean closeRequired;
@@ -216,19 +216,19 @@ public final class Logger
 				{
 					threadSynch.wait(LOG_UPDATE_FREQUENCY);
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 				closeRequired = close;
 			}
 
 			// If close is requested
-			if (closeRequired)
+			if(closeRequired)
 			{
 				// Close all the files
 				synchronized (openFiles)
 				{
-					for (OpenFile file : openFiles.values())
+					for(OpenFile file : openFiles.values())
 					{
 						file.close();
 					}
@@ -248,10 +248,10 @@ public final class Logger
 			// been used in a while
 			synchronized (openFiles)
 			{
-				for (Iterator<OpenFile> i = openFiles.values().iterator(); i.hasNext();)
+				for(Iterator<OpenFile> i = openFiles.values().iterator(); i.hasNext();)
 				{
 					OpenFile file = i.next();
-					if (file.flush())
+					if(file.flush())
 					{
 						i.remove();
 					}
@@ -259,25 +259,25 @@ public final class Logger
 			}
 
 			// Every so often, check and delete old log files
-			if (logDays != 0
+			if(logDays != 0
 				&& System.currentTimeMillis() - lastDeleteCheck > DELETE_CHECK_FREQUENCY)
 			{
 				File[] files = folder.listFiles();
-				if (files != null)
+				if(files != null)
 				{
 					long threshold =
 						System.currentTimeMillis() - (long)logDays * 24 * 60 * 60 * 1000;
 					int deleted = 0;
-					for (File f : files)
+					for(File f : files)
 					{
-						if (!f.getName().matches(".*\\.[0-9]{4}-[0-9]{2}-[0-9]{2}\\.log"))
+						if(!f.getName().matches(".*\\.[0-9]{4}-[0-9]{2}-[0-9]{2}\\.log"))
 						{
 							continue;
 						}
 
-						if (f.lastModified() < threshold)
+						if(f.lastModified() < threshold)
 						{
-							if (f.delete())
+							if(f.delete())
 							{
 								deleted++;
 							}
@@ -288,7 +288,7 @@ public final class Logger
 							}
 						}
 					}
-					if (deleted > 0)
+					if(deleted > 0)
 					{
 						log(SYSTEM_LOG, Level.NORMAL, "Deleted " + deleted + " old logs");
 					}
@@ -305,13 +305,13 @@ public final class Logger
 			close = true;
 			threadSynch.notifyAll();
 
-			while (!closed)
+			while(!closed)
 			{
 				try
 				{
 					threadSynch.wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -327,7 +327,7 @@ public final class Logger
 	 */
 	public void log(String fileName, Level level, String line)
 	{
-		if (!level.isAtLeast(showLevel))
+		if(!level.isAtLeast(showLevel))
 		{
 			return;
 		}
@@ -342,7 +342,7 @@ public final class Logger
 		synchronized (openFiles)
 		{
 			file = openFiles.get(target);
-			if (file == null)
+			if(file == null)
 			{
 				try
 				{
@@ -350,7 +350,7 @@ public final class Logger
 						new OpenFile(new BufferedWriter(new OutputStreamWriter(
 							new FileOutputStream(target, true), "UTF-8")));
 				}
-				catch (IOException e)
+				catch(IOException e)
 				{
 					System.err.println("Error opening logfile " + target + ":");
 					e.printStackTrace();
@@ -401,7 +401,7 @@ public final class Logger
 	 */
 	private File getLogFile(String fileName, String date)
 	{
-		if (fileName.equals(SYSTEM_LOG))
+		if(fileName.equals(SYSTEM_LOG))
 		{
 			fileName = "!system." + address;
 		}
@@ -425,15 +425,15 @@ public final class Logger
 				new BufferedReader(new InputStreamReader(new FileInputStream(target),
 					"UTF-8"));
 			boolean first = true;
-			while (true)
+			while(true)
 			{
 				String line = br.readLine();
-				if (line == null)
+				if(line == null)
 				{
 					break;
 				}
 
-				if (first)
+				if(first)
 				{
 					js.append('[');
 					first = false;
@@ -451,7 +451,7 @@ public final class Logger
 			br.close();
 			return js.toString();
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			throw new OperationException(ErrorCode.OPERATION_LOGREAD,
 				"Error reading log", e);

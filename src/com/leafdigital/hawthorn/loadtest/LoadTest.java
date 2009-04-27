@@ -146,7 +146,7 @@ public class LoadTest
 					Auth.getKey(magicNumber, name, name,
 						EnumSet.of(Permission.READ, Permission.WRITE), channel, keyTime);
 			}
-			catch (NoSuchAlgorithmException e)
+			catch(NoSuchAlgorithmException e)
 			{
 				throw new Error(e);
 			}
@@ -231,7 +231,7 @@ public class LoadTest
 				{
 					userQueue.wait(result.time - now);
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -307,7 +307,7 @@ public class LoadTest
 		// Initialise user pool
 		System.out.println("User pool," + siteUsers);
 		userPool = new SiteUser[siteUsers];
-		for (int i=0; i<siteUsers; i++)
+		for(int i=0; i<siteUsers; i++)
 		{
 			userPool[i] = new SiteUser("loadtest"+i);
 		}
@@ -315,7 +315,7 @@ public class LoadTest
 		// Initialise channels
 		System.out.println("Channel pool," + channels);
 		channelPool = new String[channels];
-		for (int i=0; i<channels; i++)
+		for(int i=0; i<channels; i++)
 		{
 			channelPool[i] = "loadtestchan" + i;
 		}
@@ -323,7 +323,7 @@ public class LoadTest
 		// Initialise active users
 		System.out.println("Active users," + users);
 		activeUsers = new ActiveUser[users];
-		for (int i=0; i<users; i++)
+		for(int i=0; i<users; i++)
 		{
 			activeUsers[i] = new ActiveUser(this);
 		}
@@ -341,7 +341,7 @@ public class LoadTest
 		// Start threads
 		System.out.println("Threads," + threads);
 		threadStatus = new char[threads];
-		for (int i=0; i<threads; i++)
+		for(int i=0; i<threads; i++)
 		{
 			threadStatus[i] = '.';
 			new TestThread(this, i);
@@ -353,7 +353,7 @@ public class LoadTest
 		{
 			Thread.sleep(endWarmupTime - System.currentTimeMillis());
 		}
-		catch (InterruptedException e)
+		catch(InterruptedException e)
 		{
 		}
 
@@ -373,7 +373,7 @@ public class LoadTest
 		nf.setMinimumIntegerDigits(2);
 
 		// Now display information about test every 10 seconds
-		while (true)
+		while(true)
 		{
 			now = System.currentTimeMillis();
 			String time = pad(4, "" + ((now - start) / 1000));
@@ -402,7 +402,7 @@ public class LoadTest
 				"; Errors " + pad(7, ""+countErrors) + "; Exceptions "+
 				pad(7, ""+countExceptions) + "; Queue " + pad(7, ""+queueDelay) +
 				"; Event mean " + nf.format(meanTime) + "ms; Threads: ");
-			for (int i=0; i<threads; i++)
+			for(int i=0; i<threads; i++)
 			{
 				System.err.print(threadStatus[i]);
 			}
@@ -417,7 +417,7 @@ public class LoadTest
 			{
 				Thread.sleep(5000);
 			}
-			catch (InterruptedException e)
+			catch(InterruptedException e)
 			{
 			}
 		}
@@ -453,7 +453,7 @@ public class LoadTest
 			t.magicNumber = getStringParameter(args, "magicnumber");
 			t.drivebys = getIntParameter(args, "drivebys", REQUIRED, 0);
 			t.users = getIntParameter(args, "users", REQUIRED, 0);
-			if (t.drivebys == 0 && t.users == 0)
+			if(t.drivebys == 0 && t.users == 0)
 			{
 				throw new IllegalArgumentException(
 					"You must have at least 1 active user or driveby user");
@@ -492,9 +492,9 @@ public class LoadTest
 	private static int getIntParameter(String[] args, String name, int def, int min)
 	  throws IllegalArgumentException
 	{
-		for (String arg : args)
+		for(String arg : args)
 		{
-			if (arg.startsWith(name + "="))
+			if(arg.startsWith(name + "="))
 			{
 				String value = arg.substring(name.length() + 1);
 				try
@@ -514,7 +514,7 @@ public class LoadTest
 				}
 			}
 		}
-		if (def != REQUIRED)
+		if(def != REQUIRED)
 		{
 			return def;
 		}
@@ -530,9 +530,9 @@ public class LoadTest
 	 */
 	private static String getStringParameter(String[] args, String name)
 	{
-		for (String arg : args)
+		for(String arg : args)
 		{
-			if (arg.startsWith(name+"="))
+			if(arg.startsWith(name+"="))
 			{
 				return arg.substring(name.length()+1);
 			}

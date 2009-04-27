@@ -43,7 +43,7 @@ public abstract class HawthornException extends Exception
 	public String toString()
 	{
 		String result = code + ": " + message;
-		if (getCause() != null)
+		if(getCause() != null)
 		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);

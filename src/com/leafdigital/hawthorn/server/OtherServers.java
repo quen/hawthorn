@@ -50,7 +50,7 @@ public class OtherServers extends HawthornObject
 		super(app);
 		otherServers = new OtherServer[app.getConfig().getOtherServers().length];
 		count = 0;
-		for (Configuration.ServerInfo info : app.getConfig().getOtherServers())
+		for(Configuration.ServerInfo info : app.getConfig().getOtherServers())
 		{
 			otherServers[count++] =
 				new OtherServer(info.getAddress(), info.getPort());
@@ -60,7 +60,7 @@ public class OtherServers extends HawthornObject
 	/** Closes threads */
 	public void close()
 	{
-		for (int i = 0; i < otherServers.length; i++)
+		for(int i = 0; i < otherServers.length; i++)
 		{
 			otherServers[i].close();
 		}
@@ -73,7 +73,7 @@ public class OtherServers extends HawthornObject
 	 */
 	public void sendMessage(Message m)
 	{
-		for (int i = 0; i < otherServers.length; i++)
+		for(int i = 0; i < otherServers.length; i++)
 		{
 			otherServers[i].sendMessage(m);
 		}
@@ -111,7 +111,7 @@ public class OtherServers extends HawthornObject
 
 			// Do not build up an infinite list, if we can't get through to the
 			// remote server.
-			if (waiting.size() > TRANSFER_LIMIT)
+			if(waiting.size() > TRANSFER_LIMIT)
 			{
 				waiting.removeFirst();
 			}
@@ -121,13 +121,13 @@ public class OtherServers extends HawthornObject
 		{
 			close = true;
 			notify();
-			while (!closed)
+			while(!closed)
 			{
 				try
 				{
 					wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -138,11 +138,11 @@ public class OtherServers extends HawthornObject
 		{
 			long lastFailure = System.currentTimeMillis();
 			boolean flushed = true;
-			outerloop: while (true)
+			outerloop: while(true)
 			{
 				synchronized (this)
 				{
-					if (close)
+					if(close)
 					{
 						closed = true;
 						break;
@@ -168,14 +168,14 @@ public class OtherServers extends HawthornObject
 					writer.flush();
 
 					// Keep sending things when there's something to send
-					while (true)
+					while(true)
 					{
 						Message m;
 						synchronized (this)
 						{
-							while (waiting.isEmpty())
+							while(waiting.isEmpty())
 							{
-								if (!flushed)
+								if(!flushed)
 								{
 									wait(FLUSH_DELAY);
 									writer.flush();
@@ -185,7 +185,7 @@ public class OtherServers extends HawthornObject
 								{
 									wait();
 								}
-								if (close)
+								if(close)
 								{
 									closed = true;
 									break outerloop;
@@ -199,7 +199,7 @@ public class OtherServers extends HawthornObject
 						{
 							writer.write(say + "\n");
 						}
-						catch (Throwable t)
+						catch(Throwable t)
 						{
 							// If there's an error, put back the message we failed to send
 							// (this is probably a bit pointless since it's buffered so we
@@ -215,12 +215,12 @@ public class OtherServers extends HawthornObject
 						flushed = false;
 					}
 				}
-				catch (Throwable t)
+				catch(Throwable t)
 				{
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 						this + ": Remote server send error", t);
 					long now = System.currentTimeMillis();
-					if (now - lastFailure < RETRY_DELAY)
+					if(now - lastFailure < RETRY_DELAY)
 					{
 						try
 						{
@@ -229,7 +229,7 @@ public class OtherServers extends HawthornObject
 								wait(RETRY_DELAY);
 							}
 						}
-						catch (InterruptedException e1)
+						catch(InterruptedException e1)
 						{
 						}
 					}

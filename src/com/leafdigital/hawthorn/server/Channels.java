@@ -65,7 +65,7 @@ public class Channels extends HawthornObject
 		synchronized (channels)
 		{
 			Channel c = channels.get(name);
-			if (c == null)
+			if(c == null)
 			{
 				c = new Channel(getApp(), name);
 				channels.put(name, c);
@@ -80,13 +80,13 @@ public class Channels extends HawthornObject
 		synchronized (channelDumpSynch)
 		{
 			close = true;
-			while (!closed)
+			while(!closed)
 			{
 				try
 				{
 					channelDumpSynch.wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -106,7 +106,7 @@ public class Channels extends HawthornObject
 		@Override
 		public void run()
 		{
-			while (true)
+			while(true)
 			{
 				// Wait
 				synchronized (channelDumpSynch)
@@ -115,11 +115,11 @@ public class Channels extends HawthornObject
 					{
 						channelDumpSynch.wait(CHANNEL_DUMP_FREQUENCY);
 					}
-					catch (InterruptedException e)
+					catch(InterruptedException e)
 					{
 					}
 
-					if (close)
+					if(close)
 					{
 						closed = true;
 						channelDumpSynch.notifyAll();
@@ -137,9 +137,9 @@ public class Channels extends HawthornObject
 
 				// Clean up all channels
 				int count = allChannels.length;
-				for (Channel channel : allChannels)
+				for(Channel channel : allChannels)
 				{
-					if (channel.cleanup())
+					if(channel.cleanup())
 					{
 						synchronized (channels)
 						{

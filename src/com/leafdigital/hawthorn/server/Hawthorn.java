@@ -68,14 +68,14 @@ public class Hawthorn
 		server = new HttpServer(this);
 		statistics.start();
 
-		if (config.getTestKeys().size() > 0)
+		if(config.getTestKeys().size() > 0)
 		{
 			System.out.println("http://"
 				+ config.getThisServer().getAddress().getHostAddress() + ":"
 				+ config.getThisServer().getPort() + "/");
 			System.out.println();
 		}
-		for (Configuration.TestKey test : config.getTestKeys())
+		for(Configuration.TestKey test : config.getTestKeys())
 		{
 			test.show(this);
 		}
@@ -91,7 +91,7 @@ public class Hawthorn
 	{
 		try
 		{
-			if (args.length != 1)
+			if(args.length != 1)
 			{
 				throw new StartupException(ErrorCode.STARTUP_COMMANDLINE,
 					"Please start this server with a single "
@@ -99,7 +99,7 @@ public class Hawthorn
 			}
 			new Hawthorn(new File(args[0]));
 		}
-		catch (StartupException e)
+		catch(StartupException e)
 		{
 			System.err.println(e);
 		}
@@ -170,7 +170,7 @@ public class Hawthorn
 			return Auth.getKey(getConfig().getMagicNumber(), user, displayName,
 				permissions, channel, keyTime);
 		}
-		catch (NoSuchAlgorithmException e)
+		catch(NoSuchAlgorithmException e)
 		{
 			throw new OperationException(ErrorCode.OPERATION_MISSINGSHA1,
 				"The SHA-1 hash algorithm is not available in this Java "

@@ -55,13 +55,13 @@ public class InitTag extends BodyTagSupport
 	public int doEndTag() throws JspException
 	{
 		// Check user ID is valid
-		if (!user.matches(REGEXP_USERCHANNEL))
+		if(!user.matches(REGEXP_USERCHANNEL))
 		{
 			throw new JspException("User ID not valid: "+user);
 		}
 
 		// Store tag reference in context
-		if (pageContext.getAttribute(HAWTHORN_INIT_TAG) != null)
+		if(pageContext.getAttribute(HAWTHORN_INIT_TAG) != null)
 		{
 			throw new JspException(
 				"Page may not contain more than one Hawthorn <init> tag");
@@ -84,28 +84,28 @@ public class InitTag extends BodyTagSupport
 				("<?xml version='1.0' encoding='UTF-8' ?><servers>" + content
 					+ "</servers>").getBytes("UTF-8")));
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			throw new JspException("<init> content is not valid XML.");
 		}
-		catch (SAXException e)
+		catch(SAXException e)
 		{
 			throw new JspException("<init> content is not valid XML.");
 		}
-		catch (ParserConfigurationException e)
+		catch(ParserConfigurationException e)
 		{
 			throw new JspException("<init> content is not valid XML.");
 		}
 
 		// Check list
 		LinkedList<URL> serverList = new LinkedList<URL>();
-		for (Node n = doc.getDocumentElement().getFirstChild(); n != null;
+		for(Node n = doc.getDocumentElement().getFirstChild(); n != null;
 			n =	n.getNextSibling())
 		{
 			if(n instanceof Element)
 			{
 				Element e = (Element)n;
-				if (!e.getTagName().equals("server"))
+				if(!e.getTagName().equals("server"))
 				{
 					throw new JspException("Unexpected content in <init>: <" +
 						e.getTagName() + ">");
@@ -117,7 +117,7 @@ public class InitTag extends BodyTagSupport
 					URL u=new URL(serverName);
 					serverList.add(u);
 				}
-				catch (MalformedURLException e1)
+				catch(MalformedURLException e1)
 				{
 					throw new JspException("Not a valid server URL: " + serverName);
 				}
@@ -220,7 +220,7 @@ public class InitTag extends BodyTagSupport
 	 */
 	String getKey(String channel, long keyTime, boolean allowSystem) throws JspException
 	{
-		if (!channel.matches(REGEXP_USERCHANNEL) &&
+		if(!channel.matches(REGEXP_USERCHANNEL) &&
 			!(channel.equals("!system") && allowSystem))
 		{
 			throw new JspException("Channel ID not valid: "+user);
@@ -230,7 +230,7 @@ public class InitTag extends BodyTagSupport
 			return Auth.getKey(magicNumber, user, displayName,
 				permissionSet, channel, keyTime);
 		}
-		catch (NoSuchAlgorithmException e)
+		catch(NoSuchAlgorithmException e)
 		{
 			throw new JspException("Java installation does not appear to include "
 				+ "SHA-1 hash facilities. Correct installation before trying to use "

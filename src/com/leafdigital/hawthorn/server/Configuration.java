@@ -71,23 +71,23 @@ public class Configuration
 			{
 				address = InetAddress.getByName(getText(details));
 			}
-			catch (UnknownHostException e)
+			catch(UnknownHostException e)
 			{
 				throw new StartupException(ErrorCode.STARTUP_INVALIDADDRESS,
 					"The Internet address " + getText(details) + " is not valid.");
 			}
 
-			if (details.hasAttribute("port"))
+			if(details.hasAttribute("port"))
 			{
 				try
 				{
 					port = Integer.parseInt(details.getAttribute("port"));
-					if (port <= 0 || port > 32767)
+					if(port <= 0 || port > 32767)
 					{
 						throw new NumberFormatException();
 					}
 				}
-				catch (NumberFormatException e)
+				catch(NumberFormatException e)
 				{
 					throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 						"The port= value is not a valid port number.");
@@ -152,7 +152,7 @@ public class Configuration
 		{
 			// Parse file
 			Document xml = XML.getDocumentBuilder().parse(configFile);
-			if (!xml.getDocumentElement().getTagName().equals("hawthorn"))
+			if(!xml.getDocumentElement().getTagName().equals("hawthorn"))
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Configuration file root element must be <hawthorn>.");
@@ -160,21 +160,21 @@ public class Configuration
 
 			// Go through each child element
 			NodeList children = xml.getDocumentElement().getChildNodes();
-			for (int i = 0; i < children.getLength(); i++)
+			for(int i = 0; i < children.getLength(); i++)
 			{
-				if (!(children.item(i) instanceof Element))
+				if(!(children.item(i) instanceof Element))
 				{
 					continue;
 				}
 				Element child = (Element)children.item(i);
-				if (child.getTagName().equals("magicnumber"))
+				if(child.getTagName().equals("magicnumber"))
 				{
 					magicNumber = getText(child);
 				}
-				else if (child.getTagName().equals("logfolder"))
+				else if(child.getTagName().equals("logfolder"))
 				{
 					logFolder = new File(getText(child));
-					if (!logFolder.canWrite())
+					if(!logFolder.canWrite())
 					{
 						throw new StartupException(ErrorCode.STARTUP_LOGNOTWRITEABLE,
 							"The specified log folder " + logFolder + " does not exist, or "
@@ -182,42 +182,42 @@ public class Configuration
 								+ "writable folder.");
 					}
 				}
-				else if (child.getTagName().equals("logdays"))
+				else if(child.getTagName().equals("logdays"))
 				{
 					try
 					{
 						logDays = Integer.parseInt(getText(child));
-						if (logDays < 0)
+						if(logDays < 0)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <logdays> value is not a valid number.");
 					}
 				}
-				else if (child.getTagName().equals("loglevel"))
+				else if(child.getTagName().equals("loglevel"))
 				{
 					try
 					{
 						minLogLevel = Logger.Level.valueOf(getText(child));
 					}
-					catch (IllegalArgumentException e)
+					catch(IllegalArgumentException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <loglevel> value is not a valid log level. Valid options "
 								+ "include DETAIL, NORMAL, and ERROR.");
 					}
 				}
-				else if (child.getTagName().equals("logchat"))
+				else if(child.getTagName().equals("logchat"))
 				{
-					if (getText(child).equals("y"))
+					if(getText(child).equals("y"))
 					{
 						logChat = true;
 					}
-					else if (getText(child).equals("n"))
+					else if(getText(child).equals("n"))
 					{
 						logChat = false;
 					}
@@ -228,13 +228,13 @@ public class Configuration
 								+ "Please use y or n.");
 					}
 				}
-				else if (child.getTagName().equals("detailedstats"))
+				else if(child.getTagName().equals("detailedstats"))
 				{
-					if (getText(child).equals("y"))
+					if(getText(child).equals("y"))
 					{
 						detailedStats = true;
 					}
-					else if (getText(child).equals("n"))
+					else if(getText(child).equals("n"))
 					{
 						detailedStats = false;
 					}
@@ -245,92 +245,92 @@ public class Configuration
 								+ "Please use y or n.");
 					}
 				}
-				else if (child.getTagName().equals("historytime"))
+				else if(child.getTagName().equals("historytime"))
 				{
 					try
 					{
 						historyTime = Long.parseLong(getText(child));
-						if (historyTime < 0)
+						if(historyTime < 0)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <historytime> value is not a valid number.");
 					}
 				}
-				else if (child.getTagName().equals("minpoll"))
+				else if(child.getTagName().equals("minpoll"))
 				{
 					try
 					{
 						minPollTime = Integer.parseInt(getText(child));
-						if (minPollTime <= 0)
+						if(minPollTime <= 0)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <minpoll> value is not a valid number.");
 					}
 				}
-				else if (child.getTagName().equals("maxpoll"))
+				else if(child.getTagName().equals("maxpoll"))
 				{
 					try
 					{
 						maxPollTime = Integer.parseInt(getText(child));
-						if (maxPollTime <= 0)
+						if(maxPollTime <= 0)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <maxpoll> value is not a valid number.");
 					}
 				}
-				else if (child.getTagName().equals("pollscale"))
+				else if(child.getTagName().equals("pollscale"))
 				{
 					try
 					{
 						pollScaleTime = Integer.parseInt(getText(child));
-						if (pollScaleTime <= 0)
+						if(pollScaleTime <= 0)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <pollscale> value is not a valid number.");
 					}
 				}
-				else if (child.getTagName().equals("ipheader"))
+				else if(child.getTagName().equals("ipheader"))
 				{
 					ipHeader = getText(child);
 				}
-				else if (child.getTagName().equals("servers"))
+				else if(child.getTagName().equals("servers"))
 				{
 					LinkedList<ServerInfo> otherServersList =
 						new LinkedList<ServerInfo>();
 					NodeList servers = child.getChildNodes();
-					for (int j = 0; j < servers.getLength(); j++)
+					for(int j = 0; j < servers.getLength(); j++)
 					{
-						if (!(servers.item(j) instanceof Element))
+						if(!(servers.item(j) instanceof Element))
 						{
 							continue;
 						}
 						Element server = (Element)servers.item(j);
-						if (!server.getTagName().equals("server"))
+						if(!server.getTagName().equals("server"))
 						{
 							throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 								"The <servers> tag may only contain <server> tags.");
 						}
-						if ("y".equals(server.getAttribute("this")))
+						if("y".equals(server.getAttribute("this")))
 						{
 							thisServer = new ServerInfo(server);
 						}
@@ -342,42 +342,42 @@ public class Configuration
 					otherServers =
 						otherServersList.toArray(new ServerInfo[otherServersList.size()]);
 				}
-				else if (child.getTagName().equals("eventthreads"))
+				else if(child.getTagName().equals("eventthreads"))
 				{
 					try
 					{
 						eventThreads = Integer.parseInt(getText(child));
-						if (eventThreads < 1 || eventThreads > 100)
+						if(eventThreads < 1 || eventThreads > 100)
 						{
 							throw new NumberFormatException();
 						}
 					}
-					catch (NumberFormatException e)
+					catch(NumberFormatException e)
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"The <eventthreads> value is not a valid thread count number.");
 					}
 				}
-				else if (child.getTagName().equals("testkey"))
+				else if(child.getTagName().equals("testkey"))
 				{
 					String
 						channel = child.getAttribute("channel"),
 						user = child.getAttribute("user"),
 						displayName =	child.getAttribute("displayname"),
 						permissions = child.getAttribute("permissions");
-					if (channel == null
+					if(channel == null
 						|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !channel
 							.equals(Logger.SYSTEM_LOG)))
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires channel=, with no special characters");
 					}
-					if (user == null || !user.matches(Hawthorn.REGEXP_USERCHANNEL))
+					if(user == null || !user.matches(Hawthorn.REGEXP_USERCHANNEL))
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires user=, with no special characters");
 					}
-					if (displayName == null
+					if(displayName == null
 						|| !displayName.matches(Hawthorn.REGEXP_DISPLAYNAME))
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
@@ -392,21 +392,21 @@ public class Configuration
 				}
 			}
 
-			if (logFolder == null)
+			if(logFolder == null)
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Missing required <logfolder> configuration element. Specify a "
 						+ "folder where logs should be stored. Example:\n\n"
 						+ "<logfolder>/var/logs/jschat</logfolder>");
 			}
-			if (magicNumber == null)
+			if(magicNumber == null)
 			{
 				MessageDigest m;
 				try
 				{
 					m = MessageDigest.getInstance("SHA-1");
 				}
-				catch (NoSuchAlgorithmException e)
+				catch(NoSuchAlgorithmException e)
 				{
 					throw new StartupException(ErrorCode.STARTUP_MISSINGSHA1,
 						"The SHA1 hash algorithm is not available in this Java "
@@ -416,7 +416,7 @@ public class Configuration
 				String s = Math.random() + "";
 				m.update(s.getBytes(), 0, s.length());
 				String sha1 = new BigInteger(1, m.digest()).toString(16);
-				while (sha1.length() < 40)
+				while(sha1.length() < 40)
 				{
 					sha1 = "0" + sha1;
 				}
@@ -426,7 +426,7 @@ public class Configuration
 						+ "suitable random string that will be kept secure. Here's one "
 						+ "generated for you:\n\n<magicnumber>" + sha1 + "</magicnumber>");
 			}
-			if (thisServer == null)
+			if(thisServer == null)
 			{
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Missing definition for current server. Here is a <servers> section "
@@ -465,23 +465,23 @@ public class Configuration
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "This server: "
 				+ thisServer);
-			for (int i = 0; i < otherServers.length; i++)
+			for(int i = 0; i < otherServers.length; i++)
 			{
 				logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Remote server: "
 					+ otherServers[i]);
 			}
 		}
-		catch (ParserConfigurationException e)
+		catch(ParserConfigurationException e)
 		{
 			throw new StartupException(ErrorCode.STARTUP_XMLSYSTEM,
 				"The XML system appears to be incorrectly configured.");
 		}
-		catch (SAXException e)
+		catch(SAXException e)
 		{
 			throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 				"The configuration file is not valid XML.", e);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			throw new StartupException(ErrorCode.STARTUP_CONFIGREAD,
 				"Unable to read the configuration file.", e);
@@ -535,7 +535,7 @@ public class Configuration
 					+ "&keytime=" + testKeyTime + "&key=" + key);
 				System.out.println();
 			}
-			catch (Exception e)
+			catch(Exception e)
 			{
 				throw new StartupException(ErrorCode.STARTUP_TESTKEY,
 					"Error generating test key", e);
@@ -567,7 +567,7 @@ public class Configuration
 		return magicNumber;
 	}
 
-	/** @return History time to keep messages for (ms) */
+	/** @return History time to keep messages for(ms) */
 	public long getHistoryTime()
 	{
 		return historyTime;
@@ -622,9 +622,9 @@ public class Configuration
 	 */
 	public boolean isOtherServer(InetAddress possible)
 	{
-		for (ServerInfo compare : otherServers)
+		for(ServerInfo compare : otherServers)
 		{
-			if (compare.getAddress().getHostAddress().equals(
+			if(compare.getAddress().getHostAddress().equals(
 				possible.getHostAddress()))
 			{
 				return true;

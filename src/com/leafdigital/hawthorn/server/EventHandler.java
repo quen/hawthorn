@@ -90,7 +90,7 @@ public class EventHandler extends HawthornObject
 		getStatistics().registerInstantStatistic(STATISTIC_EVENT_QUEUE_SIZE,this);
 
 		int threads = getConfig().getEventThreads();
-		for (int i = 0; i < threads; i++)
+		for(int i = 0; i < threads; i++)
 		{
 			new EventThread(i);
 		}
@@ -145,9 +145,9 @@ public class EventHandler extends HawthornObject
 	{
 		synchronized (timerQueue)
 		{
-			for (Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
+			for(Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
 			{
-				if (i.next().getId() == id)
+				if(i.next().getId() == id)
 				{
 					i.remove();
 				}
@@ -165,13 +165,13 @@ public class EventHandler extends HawthornObject
 		synchronized (timerQueue)
 		{
 			timerQueue.notifyAll();
-			while (!timerClosed)
+			while(!timerClosed)
 			{
 				try
 				{
 					timerQueue.wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -180,13 +180,13 @@ public class EventHandler extends HawthornObject
 		synchronized (queue)
 		{
 			queue.notifyAll();
-			while (openThreads > 0)
+			while(openThreads > 0)
 			{
 				try
 				{
 					queue.wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}
@@ -205,16 +205,16 @@ public class EventHandler extends HawthornObject
 		@Override
 		public void run()
 		{
-			while (true)
+			while(true)
 			{
 				// Get next event to handle
 				Event next;
 				synchronized (queue)
 				{
-					while (queue.isEmpty())
+					while(queue.isEmpty())
 					{
 						// If close requested, abort
-						if (close)
+						if(close)
 						{
 							openThreads--;
 							queue.notifyAll();
@@ -226,7 +226,7 @@ public class EventHandler extends HawthornObject
 						{
 							queue.wait();
 						}
-						catch (InterruptedException e)
+						catch(InterruptedException e)
 						{
 						}
 					}
@@ -240,7 +240,7 @@ public class EventHandler extends HawthornObject
 				{
 					next.handle();
 				}
-				catch (Throwable t)
+				catch(Throwable t)
 				{
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 						"Event processing error (" + getName() + ")", t);
@@ -263,7 +263,7 @@ public class EventHandler extends HawthornObject
 		@Override
 		public void run()
 		{
-			while (true)
+			while(true)
 			{
 				synchronized (timerQueue)
 				{
@@ -271,10 +271,10 @@ public class EventHandler extends HawthornObject
 					long next = -1;
 
 					// Remove any queue events that are present
-					for (Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
+					for(Iterator<TimedEvent> i = timerQueue.iterator(); i.hasNext();)
 					{
 						TimedEvent upcoming = i.next();
-						if (upcoming.getTime() > now)
+						if(upcoming.getTime() > now)
 						{
 							next = upcoming.getTime();
 							break;
@@ -287,7 +287,7 @@ public class EventHandler extends HawthornObject
 					// Wait until the next event
 					try
 					{
-						if (next == -1)
+						if(next == -1)
 						{
 							timerQueue.wait();
 						}
@@ -296,12 +296,12 @@ public class EventHandler extends HawthornObject
 							timerQueue.wait(next - now);
 						}
 					}
-					catch (InterruptedException e)
+					catch(InterruptedException e)
 					{
 					}
 
 					// Check if we've been asked to close
-					if (close)
+					if(close)
 					{
 						timerClosed = true;
 						timerQueue.notifyAll();

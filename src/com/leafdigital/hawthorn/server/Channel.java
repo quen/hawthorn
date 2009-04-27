@@ -103,7 +103,7 @@ public class Channel extends HawthornObject
 
 			// And add it to the per-user index
 			LinkedList<Listener> existing = listenersByUser.get(user);
-			if (existing == null)
+			if(existing == null)
 			{
 				existing = new LinkedList<Listener>();
 				listenersByUser.put(user, existing);
@@ -122,7 +122,7 @@ public class Channel extends HawthornObject
 			{
 				// If item wasn't in list anyway, we've already responded, so don't
 				// do anything else
-				if (listeners.remove(timeoutId) == null)
+				if(listeners.remove(timeoutId) == null)
 				{
 					return;
 				}
@@ -143,16 +143,16 @@ public class Channel extends HawthornObject
 			{
 				// If item wasn't in list anyway, we've already responded, so don't
 				// do anything else
-				if (listeners.remove(timeoutId) == null)
+				if(listeners.remove(timeoutId) == null)
 				{
 					return;
 				}
 				// Remove from by-user index
 				LinkedList<Listener> byUser = listenersByUser.get(user);
-				if (byUser != null) // It should not be null, but let's play safe
+				if(byUser != null) // It should not be null, but let's play safe
 				{
 					byUser.remove(this);
-					if (byUser.isEmpty())
+					if(byUser.isEmpty())
 					{
 						listenersByUser.remove(user);
 					}
@@ -267,14 +267,14 @@ public class Channel extends HawthornObject
 	{
 		// Remove old messages
 		long then = System.currentTimeMillis() - getConfig().getHistoryTime();
-		for (Iterator<Message> i = messages.iterator(); i.hasNext();)
+		for(Iterator<Message> i = messages.iterator(); i.hasNext();)
 		{
 			Message m = i.next();
-			if (m.getTime() > then)
+			if(m.getTime() > then)
 			{
 				break;
 			}
-			if (m instanceof SayMessage)
+			if(m instanceof SayMessage)
 			{
 				uniqueMessages.remove(getUniqueKey((SayMessage)m));
 			}
@@ -283,14 +283,14 @@ public class Channel extends HawthornObject
 
 		// Remove users in present list who have timed out
 		LinkedList<UserInfo> timedOut = new LinkedList<UserInfo>();
-		for (UserInfo info : present.values())
+		for(UserInfo info : present.values())
 		{
-			if (info.timedOut())
+			if(info.timedOut())
 			{
 				timedOut.add(info);
 			}
 		}
-		for (UserInfo info : timedOut)
+		for(UserInfo info : timedOut)
 		{
 			LeaveMessage leave = info.newLeaveMessage();
 			getApp().getOtherServers().sendMessage(leave);
@@ -326,15 +326,15 @@ public class Channel extends HawthornObject
 		};
 
 		// Handle presence information
-		if (m instanceof SayMessage)
+		if(m instanceof SayMessage)
 		{
-			if (!uniqueMessages.add(getUniqueKey((SayMessage)m)))
+			if(!uniqueMessages.add(getUniqueKey((SayMessage)m)))
 			{
 				// Message is already in channel, so don't add it again
 				return;
 			}
 			UserInfo existing = present.get(m.getUser());
-			if (existing == null)
+			if(existing == null)
 			{
 				// User said something, so must be present
 				Message join =
@@ -358,10 +358,10 @@ public class Channel extends HawthornObject
 				existing.access();
 			}
 		}
-		else if (m instanceof JoinMessage)
+		else if(m instanceof JoinMessage)
 		{
 			UserInfo existing = present.get(m.getUser());
-			if (existing == null)
+			if(existing == null)
 			{
 				// Add to presence list
 				present.put(m.getUser(), new UserInfo(!remote, m.getIP(), m.getUser(),
@@ -373,10 +373,10 @@ public class Channel extends HawthornObject
 				return;
 			}
 		}
-		else if (m instanceof LeaveMessage)
+		else if(m instanceof LeaveMessage)
 		{
 			// Remove from presence list
-			if (present.remove(m.getUser()) == null)
+			if(present.remove(m.getUser()) == null)
 			{
 				// They weren't there? Then don't pass on message
 				return;
@@ -391,10 +391,10 @@ public class Channel extends HawthornObject
 
 	private synchronized void internalMessage(Message[] newMessages)
 	{
-		for (Message m : newMessages)
+		for(Message m : newMessages)
 		{
 			// Ensure that no two messages have the same time
-			if (m.getTime() == lastMessage)
+			if(m.getTime() == lastMessage)
 			{
 				m.setTime(lastMessage + 1);
 			}
@@ -404,14 +404,14 @@ public class Channel extends HawthornObject
 			lastMessage = m.getTime();
 
 			// Put message in chat logs if this server is logging
-			if (getConfig().logChat())
+			if(getConfig().logChat())
 			{
 				getLogger().log(getName(), Logger.Level.NORMAL, m.getLogFormat());
 			}
 		}
 
 		// Pass message(s) to all listeners
-		while (!listeners.isEmpty())
+		while(!listeners.isEmpty())
 		{
 			// This sends the message(s) and removes the listener
 			listeners.values().iterator().next().newMessages(newMessages);
@@ -449,10 +449,10 @@ public class Channel extends HawthornObject
 	{
 		int count = 0;
 		ListIterator<Message> iterator = messages.listIterator(messages.size());
-		while (iterator.hasPrevious() && (maxNumber == ANY || count < maxNumber))
+		while(iterator.hasPrevious() && (maxNumber == ANY || count < maxNumber))
 		{
 			Message m = iterator.previous();
-			if (m.getTime() <= then)
+			if(m.getTime() <= then)
 			{
 				iterator.next();
 				break;
@@ -461,7 +461,7 @@ public class Channel extends HawthornObject
 		}
 
 		Message[] result = new Message[count];
-		for (int i = 0; i < count; i++)
+		for(int i = 0; i < count; i++)
 		{
 			result[i] = iterator.next();
 		}
@@ -482,7 +482,7 @@ public class Channel extends HawthornObject
 
 		// User is now present in channel
 		UserInfo existing = present.get(user);
-		if (existing == null)
+		if(existing == null)
 		{
 			// Send a join message to local and remote servers
 			JoinMessage join =
@@ -497,7 +497,7 @@ public class Channel extends HawthornObject
 			maxPollTime = getConfig().getMaxPollTime(),
 			pollScaleTime = getConfig().getPollScaleTime();
 		int delay;
-		if (messages.isEmpty())
+		if(messages.isEmpty())
 		{
 			// If there are no messages at all, use the maximum delay
 			delay = maxPollTime;
@@ -526,7 +526,7 @@ public class Channel extends HawthornObject
 	public synchronized Name[] getNames(int maxNames)
 	{
 		Name[] result;
-		if (present.size() < maxNames || maxNames == ANY)
+		if(present.size() < maxNames || maxNames == ANY)
 		{
 			result = new Name[present.size()];
 		}
@@ -535,7 +535,7 @@ public class Channel extends HawthornObject
 			result = new Name[maxNames];
 		}
 		Iterator<UserInfo> iterator = present.values().iterator();
-		for (int i = 0; i < result.length; i++)
+		for(int i = 0; i < result.length; i++)
 		{
 			result[i] = iterator.next();
 		}
@@ -562,10 +562,10 @@ public class Channel extends HawthornObject
 		// Looking for messages since the specified time
 		ListIterator<Message> iterator = messages.listIterator(messages.size());
 		int count = 0;
-		while (iterator.hasPrevious())
+		while(iterator.hasPrevious())
 		{
 			Message m = iterator.previous();
-			if (m.getTime() <= lastTime)
+			if(m.getTime() <= lastTime)
 			{
 				iterator.next();
 				break;
@@ -573,10 +573,10 @@ public class Channel extends HawthornObject
 			count++;
 		}
 
-		if (count > 0)
+		if(count > 0)
 		{
 			Message[] result = new Message[count];
-			for (int i = 0; i < count; i++)
+			for(int i = 0; i < count; i++)
 			{
 				result[i] = iterator.next();
 			}
@@ -594,7 +594,7 @@ public class Channel extends HawthornObject
 
 		// User is now present in channel
 		UserInfo existing = present.get(user);
-		if (existing == null)
+		if(existing == null)
 		{
 			String ip = connection.toString();
 
@@ -620,9 +620,9 @@ public class Channel extends HawthornObject
 		output.append(',');
 		output.append(lastTime);
 		output.append(",[");
-		for (int i = 0; i < messages.length; i++)
+		for(int i = 0; i < messages.length; i++)
 		{
-			if (i != 0)
+			if(i != 0)
 			{
 				output.append(',');
 			}

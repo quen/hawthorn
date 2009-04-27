@@ -40,7 +40,7 @@ public class LinkToChatTag extends SimpleTagSupport
 		// Get init tag with basic settings
 		InitTag init =
 			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
-		if (init==null)
+		if(init==null)
 		{
 			throw new JspException("Cannot use <linkToChat> without <init>");
 		}
@@ -75,7 +75,7 @@ public class LinkToChatTag extends SimpleTagSupport
 		getJspBody().invoke(null);
 
 		// Print icon if provided
-		if (icon != null)
+		if(icon != null)
 		{
 			getJspContext().getOut().println(
 				" <img src='"+XML.esc(icon)+"' alt='"+XML.esc(iconAlt)+"' title='"+

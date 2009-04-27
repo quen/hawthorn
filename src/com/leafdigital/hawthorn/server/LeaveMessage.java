@@ -35,7 +35,7 @@ public class LeaveMessage extends Message
 		{
 			Message.registerType(TYPE, LeaveMessage.class);
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			e.printStackTrace();
 			System.exit(0);
@@ -90,7 +90,7 @@ public class LeaveMessage extends Message
 		String user, String displayName, String extra)
 	{
 		boolean timeout = extra.equals("timeout");
-		if (!timeout && !extra.equals("explicit"))
+		if(!timeout && !extra.equals("explicit"))
 		{
 			throw new IllegalArgumentException(
 				"Extra text must be timeout or explicit");

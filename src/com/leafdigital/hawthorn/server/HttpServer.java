@@ -143,7 +143,7 @@ public final class HttpServer extends HawthornObject
 					getConfig().getThisServer().getPort()), BACKLOG);
 			server.register(selector, SelectionKey.OP_ACCEPT);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			throw new StartupException(ErrorCode.STARTUP_CANNOTBIND,
 				"Failed to initialise server socket.", e);
@@ -243,7 +243,7 @@ public final class HttpServer extends HawthornObject
 				StringBuilder header = new StringBuilder();
 
 				String codeText;
-				switch (code)
+				switch(code)
 				{
 				case 200:
 					codeText = "OK";
@@ -289,13 +289,13 @@ public final class HttpServer extends HawthornObject
 				response.flip();
 
 				// Send data
-				while (true)
+				while(true)
 				{
 					try
 					{
 						channel.write(response);
 					}
-					catch (IOException e)
+					catch(IOException e)
 					{
 						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 							this + ": Error writing data");
@@ -304,7 +304,7 @@ public final class HttpServer extends HawthornObject
 					}
 
 					// Close connection if needed
-					if (!response.hasRemaining())
+					if(!response.hasRemaining())
 					{
 						close();
 						return;
@@ -317,12 +317,12 @@ public final class HttpServer extends HawthornObject
 						System.err.println("Doing the sleep thing");
 						Thread.sleep(50);
 					}
-					catch (InterruptedException ie)
+					catch(InterruptedException ie)
 					{
 					}
 				}
 			}
-			catch (UnsupportedEncodingException e)
+			catch(UnsupportedEncodingException e)
 			{
 				throw new Error("Basic encoding not supported?!", e);
 			}
@@ -330,7 +330,7 @@ public final class HttpServer extends HawthornObject
 
 		private void read()
 		{
-			if (buffer == null)
+			if(buffer == null)
 			{
 				close();
 				return;
@@ -341,18 +341,18 @@ public final class HttpServer extends HawthornObject
 			{
 				read = channel.read(buffer);
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				// Connection got closed, or something else went wrong
 				close();
 				return;
 			}
-			if (read == -1)
+			if(read == -1)
 			{
 				close();
 				return;
 			}
-			if (read == 0)
+			if(read == 0)
 			{
 				return;
 			}
@@ -362,9 +362,9 @@ public final class HttpServer extends HawthornObject
 			int bufferPos = buffer.position();
 
 			// Might this be another server introducing itself?
-			if (!otherServer && bufferPos > 0 && array[0] == '*')
+			if(!otherServer && bufferPos > 0 && array[0] == '*')
 			{
-				if (!getConfig().isOtherServer(channel.socket().getInetAddress()))
+				if(!getConfig().isOtherServer(channel.socket().getInetAddress()))
 				{
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						this + ": Remote server connection from disallowed IP");
@@ -375,7 +375,7 @@ public final class HttpServer extends HawthornObject
 				otherServer = true;
 			}
 
-			if (otherServer)
+			if(otherServer)
 			{
 				handleServer(array, bufferPos);
 			}
@@ -393,12 +393,12 @@ public final class HttpServer extends HawthornObject
 		 */
 		private void handleUser(byte[] array, int bufferPos)
 		{
-			if (array[bufferPos - 1] == '\n' && array[bufferPos - 2] == '\r'
+			if(array[bufferPos - 1] == '\n' && array[bufferPos - 2] == '\r'
 				&& array[bufferPos - 3] == '\n' && array[bufferPos - 4] == '\r')
 			{
 				// Obtain GET/POST line
 				int i;
-				for (i = 0; array[i] != '\r'; i++)
+				for(i = 0; array[i] != '\r'; i++)
 				{
 					;
 				}
@@ -406,7 +406,7 @@ public final class HttpServer extends HawthornObject
 				{
 					String firstLine = new String(array, 0, i, "US-ASCII");
 					Matcher m = REGEXP_HTTPREQUEST.matcher(firstLine);
-					if (!m.matches())
+					if(!m.matches())
 					{
 						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 							this + ": Invalid request line: " + firstLine);
@@ -415,18 +415,18 @@ public final class HttpServer extends HawthornObject
 					}
 
 					String ipHeader = getConfig().getIpHeader();
-					if (ipHeader != null)
+					if(ipHeader != null)
 					{
 						// Get rest of header in lower-case
 						String remainingHeader = new String(array, i+2, bufferPos-(i+2),
 							"US-ASCII").toLowerCase();
 						// Find header
 						int pos = remainingHeader.indexOf(ipHeader.toLowerCase()+":");
-						if (pos != -1)
+						if(pos != -1)
 						{
 							int cr = remainingHeader.indexOf('\r',
 								pos + ipHeader.length() + 1);
-							if (cr != -1)
+							if(cr != -1)
 							{
 								hostAddress = remainingHeader.substring(
 									pos + ipHeader.length() + 1, cr).trim();
@@ -438,7 +438,7 @@ public final class HttpServer extends HawthornObject
 					receivedRequest(m.group(1));
 					return;
 				}
-				catch (UnsupportedEncodingException e)
+				catch(UnsupportedEncodingException e)
 				{
 					throw new Error("Missing US-ASCII support", e);
 				}
@@ -447,7 +447,7 @@ public final class HttpServer extends HawthornObject
 			{
 				// Not received valid request yet. If we've received the full buffer,
 				// give up on it.
-				if (bufferPos == BUFFERSIZE)
+				if(bufferPos == BUFFERSIZE)
 				{
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 						this + ": Received large invalid request");
@@ -465,18 +465,18 @@ public final class HttpServer extends HawthornObject
 		private void handleServer(byte[] array, int bufferPos)
 		{
 			int pos = 0;
-			while (true)
+			while(true)
 			{
 				int linefeed;
-				for (linefeed = pos; linefeed < bufferPos; linefeed++)
+				for(linefeed = pos; linefeed < bufferPos; linefeed++)
 				{
-					if (array[linefeed] == '\n')
+					if(array[linefeed] == '\n')
 					{
 						break;
 					}
 				}
 				// If there are no more lines, exit
-				if (linefeed == bufferPos)
+				if(linefeed == bufferPos)
 				{
 					// Clean up the buffer to remove used data.
 					System.arraycopy(array, pos, array, 0, bufferPos - pos);
@@ -491,7 +491,7 @@ public final class HttpServer extends HawthornObject
 				{
 					String line = new String(array, pos, linefeed - pos, "UTF-8");
 					pos = linefeed + 1;
-					if (serverAuthenticated)
+					if(serverAuthenticated)
 					{
 						// Pass this to event-handler
 						getEventHandler().addEvent(new ServerEvent(getApp(), line, this));
@@ -500,7 +500,7 @@ public final class HttpServer extends HawthornObject
 					{
 						// This must be authentication method
 						Matcher m = REGEXP_SERVERAUTH.matcher(line);
-						if (m.matches())
+						if(m.matches())
 						{
 							// Check time. This is there both to ensure the security check
 							// isn't easily reproducible - which it's a bit crap for, since
@@ -508,7 +508,7 @@ public final class HttpServer extends HawthornObject
 							// that clocks are in synch, because if they aren't, behaviour
 							// will be weird.
 							long time = Long.parseLong(m.group(1));
-							if (Math.abs(time - System.currentTimeMillis()) > 5000)
+							if(Math.abs(time - System.currentTimeMillis()) > 5000)
 							{
 								getLogger()
 									.log(
@@ -527,7 +527,7 @@ public final class HttpServer extends HawthornObject
 								getApp()
 									.getValidKey("remote server", toString(), "",
 										Auth.getPermissionSet(""), time);
-							if (!valid.equals(m.group(2)))
+							if(!valid.equals(m.group(2)))
 							{
 								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 									this + ": Invalid remote server authorisation key: " + line);
@@ -547,11 +547,11 @@ public final class HttpServer extends HawthornObject
 
 					}
 				}
-				catch (UnsupportedEncodingException e)
+				catch(UnsupportedEncodingException e)
 				{
 					throw new Error("Missing UTF-8 support", e);
 				}
-				catch (OperationException e)
+				catch(OperationException e)
 				{
 					throw new Error(e);
 				}
@@ -576,7 +576,7 @@ public final class HttpServer extends HawthornObject
 
 		private boolean checkTimeout(long now)
 		{
-			if (!serverAuthenticated && now - lastAction > CONNECTION_TIMEOUT)
+			if(!serverAuthenticated && now - lastAction > CONNECTION_TIMEOUT)
 			{
 				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 					channel.socket().getInetAddress().getHostAddress() + " (timeout)");
@@ -599,7 +599,7 @@ public final class HttpServer extends HawthornObject
 
 		try
 		{
-			while (true)
+			while(true)
 			{
 				cancelKeys();
 
@@ -610,15 +610,15 @@ public final class HttpServer extends HawthornObject
 
 				lastTime = System.currentTimeMillis();
 				localTimeInSelect += (int)(lastTime - beforeSelect);
-				if (close)
+				if(close)
 				{
 					closed = true;
 					return;
 				}
 
-				for (SelectionKey key : selector.selectedKeys())
+				for(SelectionKey key : selector.selectedKeys())
 				{
-					if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
+					if((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
 					{
 						try
 						{
@@ -632,19 +632,19 @@ public final class HttpServer extends HawthornObject
 								connections.put(newKey, newConnection);
 							}
 						}
-						catch (IOException e)
+						catch(IOException e)
 						{
 							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
 								"Failed to accept connection", e);
 						}
 					}
-					if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
+					if((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
 					{
 						Connection c;
 						synchronized (connections)
 						{
 							c = connections.get(key);
-							if (c == null)
+							if(c == null)
 							{
 								continue;
 							}
@@ -654,7 +654,7 @@ public final class HttpServer extends HawthornObject
 				}
 				selector.selectedKeys().clear();
 
-				if (lastTime - lastCleanup > CLEANUP_EVERY)
+				if(lastTime - lastCleanup > CLEANUP_EVERY)
 				{
 					lastCleanup = lastTime;
 					LinkedList<Connection> consider;
@@ -662,13 +662,13 @@ public final class HttpServer extends HawthornObject
 					{
 						consider = new LinkedList<Connection>(connections.values());
 					}
-					for (Connection connection : consider)
+					for(Connection connection : consider)
 					{
 						connection.checkTimeout(lastTime);
 					}
 				}
 
-				if (localTimeBusy + localTimeInSelect > LOGTIME_EVERY)
+				if(localTimeBusy + localTimeInSelect > LOGTIME_EVERY)
 				{
 					synchronized (timeLogSynch)
 					{
@@ -680,7 +680,7 @@ public final class HttpServer extends HawthornObject
 				}
 			}
 		}
-		catch (Throwable t)
+		catch(Throwable t)
 		{
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.FATAL_ERROR,
 				"Fatal error in main server thread", t);
@@ -695,7 +695,7 @@ public final class HttpServer extends HawthornObject
 		boolean some = false;
 		synchronized (connections)
 		{
-			while (!keysToClose.isEmpty())
+			while(!keysToClose.isEmpty())
 			{
 				SelectionKey key = keysToClose.removeFirst();
 				key.cancel();
@@ -716,7 +716,7 @@ public final class HttpServer extends HawthornObject
 	{
 		try
 		{
-			while (true)
+			while(true)
 			{
 				// Wait for notification
 				synchronized (closeSynch)
@@ -728,11 +728,11 @@ public final class HttpServer extends HawthornObject
 							closeSynch.wait();
 						}
 					}
-					catch (InterruptedException e)
+					catch(InterruptedException e)
 					{
 					}
 
-					if (close)
+					if(close)
 					{
 						return;
 					}
@@ -790,13 +790,13 @@ public final class HttpServer extends HawthornObject
 	public void close()
 	{
 		close = true;
-		while (!closed)
+		while(!closed)
 		{
 			try
 			{
 				Thread.sleep(100);
 			}
-			catch (InterruptedException ie)
+			catch(InterruptedException ie)
 			{
 			}
 		}
@@ -804,13 +804,13 @@ public final class HttpServer extends HawthornObject
 		synchronized (closeSynch)
 		{
 			closeSynch.notifyAll();
-			while (!closeThreadClosed)
+			while(!closeThreadClosed)
 			{
 				try
 				{
 					closeSynch.wait();
 				}
-				catch (InterruptedException e)
+				catch(InterruptedException e)
 				{
 				}
 			}

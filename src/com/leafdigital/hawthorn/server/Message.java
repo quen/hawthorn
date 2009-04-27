@@ -168,13 +168,13 @@ public abstract class Message
 		InvocationTargetException
 	{
 		Matcher m = COMMAND.matcher(line);
-		if (!m.matches())
+		if(!m.matches())
 		{
 			throw new IllegalArgumentException("Line not valid: " + line);
 		}
 
 		Method parseMessage = messageInitMethods.get(m.group(1));
-		if (parseMessage == null)
+		if(parseMessage == null)
 		{
 			throw new IllegalArgumentException("Unknown command: " + m.group(1));
 		}

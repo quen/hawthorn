@@ -65,7 +65,7 @@ public class ActiveUser implements EventSource
 		// Find the first event
 		long min = Long.MAX_VALUE;
 		int minType = -1;
-		for (int i = 0; i < nextType.length; i++)
+		for(int i = 0; i < nextType.length; i++)
 		{
 			if(nextType[i] != 0 && nextType[i] < min)
 			{
@@ -120,7 +120,7 @@ public class ActiveUser implements EventSource
 	private void doClose(int threadIndex)
 	{
 		nextType[CLOSE] = System.currentTimeMillis() + test.pickSessionLength();
-		if (test.pickSendLeave())
+		if(test.pickSendLeave())
 		{
 			test.doLeave(parameters, threadIndex);
 		}
@@ -130,7 +130,7 @@ public class ActiveUser implements EventSource
 	private void updateNextEvent()
 	{
 		long min = Long.MAX_VALUE;
-		for (int i = 0; i < nextType.length; i++)
+		for(int i = 0; i < nextType.length; i++)
 		{
 			if(nextType[i] != 0 && nextType[i] < min)
 			{

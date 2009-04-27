@@ -56,15 +56,15 @@ public class ServerEvent extends Event
 				"Received from remote: " + request);
 			getChannels().get(m.getChannel()).message(m, true);
 		}
-		catch (IllegalArgumentException e)
+		catch(IllegalArgumentException e)
 		{
 			fail();
 		}
-		catch (IllegalAccessException e)
+		catch(IllegalAccessException e)
 		{
 			fail();
 		}
-		catch (InvocationTargetException e)
+		catch(InvocationTargetException e)
 		{
 			fail();
 		}
