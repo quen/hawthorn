@@ -572,7 +572,7 @@ public class HttpEvent extends Event
 
 		// Check permissions if supplied
 		String permissions = params.get("permissions");
-		EnumSet<Permission> permissionSet;
+		EnumSet<Permission> permissionSet = null;
 		if(permissions != null)
 		{
 			try
@@ -584,10 +584,6 @@ public class HttpEvent extends Event
 				sendPermissionError(params, errorFunction, html, "Invalid permission=");
 				return null;
 			}
-		}
-		else
-		{
-			permissionSet = EnumSet.of(Permission.READ, Permission.WRITE);
 		}
 
 		String error = null;
@@ -606,6 +602,10 @@ public class HttpEvent extends Event
 		{
 			// Displayname can't contain control characters or "
 			error = "Missing or invalid displayname=";
+		}
+		else if(permissions == null)
+		{
+			error = "Missing permissions=";
 		}
 		else if(key == null)
 		{
