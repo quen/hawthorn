@@ -56,10 +56,14 @@ class Hawthorn
 		$user, $displayName, $jsUrl, $popupUrl, $reAcquireUrl,
 		$defer=false, $keyExpiry=3600000)
 	{
-		// Check username
+		// Check username and displayname
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$user))
 		{
 			throw new Exception("Invalid user ID: $user");
+		}
+		if (!preg_match('~^[^\x00-\x1f\"]+$~',$displayName))
+		{
+			throw new Exception("Invalid display name: $displayName");
 		}
 
 		$this->magicNumber = $magicNumber;

@@ -37,7 +37,7 @@ public abstract class Auth
 		/** Moderate permission */
 		MODERATE("m"),
 		/** View log (and statistics, etc) permission */
-		ADMIN("l");
+		ADMIN("a");
 
 		private String code;
 		private Permission(String code)

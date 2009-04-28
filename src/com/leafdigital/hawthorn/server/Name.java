@@ -19,6 +19,8 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** Represents a user name in a channel. */
 public class Name
 {
@@ -49,6 +51,6 @@ public class Name
 	/** @return JavaScript version of name object */
 	public String getJSFormat()
 	{
-		return "{user:'"+user+"',displayName:'"+displayName+"'}";
+		return "{user:'" + user + "',displayName:'" + JS.esc(displayName) + "'}";
 	}
 }

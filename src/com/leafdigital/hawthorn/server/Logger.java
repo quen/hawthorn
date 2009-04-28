@@ -444,7 +444,7 @@ public final class Logger
 				}
 
 				js.append('\'');
-				js.append(JS.escapeJS(line));
+				js.append(JS.esc(line));
 				js.append('\'');
 			}
 			js.append(']');

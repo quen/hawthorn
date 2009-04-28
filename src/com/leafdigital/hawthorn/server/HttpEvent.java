@@ -245,7 +245,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.sayError(" + id + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -279,7 +279,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.recentError(" + id + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -343,7 +343,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.recentError(" + id + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -396,7 +396,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.waitError(" + id + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -431,7 +431,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.pollError(" + id + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -505,7 +505,7 @@ public class HttpEvent extends Event
 		if(error != null)
 		{
 			connection.send("hawthorn.logError(" + getID(params) + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 			return;
 		}
 
@@ -566,9 +566,9 @@ public class HttpEvent extends Event
 		String errorFunction, boolean allowSystemChannel, boolean html)
 		throws OperationException
 	{
-		String channel = params.get("channel"), user = params.get("user"), displayname =
-			params.get("displayname"), key = params.get("key"), keytime =
-			params.get("keytime");
+		String channel = params.get("channel"), user = params.get("user"),
+			displayname =	params.get("displayname"), key = params.get("key"),
+			keytime = params.get("keytime");
 
 		// Check permissions if supplied
 		String permissions = params.get("permissions");
@@ -652,7 +652,7 @@ public class HttpEvent extends Event
 		else
 		{
 			connection.send("hawthorn." + errorFunction + "(" + getID(params) + ",'"
-				+ JS.escapeJS(error) + "');");
+				+ JS.esc(error) + "');");
 		}
 	}
 

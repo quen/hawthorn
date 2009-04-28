@@ -166,8 +166,8 @@ var hawthorn =
 		}
 	},
 
-	recent : function(channel,user,displayName,keyTime,key,maxAge,maxNumber,
-		maxNames,continuation,failure)
+	recent : function(channel, user, displayName, permissions, keyTime, key,
+		maxAge, maxNumber, maxNames, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -176,7 +176,8 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/recent?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName) + '&permissions='
+				+ permissions + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
 				+ (maxNames==null ? '' : "&maxnames=" + maxNames));
 	},
@@ -193,8 +194,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	poll : function(channel, user, displayName, keyTime, key, lastTime,
-		continuation, failure)
+	poll : function(channel, user, displayName, permissions, keyTime, key,
+		lastTime, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -203,8 +204,9 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/poll?channel=' + channel + '&user=' + user
-			+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' 
-			+	keyTime	+ "&key=" + key + "&lasttime=" + lastTime);
+			+ '&displayname=' + encodeURIComponent(displayName)
+			+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key
+			+ '&lasttime=' + lastTime);
 	},
 
 	pollComplete : function(id, messages, lastTime, delay)
@@ -219,8 +221,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	say : function(channel,user,displayName,keyTime,key,message,continuation,
-			failure)
+	say : function(channel, user, displayName, permissions, keyTime, key,
+		message, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -229,9 +231,10 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/say?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
-				+ "&key=" + key + "&message=" + encodeURIComponent(message)
-				+ "&unique=" + (new Date()).getTime());
+				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions + '&keytime=' + keyTime
+				+ '&key=' + key + "&message=" + encodeURIComponent(message)
+				+ '&unique=' + (new Date()).getTime());
 	},
 
 	sayComplete : function(id)
@@ -246,7 +249,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	leave : function(channel,user,displayName,keyTime,key,continuation,failure)
+	leave : function(channel, user, displayName, permissions, keyTime, key,
+		continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -255,8 +259,9 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/leave?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
-				+ "&key=" + key);
+				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions
+				+ '&keytime=' + keyTime + '&key=' + key);
 	},
 
 	leaveComplete : function(id)
@@ -271,8 +276,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	wait : function(channel,user,displayName,keyTime,key,lastTime,
-			continuation,failure)
+	wait : function(channel, user, displayName, permissions, keyTime, key,
+		lastTime, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -281,7 +286,8 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/wait?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&keytime=' + keyTime
+				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions + '&keytime=' + keyTime
 				+ "&key=" + key + "&lasttime=" + lastTime);
 	},
 
@@ -297,7 +303,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	reAcquire : function(url, channel, user, displayName, continuation, failure)
+	reAcquire : function(url, channel, user, permissions, displayName,
+		continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -306,7 +313,8 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTagAnyServer(url + '?channel=' + channel + '&user=' + user
-			+ '&displayname=' + encodeURIComponent(displayName), false);
+			+ '&displayname=' + encodeURIComponent(displayName)
+			+ '&permissions=' + permissions, false);
 	},
 
 	reAcquireComplete : function(id, key, keyTime)
@@ -321,7 +329,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	log : function(channel, keyTime, key, date, continuation, failure)
+	log : function(channel, user, displayName, permissions, keyTime, key, date,
+		continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -330,7 +339,8 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/log?channel=' + channel
-				+ '&user=_admin&displayname=_&keytime=' + keyTime + "&key=" + key
+				+ '&user=' + user + '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key
 				+ "&date=" + date);
 	},
 
@@ -346,7 +356,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	openPopup : function(url,reAcquireUrl,channel,user,displayName,keyTime,key,title)
+	openPopup : function(url, reAcquireUrl, channel, user, displayName,
+		permissions, keyTime, key, title)
 	{
 		var servers = '';
 		for (var i=0; i<this.servers.length; i++)
@@ -357,23 +368,27 @@ var hawthorn =
 			}
 			servers += this.servers[i];
 		}
-		this.chatWindow = window.open(url + '?reacquire=' +
-			encodeURIComponent(reAcquireUrl) + '&channel=' + channel + '&user=' +
-			user + '&displayName=' + encodeURIComponent(displayName) + '&keyTime=' +
-			keyTime + '&key=' + key + '&title=' + encodeURIComponent(title) +
-			'&servers=' + encodeURIComponent(servers), '_' + channel,
-			'width=500,height=400,menubar=no,'+
-			'toolbar=no,location=no,directories=no,status=no,resizable=yes,'+
-			'scrollbars=no');
+		this.chatWindow = window.open(url + '?reacquire='
+			+ encodeURIComponent(reAcquireUrl) + '&channel=' + channel + '&user='
+			+ user + '&displayname=' + encodeURIComponent(displayName)
+			+ '&permissions=' + permissions + '&keyTime='
+			+ keyTime + '&key=' + key + '&title=' + encodeURIComponent(title)
+			+ '&servers=' + encodeURIComponent(servers), '_' + channel,
+			'width=500,height=400,menubar=no,'
+			+ 'toolbar=no,location=no,directories=no,status=no,resizable=yes,'
+			+ 'scrollbars=no');
+	  this.chatWindow.focus();
+		return false;
 	},
 	
-	getStatisticsURLs : function(keyTime, key)
+	getStatisticsURLs : function(user, displayName, permissions, keyTime, key)
 	{
 		var result = new Array();
 		for (var i = 0; i<this.servers.length; i++)
 		{
-			result[i] = this.servers[i] + 'hawthorn/html/statistics?channel=!system&user='
-				+ '_admin&displayname=_&keytime=' + keyTime	+ "&key=" + key;
+			result[i] = this.servers[i] + 'hawthorn/html/statistics?channel=!system'
+				+ '&user=' + user + '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key;
 		}
 		return result;
 	},
@@ -382,8 +397,8 @@ var hawthorn =
 	{
 		var el=document.getElementById(details.id);
 		this.recent(details.channel, details.user, details.displayName,
-			details.keyTime, details.key, details.maxAge, details.maxMessages, 
-			details.maxNames, 
+			details.permissions, details.keyTime, details.key, details.maxAge,
+			details.maxMessages, details.maxNames,
 			function(messages, names, lastTime) 
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
@@ -422,7 +437,10 @@ var hawthorn =
 			function(error)
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
-				el.appendChild(document.createTextNode(error));
+				var div = document.createElement('div');
+				div.className='hawthorn-error';
+				div.appendChild(document.createTextNode(error));
+				el.appendChild(div);
 			});
 	}
 	
@@ -442,7 +460,8 @@ function HawthornPopup(useWait)
 
 	this.channel = this.getPageParam('channel');
 	this.user = this.getPageParam('user');
-	this.displayName = this.getPageParam('displayName');
+	this.displayName = this.getPageParam('displayname');
+	this.permissions = this.getPageParam('permissions');
 	this.keyTime = this.getPageParam('keyTime');
 	this.key = this.getPageParam('key');
 	document.title = this.getPageParam('title');
@@ -478,7 +497,7 @@ function HawthornPopup(useWait)
 	this.closeButton.onclick=function()
 	{
 		p.left=true;
-		hawthorn.leave(p.channel, p.user, p.displayName, p.keyTime,
+		hawthorn.leave(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
 			p.key, function() { window.close(); }, function(error) { window.close(); });
 	};
 	if (useWait)
@@ -508,7 +527,8 @@ HawthornPopup.prototype.getPageParam = function(name)
 HawthornPopup.prototype.reAcquire = function(continuation)
 {
 	var p = this;
-	hawthorn.reAcquire(this.keyAcquireURL, this.channel, this.user, this.displayName,
+	hawthorn.reAcquire(this.keyAcquireURL, this.channel, this.user,
+		this.displayName, this.permissions,
 		function(key, keyTime)
 		{
 			p.key = key;
@@ -593,12 +613,12 @@ HawthornPopup.prototype.poll = function()
 	// Poll
 	if (this.lastTime == 0)
 	{
-		hawthorn.recent(this.channel, this.user, this.displayName,
+		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
 				this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
 	}
 	else
 	{
-		hawthorn.poll(this.channel, this.user, this.displayName,
+		hawthorn.poll(this.channel, this.user, this.displayName, this.permissions,
 			this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }
@@ -630,7 +650,7 @@ HawthornPopup.prototype.startWait = function()
 		{
 			var name=names[i];
 			p.addName(name.user, name.displayName);
-		}	
+		}
 		ok(lastTime,messages);
 	}
 	var fail = function(error)
@@ -640,12 +660,12 @@ HawthornPopup.prototype.startWait = function()
 
 	if(this.lastTime == 0)
 	{
-		hawthorn.recent(this.channel, this.user, this.displayName,
+		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
 			this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
 	}
 	else
 	{
-		hawthorn.wait(this.channel, this.user, this.displayName,
+		hawthorn.wait(this.channel, this.user, this.displayName, this.permissions,
 			this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }
@@ -858,8 +878,8 @@ HawthornPopup.prototype.say = function()
 		return;
 	}
 	this.textBox.value = '';
-	hawthorn.say(this.channel, this.user, this.displayName, this.keyTime,
-		this.key, text, function() {}, this.addError);
+	hawthorn.say(this.channel, this.user, this.displayName, this.permissions,
+		this.keyTime, this.key, text, function() {}, this.addError);
 	// Make it poll again real soon to get this (if polling)
 	this.pollTime = 0;
 }

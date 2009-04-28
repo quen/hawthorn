@@ -57,19 +57,20 @@ public class LinkToChatTag extends SimpleTagSupport
 
 		// Output div
 		getJspContext().getOut().println("<div class='hawthorn_linktochat' "
-			+	"style='display:none' id='hawthorn_linktochat"+index+"'>");
+			+ "style='display:none' id='hawthorn_linktochat"+index+"'>");
 		getJspContext().getOut().println(
 			"<script type='text/javascript'>document.getElementById("
-			+	"'hawthorn_linktochat"+index+"').style.display='block';</script>");
+			+ "'hawthorn_linktochat"+index+"').style.display='block';</script>");
 
 		// Output link
 		getJspContext().getOut().println(
-			"<a href='#' onclick=\"hawthorn.openPopup('"
-			+	JS.escapeJS(init.getPopupUrl()) + "','"
-			+	JS.escapeJS(init.getReAcquireUrl()) + "','"
+			"<a href='#' onclick=\"return hawthorn.openPopup('"
+			+ JS.escInlineAttr(init.getPopupUrl()) + "','"
+			+ JS.escInlineAttr(init.getReAcquireUrl()) + "','"
 			+ channel + "','"
-			+	init.getUser() + "','" + JS.escapeJS(init.getDisplayName()) + "',"
-			+ time+",'" + key + "','" + JS.escapeJS(title) + "');\">");
+			+ init.getUser() + "','" + JS.escInlineAttr(init.getDisplayName()) + "','"
+			+ Auth.getPermissions(init.getPermissionSet()) + "',"
+			+ time+",'" + key + "','" + JS.escInlineAttr(title) + "');\">");
 
 		// Print content
 		getJspBody().invoke(null);

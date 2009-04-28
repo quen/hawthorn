@@ -67,7 +67,7 @@ function setMessages(id, messages, names)
 		switch(messages[i].type)
 		{
 		case 'SAY': text=messages[i].text; break;
-		case 'NOTICE': "[System notice] " + text=messages[i].text; break;
+		case 'NOTICE': text = "[System notice] " + messages[i].text; break;
 		case 'JOIN': text="JOIN"; break;
 		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 		}
@@ -101,6 +101,7 @@ function recent()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		60*60*1000,
@@ -123,6 +124,7 @@ function poll()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		lastPollTime,
@@ -147,38 +149,40 @@ function poll()
 function say()
 {
 	hawthorn.say(
-			document.getElementById('channel').value,
-			document.getElementById('user').value,
-			document.getElementById('displayname').value,
-			document.getElementById('keytime').value,
-			document.getElementById('key').value,
-			document.getElementById('message').value,
-			function()
-			{
-				setText('say','OK, said something!');
-			},
-			function(error)
-			{
-				setText('say','ERROR! '+error);
-			});			
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		document.getElementById('message').value,
+		function()
+		{
+			setText('say','OK, said something!');
+		},
+		function(error)
+		{
+			setText('say','ERROR! '+error);
+		});
 }
 
 function leave()
 {
 	hawthorn.leave(
-			document.getElementById('channel').value,
-			document.getElementById('user').value,
-			document.getElementById('displayname').value,
-			document.getElementById('keytime').value,
-			document.getElementById('key').value,
-			function()
-			{
-				setText('leave','OK, left channel');
-			},
-			function(error)
-			{
-				setText('leave','ERROR! '+error);
-			});			
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		function()
+		{
+			setText('leave','OK, left channel');
+		},
+		function(error)
+		{
+			setText('leave','ERROR! '+error);
+	});
 }
 
 var lastWait=0;
@@ -208,72 +212,81 @@ function wait()
 	if(lastWait==0)
 	{
 		hawthorn.recent(
-				document.getElementById('channel').value,
-				document.getElementById('user').value,
-				document.getElementById('displayname').value,
-				document.getElementById('keytime').value,
-				document.getElementById('key').value,
-				60*60*1000, 10, null, first, no);
+			document.getElementById('channel').value,
+			document.getElementById('user').value,
+			document.getElementById('displayname').value,
+			document.getElementById('permissions').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			60*60*1000, 10, null, first, no);
 	}
 	else
 	{
 		hawthorn.wait(
-				document.getElementById('channel').value,
-				document.getElementById('user').value,
-				document.getElementById('displayname').value,
-				document.getElementById('keytime').value,
-				document.getElementById('key').value,
-				lastWait,yes,no);
+			document.getElementById('channel').value,
+			document.getElementById('user').value,
+			document.getElementById('displayname').value,
+			document.getElementById('permissions').value,
+			document.getElementById('keytime').value,
+			document.getElementById('key').value,
+			lastWait,yes,no);
 	}
 }
 
-function getLog()
+function log()
 {
-	hawthorn.getLog(
-			document.getElementById('channel').value,
-			document.getElementById('keytime').value,
-			document.getElementById('key').value,
-			document.getElementById('date').value,
-			function(lines)
-			{
-				var logs=document.getElementById('logs');
-				while(logs.firstChild) logs.removeChild(logs.firstChild);
-				
-				var intro=document.createElement('p');
-				intro.appendChild(document.createTextNode(lines.length+' lines:'));
-				logs.appendChild(intro);
+	hawthorn.log(
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		document.getElementById('date').value,
+		function(lines)
+		{
+			var logs=document.getElementById('logs');
+			while(logs.firstChild) logs.removeChild(logs.firstChild);
 
-				var pre=document.createElement('pre');
-				for(var i=0;i<lines.length;i++)
-				{
-					pre.appendChild(document.createTextNode(lines[i]));
-					pre.appendChild(document.createElement('br'));
-				}
-				logs.appendChild(pre);
-			},
-			function(error)
+			var intro=document.createElement('p');
+			intro.appendChild(document.createTextNode(lines.length+' lines:'));
+			logs.appendChild(intro);
+
+			var pre=document.createElement('pre');
+			for(var i=0;i<lines.length;i++)
 			{
-				setText('logs','ERROR! '+error);
-			});
+				pre.appendChild(document.createTextNode(lines[i]));
+				pre.appendChild(document.createElement('br'));
+			}
+			logs.appendChild(pre);
+		},
+		function(error)
+		{
+			setText('logs','ERROR! '+error);
+		});
 
 }
 
 function openPopup()
 {
 	hawthorn.openPopup(
-			'../../js/popup.html',
-			null,
-			document.getElementById('channel').value,
-			document.getElementById('user').value,
-			document.getElementById('displayname').value,
-			document.getElementById('keytime').value,
-			document.getElementById('key').value,
-			document.getElementById('title').value);	
+		'../../js/popup.html',
+		null,
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		document.getElementById('title').value);
 }
 
 function stats()
 {
 	urls = hawthorn.getStatisticsURLs(
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value);
 	var target = document.getElementById('stats');
@@ -303,6 +316,7 @@ function saveSettings()
 	value+='[channel&'+escape(document.getElementById('channel').value);
 	value+='[user&'+escape(document.getElementById('user').value);
 	value+='[displayname&'+escape(document.getElementById('displayname').value);
+	value+='[permissions&'+escape(document.getElementById('permissions').value);
 	value+='[keytime&'+escape(document.getElementById('keytime').value);
 	value+='[key&'+escape(document.getElementById('key').value);
 	document.cookie =
@@ -382,6 +396,7 @@ number and is able to generate keys itself.</p>
 <div>Channel <input id="channel" type="text" size="20" /><br />
 User ID <input id="user" type="text" size="20" /><br />
 Display name <input id="displayname" type="text" size="20" /><br />
+Permissions <input id="permissions" type="text" size="20" value="rw"/><br />
 Key time <input id="keytime" type="text" size="20" /><br />
 Key <input id="key" type="text" size="40" /></div>
 
@@ -418,24 +433,24 @@ Key <input id="key" type="text" size="40" /></div>
 <h2>Open popup</h2>
 
 <div>Title <input id="title" type="text" size="20" value="Chat window"/></div>
-<div><input type="button" value="Open popup" onclick="openPopup()" /></div>
+<div><input type="button" value="Open popup" onclick="return openPopup();" /></div>
 
 <h2>Get logs</h2>
 
-<p>In order to get logs, you need to have the username <strong>_admin</strong>
-and display name <strong>_</strong>. Note that you can also request for
+<p>In order to get logs, you need to have the <strong>a</strong> permission
+(e.g. rwa). Note that you can also request for
 the special reserved channel name !system to get the system log.</p>
 
 <h3>Logs</h3>
 <div id="logs">Not yet requested</div>
 
-<div>Date <input id="date" type="text" size="20" /><br />
-<input type="button" value="Get logs" onclick="getLog()" /></div>
+<div>Date (YYYY-MM-DD) <input id="date" type="text" size="20" /><br />
+<input type="button" value="Get logs" onclick="log()" /></div>
 
 <h2>View statistics</h2>
 
-<p>In order to view statistics, you need to have the username <strong>_admin</strong>
-and display name <strong>_</strong> on channel <strong>!system</strong>.</p>
+<p>In order to view statistics, you need to have the permission
+<strong>a</strong> on channel <strong>!system</strong>.</p>
 
 <div id="stats">Not yet generated</div>
 <div><input type="button" value="Show stats links" onclick="stats()" /></div>

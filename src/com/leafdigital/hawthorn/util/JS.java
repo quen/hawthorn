@@ -23,13 +23,25 @@ package com.leafdigital.hawthorn.util;
 public abstract class JS
 {
 	/**
-	 * Escapes a string suitable for inclusion within JS single quotes.
-	 *
+	 * Escapes a string suitable for inclusion within JS single quotes,
+	 * in a JS (not HTML) file.
 	 * @param text String to escape
 	 * @return String with some characters escaped
 	 */
-	public static String escapeJS(String text)
+	public static String esc(String text)
 	{
 		return text.replace("\\", "\\\\").replace("'", "\\'");
+	}
+
+	/**
+	 * Escapes a string suitable for inclusion within JS single quotes,
+	 * inside a double-quoted HTML attribute.
+	 * @param text String to escape
+	 * @return String with some characters escaped or turned into function calls
+	 */
+	public static String escInlineAttr(String text)
+	{
+		return esc(text).replace("\"","'+String.fromCharCode(34)+'").replace(
+			"&","'+String.fromCharCode(38)+'");
 	}
 }

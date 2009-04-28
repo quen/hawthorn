@@ -59,7 +59,7 @@ public class NoticeMessage extends Message
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'" + JS.escapeJS(notice) + "'";
+		return ",text:'" + JS.esc(notice) + "'";
 	}
 
 	@Override

@@ -48,8 +48,13 @@ public class InitTag extends BodyTagSupport
 	private EnumSet<Permission> permissionSet = EnumSet.of(
 		Permission.READ, Permission.WRITE);
 
+	// NOTE: The following two regexps are duplicates of the main one in
+	// Hawthorn.java
+
 	/** Regular expression for user or channel name: letters, numbers and _ */
 	public static final String REGEXP_USERCHANNEL = "[A-Za-z0-9_]+";
+	/** Regular expression for display name: all normal characters except " */
+	public static final String REGEXP_DISPLAYNAME = "[^\u0000-\u001f\"]+";
 
 	@Override
 	public int doEndTag() throws JspException
@@ -58,6 +63,11 @@ public class InitTag extends BodyTagSupport
 		if(!user.matches(REGEXP_USERCHANNEL))
 		{
 			throw new JspException("User ID not valid: "+user);
+		}
+
+		if(!displayName.matches(REGEXP_DISPLAYNAME))
+		{
+			throw new JspException("Display name not valid: "+displayName);
 		}
 
 		// Store tag reference in context

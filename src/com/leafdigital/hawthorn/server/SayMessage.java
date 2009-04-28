@@ -79,7 +79,7 @@ public class SayMessage extends Message
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'" + JS.escapeJS(message) + "'";
+		return ",text:'" + JS.esc(message) + "'";
 	}
 
 	@Override

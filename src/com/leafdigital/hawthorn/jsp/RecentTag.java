@@ -67,10 +67,10 @@ public class RecentTag extends SimpleTagSupport
 		// Work out JavaScript
 		long keyTime = System.currentTimeMillis() + init.getKeyExpiry();
 		String js = "{user:'" + init.getUser() + "',displayName:'"
-			+	JS.escapeJS(init.getDisplayName()) + "',channel:'"+channel
+			+ JS.escInlineAttr(init.getDisplayName()) + "',channel:'"+channel
 			+ "',maxMessages:" + maxMessages + ",maxAge:" + maxAge
 			+ ",maxNames:" + maxNames + ",permissions:'" + Auth.getPermissions(
-				init.getPermissionSet()) +	"',key:'"
+				init.getPermissionSet()) + "',key:'"
 			+ init.getKey(channel, keyTime, false)
 			+ "',keyTime:" + keyTime+ ",id:'hawthorn_recent"+index+"'}";
 

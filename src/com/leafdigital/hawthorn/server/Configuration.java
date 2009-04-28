@@ -506,7 +506,8 @@ public class Configuration
 			this.channel = channel;
 			this.user = user;
 			this.displayName = displayName;
-			this.permissions = permissions == null ? "rw" : permissions;
+			this.permissions = (permissions == null || permissions.equals(""))
+				? "rw" : permissions;
 		}
 
 		/**

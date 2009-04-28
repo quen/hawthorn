@@ -49,6 +49,9 @@ public class Hawthorn
 	/** Other server connections */
 	private OtherServers otherServers;
 
+	// NOTE: The following two regexps are duplicated in JSP connector
+	// (InitTag.java) and PHP connector.
+
 	/** Regular expression for user or channel name: letters, numbers and _ */
 	public static final String REGEXP_USERCHANNEL = "[A-Za-z0-9_]+";
 

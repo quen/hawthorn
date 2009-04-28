@@ -23,14 +23,17 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 <% request.setCharacterEncoding("UTF-8"); %>
 
 <%--
-This script should now check that the user is authorised to chat.
-In this test version, we assume that the user is authorised.
+This script should now check that the user is authorised to chat and has
+the specified permissions. (Or ignore permissions/user etc in the request
+and generate them afresh.) In this test version, we assume that the user
+is authorised.
 --%>
 
 <hawthorn:init magicNumber="23d70acbe28943b3548e500e297afb16"
-	user="${param.user}" displayName="${param.displayname}" jsUrl="hawthorn.js"
-	popupUrl="popup.html" reAcquireUrl="reacquire.jsp">
-	<server>http://80.229.13.61:13370/</server>
+	user="${param.user}" displayName="${param.displayname}"
+	permissions="${param.permissions}" jsUrl="hawthorn.js" popupUrl="popup.html"
+	reAcquireUrl="reacquire.jsp">
+	<server>http://192.168.0.100:13370/</server>
 </hawthorn:init>
 
 <hawthorn:reAcquireAllow channel="${param.channel}" id="${param.id}"/>

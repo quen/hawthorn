@@ -96,7 +96,7 @@ public abstract class Message
 	public String getJSFormat()
 	{
 		return "{type:'" + getType() + "',time:" + time + ",user:'" + user
-			+ "',displayName:'" + JS.escapeJS(displayName) + "'" + getExtraJS()
+			+ "',displayName:'" + JS.esc(displayName) + "'" + getExtraJS()
 			+ "}";
 	}
 

@@ -23,6 +23,6 @@
      situations to standard output when it starts up. -->
 <testkey channel="a" user="b" displayname="User B"/>
 <testkey channel="a" user="c" displayname="User C"/>
-<testkey channel="a" user="_admin" displayname="_"/>
-<testkey channel="!system" user="_admin" displayname="_"/>
+<testkey channel="a" user="b" displayname="User B" permissions="rwma"/>
+<testkey channel="!system" user="b" displayname="User B" permissions="rwma"/>
 </hawthorn>

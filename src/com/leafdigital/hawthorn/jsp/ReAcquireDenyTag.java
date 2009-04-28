@@ -44,7 +44,7 @@ public class ReAcquireDenyTag extends SimpleTagSupport
 
 		// Print JavaScript
 		getJspContext().getOut().println("hawthorn.reAcquireDeny('" +
-			id+"','" + JS.escapeJS(error) + "');");
+			id+"','" + JS.esc(error) + "');");
 	}
 
 	/** @param error Error message */
