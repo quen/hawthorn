@@ -24,16 +24,18 @@ import com.leafdigital.hawthorn.util.JS;
 /** Represents a user name in a channel. */
 public class Name
 {
-	private String user,displayName;
+	private String user,displayName, ip;
 
 	/**
 	 * @param user User ID
 	 * @param displayName Display name
+	 * @param ip IP address
 	 */
-	public Name(String user, String displayName)
+	public Name(String user, String displayName, String ip)
 	{
 		this.user = user;
 		this.displayName = displayName;
+		this.ip = ip;
 	}
 
 	/** @return User ID */
@@ -48,9 +50,16 @@ public class Name
 		return displayName;
 	}
 
+	/** @return IP address of users */
+	public String getIP()
+	{
+		return ip;
+	}
+
 	/** @return JavaScript version of name object */
 	public String getJSFormat()
 	{
+		// Does not include IP; we don't send that to users
 		return "{user:'" + user + "',displayName:'" + JS.esc(displayName) + "'}";
 	}
 }

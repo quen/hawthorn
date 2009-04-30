@@ -53,6 +53,8 @@ public class Channel extends HawthornObject
 	private HashMap<String, LinkedList<Listener>> listenersByUser =
 		new HashMap<String, LinkedList<Listener>>();
 
+	/** Map from banned user ID to time ban expires */
+	private HashMap<String, Long> bans = new HashMap<String, Long>();
 
 	/** Map from user ID of everyone present in the channel */
 	private HashMap<String, UserInfo> present = new HashMap<String, UserInfo>();
@@ -178,8 +180,6 @@ public class Channel extends HawthornObject
 	{
 		private boolean thisServer;
 
-		private String ip;
-
 		private long lastAccess;
 
 		/**
@@ -191,9 +191,8 @@ public class Channel extends HawthornObject
 		private UserInfo(boolean thisServer, String ip, String user,
 			String displayName)
 		{
-			super(user, displayName);
+			super(user, displayName, ip);
 			this.thisServer = thisServer;
-			this.ip = ip;
 			access();
 		}
 
@@ -221,11 +220,15 @@ public class Channel extends HawthornObject
 				&& lastAccess + PRESENT_TIMEOUT < System.currentTimeMillis();
 		}
 
-		/** @return Suitable LeaveMessage representing a timeout */
-		LeaveMessage newLeaveMessage()
+		/**
+		 * Obtains a leave message for this user
+		 * @param timeout True for a timeout message
+		 * @return Suitable LeaveMessage
+		 */
+		LeaveMessage newLeaveMessage(boolean timeout)
 		{
-			return new LeaveMessage(System.currentTimeMillis(), getName(), ip,
-				getUser(), getDisplayName(), true);
+			return new LeaveMessage(System.currentTimeMillis(), getName(), getIP(),
+				getUser(), getDisplayName(), timeout);
 		}
 	}
 
@@ -247,11 +250,11 @@ public class Channel extends HawthornObject
 
 	/**
 	 * Obtains a unique identifier within this channel (userid + unique id)
-	 * for a SayMessage.
+	 * for a UniqueMessage.
 	 * @param m Message
 	 * @return Unique identifier
 	 */
-	private static String getUniqueKey(SayMessage m)
+	private static String getUniqueKey(UniqueMessage m)
 	{
 		return m.getUser() + ":" + m.getUnique();
 	}
@@ -266,7 +269,8 @@ public class Channel extends HawthornObject
 	synchronized boolean cleanup()
 	{
 		// Remove old messages
-		long then = System.currentTimeMillis() - getConfig().getHistoryTime();
+		long now = System.currentTimeMillis();
+		long then = now - getConfig().getHistoryTime();
 		for(Iterator<Message> i = messages.iterator(); i.hasNext();)
 		{
 			Message m = i.next();
@@ -292,13 +296,22 @@ public class Channel extends HawthornObject
 		}
 		for(UserInfo info : timedOut)
 		{
-			LeaveMessage leave = info.newLeaveMessage();
+			LeaveMessage leave = info.newLeaveMessage(true);
 			getApp().getOtherServers().sendMessage(leave);
 			message(leave, false);
 		}
 
+		// Remove old bans
+		for(Iterator<Long> i = bans.values().iterator(); i.hasNext();)
+		{
+			if(i.next() < now)
+			{
+				i.remove();
+			}
+		}
+
 		// If there are no messages and listeners, OK to delete this channel
-		return messages.isEmpty() && listeners.isEmpty();
+		return messages.isEmpty() && listeners.isEmpty() && bans.isEmpty();
 	}
 
 	/**
@@ -384,6 +397,30 @@ public class Channel extends HawthornObject
 
 			// Note the listeners will automatically be closed by sending this
 			// leave message.
+		}
+		else if(m instanceof BanMessage)
+		{
+			if(!uniqueMessages.add(getUniqueKey((BanMessage)m)))
+			{
+				// Message is already in channel, so don't add it again
+				return;
+			}
+
+			BanMessage ban = (BanMessage)m;
+
+			// See if banned user is in channel
+			UserInfo target = present.remove(ban.getBan());
+			if(target != null)
+			{
+				// User was in channel; generate LeaveMessage
+				newMessages = new Message[]
+        {
+					m, target.newLeaveMessage(false)
+        };
+			}
+
+			// Remember ban information
+			bans.put(ban.getBan(), ban.getUntil());
 		}
 
 		internalMessage(newMessages);
@@ -541,6 +578,15 @@ public class Channel extends HawthornObject
 		}
 
 		return result;
+	}
+
+	/**
+	 * @param user User ID
+	 * @return True if user is banned
+	 */
+	public synchronized boolean isBanned(String user)
+	{
+		return bans.containsKey(user);
 	}
 
 	/**

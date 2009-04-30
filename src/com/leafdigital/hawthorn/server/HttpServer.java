@@ -94,6 +94,8 @@ public final class HttpServer extends HawthornObject
 			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.SAY);
 			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
+				HttpEvent.BAN);
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.LEAVE);
 			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.POLL);

@@ -31,6 +31,8 @@ public class HttpEvent extends Event
 {
 	/** Request type: say */
 	static final String SAY = "say";
+	/** Request type: say */
+	static final String BAN = "ban";
 	/** Request type: leave */
 	static final String LEAVE = "leave";
 	/** Request type: poll */
@@ -45,10 +47,10 @@ public class HttpEvent extends Event
 	static final String STATISTICS = "statistics";
 
 	/** Regular expression matching positive longs */
-	private static final String REGEXP_LONG = "[0-9]{1,18}";
+	static final String REGEXP_LONG = "[0-9]{1,18}";
 
 	/** Regular expression matching positive ints */
-	private static final String REGEXP_INT = "[0-9]{1,9}";
+	static final String REGEXP_INT = "[0-9]{1,9}";
 
 	private String request;
 
@@ -129,6 +131,11 @@ public class HttpEvent extends Event
 			{
 				requestType = SAY;
 				handleSay(params);
+			}
+			else if(path.equals("/hawthorn/ban"))
+			{
+				requestType = BAN;
+				handleBan(params);
 			}
 			else if(path.equals("/hawthorn/leave"))
 			{
@@ -215,14 +222,18 @@ public class HttpEvent extends Event
 	private void handleSay(HashMap<String, String> params)
 		throws OperationException
 	{
+		String errorFunction = "sayError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "sayError", false, false);
+			checkAuth(params, errorFunction, false, false);
 		if(permissionSet == null)
 		{
 			return;
 		}
-		String channel = params.get("channel");
-		Channel c = getChannels().get(channel);
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
 
 		String id = getID(params);
 
@@ -250,25 +261,81 @@ public class HttpEvent extends Event
 		}
 
 		Message m =
-			new SayMessage(System.currentTimeMillis(), channel,
+			new SayMessage(System.currentTimeMillis(), c.getName(),
 				connection.toString(), params.get("user"), params.get("displayname"),
-				message, unique);
+				unique, message);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.sayComplete(" + id + ");");
 	}
 
-	private void handleLeave(HashMap<String, String> params)
-		throws OperationException
+	private void handleBan(HashMap<String, String> params)
+	throws OperationException
 	{
+		String errorFunction = "banError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "leaveError", false, false);
+			checkAuth(params, errorFunction, false, false);
 		if(permissionSet == null)
 		{
 			return;
 		}
-		String channel = params.get("channel");
-		Channel c = getChannels().get(channel);
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
+
+		String id = getID(params);
+
+		String ban = params.get("ban");
+		String unique = params.get("unique");
+		String untilText = params.get("until");
+
+		String error = null;
+		if(ban == null || !ban.matches(Hawthorn.REGEXP_USERCHANNEL))
+		{
+			error = "Missing or invalid ban=";
+		}
+		else if(untilText==null || !untilText.matches(REGEXP_LONG))
+		{
+			error = "Missing or invalid until=";
+		}
+		else if(!permissionSet.contains(Permission.MODERATE))
+		{
+			error = "Must have moderate permission to [ban]";
+		}
+		if(error != null)
+		{
+			connection.send("hawthorn.banError(" + id + ",'"
+				+ JS.esc(error) + "');");
+			return;
+		}
+
+		Message m =
+			new BanMessage(System.currentTimeMillis(), c.getName(),
+				connection.toString(), params.get("user"), params.get("displayname"),
+				unique, ban, Long.parseLong(untilText));
+		getApp().getOtherServers().sendMessage(m);
+		c.message(m, false);
+		connection.send("hawthorn.banComplete(" + id + ");");
+	}
+
+	private void handleLeave(HashMap<String, String> params)
+		throws OperationException
+	{
+		String errorFunction = "leaveError";
+		EnumSet<Permission> permissionSet =
+			checkAuth(params, errorFunction, false, false);
+		if(permissionSet == null)
+		{
+			return;
+		}
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
+
 		String id = getID(params);
 
 		String error = null;
@@ -284,7 +351,7 @@ public class HttpEvent extends Event
 		}
 
 		Message m =
-			new LeaveMessage(System.currentTimeMillis(), channel, connection
+			new LeaveMessage(System.currentTimeMillis(), c.getName(), connection
 				.toString(), params.get("user"), params.get("displayname"), false);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
@@ -311,13 +378,18 @@ public class HttpEvent extends Event
 	private void handleRecent(HashMap<String, String> params)
 		throws OperationException
 	{
+		String errorFunction = "recentError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "recentError", false, false);
+			checkAuth(params, errorFunction, false, false);
 		if(permissionSet == null)
 		{
 			return;
 		}
-		Channel c = getChannels().get(params.get("channel"));
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
 
 		String id = getID(params);
 
@@ -373,13 +445,18 @@ public class HttpEvent extends Event
 	private void handleWait(HashMap<String, String> params)
 		throws OperationException
 	{
+		String errorFunction = "waitError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "waitError", false, false);
+			checkAuth(params, errorFunction, false, false);
 		if(permissionSet == null)
 		{
 			return;
 		}
-		Channel c = getChannels().get(params.get("channel"));
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
 
 		String id = getID(params);
 
@@ -408,13 +485,18 @@ public class HttpEvent extends Event
 	private void handlePoll(HashMap<String, String> params)
 		throws OperationException
 	{
+		String errorFunction = "pollError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "pollError", false, false);
+			checkAuth(params, errorFunction, false, false);
 		if(permissionSet == null)
 		{
 			return;
 		}
-		Channel c = getChannels().get(params.get("channel"));
+		Channel c = checkChannel(params, errorFunction);
+		if(c==null)
+		{
+			return;
+		}
 
 		String id = getID(params);
 
@@ -479,8 +561,9 @@ public class HttpEvent extends Event
 	private void handleLog(HashMap<String, String> params)
 		throws OperationException
 	{
+		String errorFunction = "logError";
 		EnumSet<Permission> permissionSet =
-			checkAuth(params, "logError", true, false);
+			checkAuth(params, errorFunction, true, false);
 		if(permissionSet == null)
 		{
 			return;
@@ -632,6 +715,27 @@ public class HttpEvent extends Event
 		}
 
 		return permissionSet;
+	}
+
+	/**
+	 * Gets channel and checks that user isn't banned.
+	 * @param params HTTP parameters
+	 * @param errorFunction Name of error function
+	 * @return Channel or null if user is banned
+	 */
+	private Channel checkChannel(HashMap<String, String> params,
+		String errorFunction)
+	{
+		Channel c = getChannels().get(params.get("channel"));
+		if(c.isBanned(params.get("user")))
+		{
+			sendPermissionError(params, errorFunction, false, "You are banned");
+			return null;
+		}
+		else
+		{
+			return c;
+		}
 	}
 
 	/**

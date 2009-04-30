@@ -21,19 +21,17 @@ package com.leafdigital.hawthorn.server;
 
 import java.util.regex.*;
 
-import com.leafdigital.hawthorn.util.JS;
-
 /** Message sent when somebody says something. */
-public class SayMessage extends UniqueMessage
+public class BanMessage extends UniqueMessage
 {
 	/** Type of message */
-	private final static String TYPE = "SAY";
+	private final static String TYPE = "BAN";
 
 	static
 	{
 		try
 		{
-			Message.registerType(TYPE, SayMessage.class);
+			Message.registerType(TYPE, BanMessage.class);
 		}
 		catch(Exception e)
 		{
@@ -42,9 +40,12 @@ public class SayMessage extends UniqueMessage
 		}
 	}
 
-	private final static Pattern REGEXP_EXTRA = Pattern.compile("^(.*)}([0-9]+)$");
+	private final static Pattern REGEXP_EXTRA = Pattern.compile("^(" +
+		Hawthorn.REGEXP_USERCHANNEL + ") (" +	HttpEvent.REGEXP_LONG +
+		")}([0-9]+)$");
 
-	private String message;
+	private String ban;
+	private long until;
 
 	/**
 	 * @param time Time of message
@@ -54,31 +55,39 @@ public class SayMessage extends UniqueMessage
 	 * @param displayName Display name of user
 	 * @param unique A unique identifier (within channel and user) to avoid
 	 *   possibility of duplicated messages
-	 * @param message Message text
+	 * @param ban User ID being banned
+	 * @param until Time they're banned until
 	 */
-	SayMessage(long time, String channel, String ip, String user,
-		String displayName, String unique, String message)
+	BanMessage(long time, String channel, String ip, String user,
+		String displayName, String unique, String ban, long until)
 	{
 		super(time, channel, ip, user, displayName, unique);
-		this.message = message;
+		this.ban = ban;
+		this.until = until;
 	}
 
-	/** @return Message text */
-	public String getMessage()
+	/** @return Banned user ID */
+	public String getBan()
 	{
-		return message;
+		return ban;
+	}
+
+	/** @return Time user is banned until */
+	public long getUntil()
+	{
+		return until;
 	}
 
 	@Override
 	protected String getExtraJS()
 	{
-		return ",text:'" + JS.esc(message) + "'";
+		return ",ban:'" + ban + "',until:"+until;
 	}
 
 	@Override
 	protected String getExtra()
 	{
-		return " " + message;
+		return " " + ban + " " + until;
 	}
 
 	@Override
@@ -98,7 +107,7 @@ public class SayMessage extends UniqueMessage
 	 * @throws IllegalArgumentException If the 'extra' value does not match
 	 *   expected pattern
 	 */
-	public static SayMessage parseMessage(long time, String channel, String ip,
+	public static BanMessage parseMessage(long time, String channel, String ip,
 		String user, String displayName, String extra)
 		throws IllegalArgumentException
 	{
@@ -108,8 +117,8 @@ public class SayMessage extends UniqueMessage
 			throw new IllegalArgumentException("Unexpected 'extra' value");
 		}
 
-		return new SayMessage(time, channel, ip, user, displayName, m.group(2),
-			m.group(1));
+		return new BanMessage(time, channel, ip, user, displayName, m.group(3),
+			m.group(1), Long.parseLong(m.group(2)));
 	}
 
 }
