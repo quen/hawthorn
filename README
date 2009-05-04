@@ -2,9 +2,11 @@ This project is not ready for use yet. When it is I will update this README.
 
 TODO:
 * Consider removing the 'wait' method from code if poll method is adequate
-* Add PHP connector example.
-* Add Moodle block connector example, including example of enhanced display
-  (user pictures).
+* Add basic example for PHP connector (same as JSP example).
+* Finish Moodle connector
+  - Make it actually work.
+  - Make it support groups as per settings page.
+  - Customise it to include user pictures.
 * Document JavaScript (how?).
 * Document JSP tags (how?).
 * Add installation/management documentation.
