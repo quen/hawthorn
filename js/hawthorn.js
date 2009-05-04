@@ -409,7 +409,7 @@ var hawthorn =
 	  this.chatWindow.focus();
 		return false;
 	},
-	
+
 	getStatisticsURLs : function(user, displayName, permissions, keyTime, key)
 	{
 		var result = new Array();
@@ -428,7 +428,7 @@ var hawthorn =
 		this.recent(details.channel, details.user, details.displayName,
 			details.permissions, details.keyTime, details.key, details.maxAge,
 			details.maxMessages, details.maxNames,
-			function(messages, names, lastTime) 
+			function(messages, names, lastTime)
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
 				var ul=document.createElement('ul');
@@ -463,7 +463,7 @@ var hawthorn =
 					li.appendChild(document.createTextNode(
 							names[i].user+' ('+names[i].displayName+')'));
 				}
-			}, 
+			},
 			function(error)
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
@@ -473,16 +473,17 @@ var hawthorn =
 				el.appendChild(div);
 			});
 	}
-	
+
 }
 
 /**
  * Standard implementation of popup window used to display chat in a channel.
  * This constructor should be called from the page that defines the popup.
- * It inits the Hawthorn system and starts listening for events.
+ * It sets up parameters from the URL and from defaults. The page can then
+ * alter defaults if required before calling init().
  * @constructor
  */
-function HawthornPopup(useWait)
+function HawthornPopup()
 {
 	this.keyAcquireURL = this.getPageParam('reacquire');
 	this.servers = this.getPageParam('servers').split(',');
@@ -501,6 +502,8 @@ function HawthornPopup(useWait)
 	this.pollTime = 0;
 	this.banTime = 4*60*60*1000; // 4 hours (default)
 	this.lastDisplayTime = '';
+	this.present = new Object();
+	this.useWait = false; // Default is to poll
 
 	this.strJoined = ' joined the chat';
 	this.strLeft = ' left the chat';
@@ -508,13 +511,30 @@ function HawthornPopup(useWait)
 	this.strError = 'A system error occurred';
 	this.strBan = 'Are you sure you want to ban $1?\n\nBanning means they will '
 		+ 'not be able to chat here, or watch this chat, for the next 4 hours.';
+	this.strCloseChat = 'Close chat';
+	this.strIntro = 'To chat, type messages in the textbox and press Return to send.';
+	this.strBanUser = 'Ban user';
+}
 
+/**
+ * Initialises the Hawthorn popup including all user-interface elements,
+ * JavaScript listeners etc.
+ */
+HawthornPopup.prototype.init = function()
+{
+	// Create the layout elements
 	this.initLayout();
+
+	// Ban button is hidden except for moderators
 	if(this.permissions.indexOf('m') == -1)
 	{
 		this.banButtonDiv.style.display = 'none';
 	}
+
+	// Begin with no selected user
 	this.setSelectedUser(null);
+
+	// Set up textbox actions
 	var p = this;
 	this.textBox.onkeypress=function(e)
 	{
@@ -532,14 +552,13 @@ function HawthornPopup(useWait)
 		  p.say();
 		}
 	};
-	this.namesArea.present = new Object();
 	this.closeButton.onclick = function()
 	{
 		p.left=true;
 		hawthorn.leave(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
 			p.key, function() { window.close(); }, function(error) { window.close(); });
 	};
-	if (useWait)
+	if(this.useWait)
 	{
 		this.startWait();
 	}
@@ -550,7 +569,7 @@ function HawthornPopup(useWait)
 	this.banButton.onclick = function()
 	{
 		var ban = p.selectedUser;
-		var banDisplayName = p.namesArea.present[ban].displayName;
+		var banDisplayName = p.present[ban].displayName;
 		var until = (new Date()).getTime() + p.banTime;
 		if(confirm(p.strBan.replace('$1', banDisplayName)))
 		{
@@ -562,6 +581,9 @@ function HawthornPopup(useWait)
 				});
 		}
 	};
+
+	// Focus textbox
+	setTimeout(function() { p.textBox.focus(); },0);
 }
 
 HawthornPopup.prototype.getPageParam = function(name)
@@ -732,17 +754,107 @@ HawthornPopup.prototype.startWait = function()
  */
 HawthornPopup.prototype.initLayout = function()
 {
-	this.mainArea = document.getElementById("main");
-	this.namesArea = document.getElementById("names");
-	this.textBox = document.getElementById("textbox");
-	this.closeButton = document.getElementById('closebutton');
-	this.banButton = document.getElementById('banbutton');
-	this.banButtonDiv = document.getElementById('banbuttondiv');
+	var outer = document.createElement('div');
 
+	// Intro section and close button
+	var intro = document.createElement('div');
+	outer.appendChild(intro);
+	intro.id = 'intro';
+	var closeButtonDiv = document.createElement('div');
+	intro.appendChild(closeButtonDiv);
+	closeButtonDiv.id = 'closebuttondiv';
+	this.closeButton = document.createElement('input');
+	closeButtonDiv.appendChild(this.closeButton);
+	this.closeButton.type = 'button';
+	this.closeButton.value = this.strCloseChat;
+	var p = document.createElement('p');
+	intro.appendChild(p);
+	p.appendChild(document.createTextNode(this.strIntro));
+
+	// Main and names
+	this.mainArea = document.createElement("div");
+	outer.appendChild(this.mainArea);
+	this.mainArea.id = 'main';
+	this.namesArea = document.createElement('div');
+	outer.appendChild(this.namesArea);
+	this.namesArea.id = 'names';
 	// This div gets added to the top of the names area, because without it,
 	// Firefox won't tab to the first name in the list.
 	var firefoxBug = document.createElement('div');
 	this.namesArea.appendChild(firefoxBug);
+
+	// Ban button
+	this.banButtonDiv = document.createElement('div');
+	outer.appendChild(this.banButtonDiv);
+	this.banButtonDiv.id = 'banbuttondiv';
+	var inner = document.createElement('div');
+	this.banButtonDiv.appendChild(inner);
+	inner.className = 'inner';
+	this.banButton = document.createElement('input');
+	inner.appendChild(this.banButton);
+	this.banButton.type = 'button';
+	this.banButton.value = this.strBanUser;
+
+	// Text box
+	this.textBox = document.createElement('input');
+	outer.appendChild(this.textBox);
+	this.textBox.type = 'text';
+	this.textBox.id = 'textbox';
+
+	// Add the whole lot
+	document.body.appendChild(outer);
+
+	// Layout listener. It's too hard to make it work in CSS, so here's a JS
+	// implementation.
+	window.onresize = function()
+	{
+		var h = window.innerHeight;
+		var w = window.innerWidth;
+
+		var namesWidth = Math.floor(w / 4);
+
+		var intro = document.getElementById('intro');
+		intro.style.width = (w - 10) + 'px';
+		var introHeight = intro.offsetHeight;
+
+		var textbox = document.getElementById('textbox');
+		var lowerHeight = textbox.offsetHeight;
+
+		var banbuttondiv = document.getElementById('banbuttondiv');
+		var banbuttondivHeight = banbuttondiv.style.display != 'none'
+			? banbuttondiv.offsetHeight : 0;
+
+		popup.mainArea.style.top = introHeight + 'px';
+		popup.mainArea.style.width = (w - namesWidth - 10) + 'px';
+		popup.mainArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
+
+		popup.namesArea.style.top = introHeight + 'px';
+		popup.namesArea.style.left = (w - namesWidth) + 'px';
+		popup.namesArea.style.width = namesWidth + 'px';
+		popup.namesArea.style.height = (h - lowerHeight - introHeight
+			- banbuttondivHeight) + 'px';
+
+		banbuttondiv.style.top = (h-lowerHeight-banbuttondivHeight) + 'px';
+		banbuttondiv.style.left = (w-namesWidth) + 'px';
+		banbuttondiv.style.width = (namesWidth) + 'px';
+
+		textbox.style.top = (h - lowerHeight) + 'px';
+		textbox.style.width = w + 'px';
+	};
+
+	// Put a classname on the BODY so that people can do per-channel CSS if they
+	// like.
+	if(document.body.className)
+	{
+		document.body.className += ' chan-' + this.channel;
+	}
+	else
+	{
+		document.body.className = ' chan-' + this.channel;
+	}
+
+	// Do layout
+	window.onresize();
 }
 
 /**
@@ -753,7 +865,7 @@ HawthornPopup.prototype.initLayout = function()
 HawthornPopup.prototype.addName = function(user,displayName)
 {
 	var p = this;
-	var el = this.namesArea.present[user];
+	var el = this.present[user];
 	if (el)
 	{
 		return;
@@ -785,15 +897,15 @@ HawthornPopup.prototype.addName = function(user,displayName)
 		};
 		newEl.onmousedown = function()
 		{
-			for(var otherUser in p.namesArea.present)
+			for(var otherUser in p.present)
 			{
 				if(otherUser == user && p.selectedUser != user)
 				{
-					p.namesArea.present[otherUser].className = 'name selected';
+					p.present[otherUser].className = 'name selected';
 				}
 				else
 				{
-					p.namesArea.present[otherUser].className = 'name';
+					p.present[otherUser].className = 'name';
 				}
 			}
 			if(p.selectedUser == user)
@@ -808,7 +920,7 @@ HawthornPopup.prototype.addName = function(user,displayName)
 			return false;
 		};
 	}
-	this.namesArea.present[user] = newEl;
+	this.present[user] = newEl;
 
 	for(var current = this.namesArea.firstChild; current != null;
 		current = current.nextSibling)
@@ -841,13 +953,13 @@ HawthornPopup.prototype.setSelectedUser = function(selectedUser)
  */
 HawthornPopup.prototype.removeName = function(user,displayName)
 {
-	var el = this.namesArea.present[user];
+	var el = this.present[user];
 	if(!el)
 	{
 		return;
 	}
 	this.namesArea.removeChild(el);
-	delete this.namesArea.present[user];
+	delete this.present[user];
 	if(this.selectedUser == user)
 	{
 		this.setSelectedUser(null);
@@ -962,7 +1074,7 @@ HawthornPopup.prototype.addLeave = function(time,user,displayName,self)
  * @param until Time user is banned until
  * @param self True if it is the current user who set the ban
  */
-HawthornPopup.prototype.addBan = function(time, user, displayName, ban, 
+HawthornPopup.prototype.addBan = function(time, user, displayName, ban,
 	banDisplayName, until, self)
 {
 	var entry = document.createElement('div');

@@ -4,184 +4,27 @@
 <html>
 <head>
 <title>Hawthorn popup</title>
-<style type="text/css">
-body
-{
-	font: 0.85em Verdana, sans-serif;
-	margin: 0;
-	padding: 0;
-}
-
-input
-{
-	font: 1em Verdana, sans-serif;
-}
-
-#main
-{
-	position: absolute;
-	left: 0;
-	padding: 5px 5px 0;
-	overflow-y: scroll;
-}
-
-#intro
-{
-	position: absolute;
-	left: 0;
-	top: 0;
-	font-size: 0.75em;
-	padding: 9px 5px 6px;
-	border-bottom: 1px solid #eee;
-}
-
-#intro p
-{
-	margin: 0;
-}
-
-#closebuttondiv
-{
-	position: absolute;
-	right: 5px;
-	bottom: 2px;
-}
-
-#banbuttondiv
-{
-  position:absolute;
-	font-size: 0.75em;
-}
-#banbuttondiv .inner
-{
-  padding:5px 5px;
-}
-#banbuttondiv input
-{
-  width:100%;
-}
-
-#names
-{
-	position: absolute;
-	overflow-y: scroll;
-	overflow-x: hidden;
-}
-#names .name
-{
-  padding: 2px 5px;
-}
-#names .name .inner
-{
-	text-indent: -1em;
-	margin-left: 1em;
-}
-#names .selected
-{
-  background: black;
-  color: white;
-}
-
-#textbox
-{
-	position: absolute;
-	left: 0px;
-}
-
-.error h3
-{
-	font-size: 1em;
-	margin: 0;
-	color: red;
-}
-
-.entry
-{
-	padding: 5px 0;
-	border-bottom: 1px solid #eee;
-}
-
-.timestamp
-{
-	font-size: 0.75em;
-}
-
-.timestamp span
-{
-	background: #eee;
-	color: black;
-	padding: 0 2px;
-}
-
-.message
-{
-	text-indent: -2em;
-	margin-left: 2em;
-}
-
-.self
-{
-	color: #555;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="hawthorn.css" />
+<!--
+Connectors may add changes to the styles here. Some changes, such as padding
+on the main elements, might require overrides to the HawthornPopup initLayout()
+method.
+-->
 </head>
 <body>
-
-<div>
-<div id="intro">
-<div id="closebuttondiv"><input id="closebutton" type="button"
-	value="Close chat" /></div>
-<p>To chat, type messages in the textbox and press Return to send.</p>
-</div>
-<div id="main"></div>
-<div id="names"></div>
-<div id="banbuttondiv"><div class="inner"><input id="banbutton" type="button"
-	value="Ban user" /></div></div>
-<input id="textbox" type="text" /></div>
 <script type="text/javascript" src="hawthorn.js"></script>
+<!--
+At this point additional JavaScript could be included or added inline, for
+example which might provide subclasses of HawthornPopup with extra
+functionality, or replace the existing functions with new ones.
+
+For localisation requirements, set language strings in between creating
+the popup object and calling init(). Defaults can also be altered at this
+point.
+-->
 <script type="text/javascript">
 var popup = new HawthornPopup(false);
-
-window.onresize = function()
-{
-	// I can't be bothered to deal with CSS, so let's hack all the layout in
-	// JavaScript.
-	var h = window.innerHeight;
-	var w = window.innerWidth;
-
-	var namesWidth = Math.floor(w / 4);
-
-	var intro = document.getElementById('intro');
-	intro.style.width = (w - 10) + 'px';	
-	var introHeight = intro.offsetHeight;
-
-	var textbox = document.getElementById('textbox');
-	var lowerHeight = textbox.offsetHeight;
-
-	var banbuttondiv = document.getElementById('banbuttondiv');
-	var banbuttondivHeight = banbuttondiv.style.display != 'none'
-		? banbuttondiv.offsetHeight : 0;
-
-	popup.mainArea.style.top = introHeight + 'px';
-	popup.mainArea.style.width = (w - namesWidth - 10) + 'px';
-	popup.mainArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
-
-	popup.namesArea.style.top = introHeight + 'px';
-	popup.namesArea.style.left = (w - namesWidth) + 'px';
-	popup.namesArea.style.width = namesWidth + 'px';
-	popup.namesArea.style.height = (h - lowerHeight - introHeight
-		- banbuttondivHeight) + 'px';
-
-	banbuttondiv.style.top = (h-lowerHeight-banbuttondivHeight) + 'px';
-	banbuttondiv.style.left = (w-namesWidth) + 'px';
-	banbuttondiv.style.width = (namesWidth) + 'px';
-
-	textbox.style.top = (h - lowerHeight) + 'px';
-	textbox.style.width = w + 'px';
-};
-window.onresize();
-
-setTimeout(function() { document.getElementById('textbox').focus(); },0);
+popup.init();
 </script>
 </body>
 </html>

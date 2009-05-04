@@ -1,0 +1,118 @@
+body
+{
+	font: 0.85em Verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+input
+{
+	font: 1em Verdana, sans-serif;
+}
+
+#main
+{
+	position: absolute;
+	left: 0;
+	padding: 5px 5px 0;
+	overflow-y: scroll;
+}
+
+#intro
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 0.75em;
+	padding: 9px 5px 6px;
+	border-bottom: 1px solid #eee;
+}
+
+#intro p
+{
+	margin: 0;
+}
+
+#closebuttondiv
+{
+	position: absolute;
+	right: 5px;
+	bottom: 2px;
+}
+
+#banbuttondiv
+{
+  position:absolute;
+	font-size: 0.75em;
+}
+#banbuttondiv .inner
+{
+  padding:5px 5px;
+}
+#banbuttondiv input
+{
+  width:100%;
+}
+
+#names
+{
+	position: absolute;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+#names .name
+{
+  padding: 2px 5px;
+}
+#names .name .inner
+{
+	text-indent: -1em;
+	margin-left: 1em;
+}
+#names .selected
+{
+  background: black;
+  color: white;
+}
+
+#textbox
+{
+	position: absolute;
+	left: 0px;
+}
+
+.error h3
+{
+	font-size: 1em;
+	margin: 0;
+	color: red;
+}
+
+.entry
+{
+	padding: 5px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.timestamp
+{
+	font-size: 0.75em;
+}
+
+.timestamp span
+{
+	background: #eee;
+	color: black;
+	padding: 0 2px;
+}
+
+.message
+{
+	text-indent: -2em;
+	margin-left: 2em;
+}
+
+.self
+{
+	color: #555;
+}
