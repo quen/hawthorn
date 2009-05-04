@@ -69,6 +69,7 @@ function setMessages(id, messages, names)
 		case 'SAY': text=messages[i].text; break;
 		case 'NOTICE': text = "[System notice] " + messages[i].text; break;
 		case 'JOIN': text="JOIN"; break;
+		case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
 		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 		}
 		
@@ -163,6 +164,27 @@ function say()
 		function(error)
 		{
 			setText('say','ERROR! '+error);
+		});
+}
+
+function ban()
+{
+	hawthorn.ban(
+		document.getElementById('channel').value,
+		document.getElementById('user').value,
+		document.getElementById('displayname').value,
+		document.getElementById('permissions').value,
+		document.getElementById('keytime').value,
+		document.getElementById('key').value,
+		document.getElementById('banuser').value,
+		parseInt(document.getElementById('bantime').value) + (new Date()).getTime(),
+		function()
+		{
+			setText('ban','OK, banned user!');
+		},
+		function(error)
+		{
+			setText('ban','ERROR! '+error);
 		});
 }
 
@@ -412,6 +434,13 @@ Key <input id="key" type="text" size="40" /></div>
 <div id="say">Not said anything yet</div>
 <div>Message <input id="message" type="text" size="40" />
 <div><input type="button" value="Say" onclick="say()" /></div>
+</div>
+
+<h2>Ban</h2>
+<div id="ban">Not banned anyone yet</div>
+<div>User ID <input id="banuser" type="text" size="20" /><br/>
+Ban length (ms)  <input id="bantime" type="text" size="20" /><br/>
+<div><input type="button" value="Ban" onclick="ban()" /></div>
 </div>
 
 <h2>Poll</h2>

@@ -249,6 +249,34 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
+	ban : function(channel, user, displayName, permissions, keyTime, key,
+		ban, until, continuation, failure)
+	{
+		this.handlers.push(
+		{
+			id : this.id,
+			continuation : continuation,
+			failure : failure
+		});
+		this.addTag('hawthorn/ban?channel=' + channel + '&user=' + user
+				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&permissions=' + permissions + '&keytime=' + keyTime
+				+ '&key=' + key + "&ban=" + ban + "&until=" + until
+				+ '&unique=' + (new Date()).getTime());
+	},
+
+	banComplete : function(id)
+	{
+		this.removeTag(id);
+		this.getHandler(id).continuation();
+	},
+
+	banError : function(id,error)
+	{
+		this.removeTag(id);
+		this.getHandler(id).failure(error);
+	},
+
 	leave : function(channel, user, displayName, permissions, keyTime, key,
 		continuation, failure)
 	{
@@ -411,9 +439,10 @@ var hawthorn =
 					var text;
 					switch(messages[i].type)
 					{
-					case 'SAY': text=messages[i].text; break;
-					case 'JOIN': text="JOIN"; break;
-					case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+					case 'SAY': text = messages[i].text; break;
+					case 'JOIN': text = "JOIN"; break;
+					case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
+					case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 					}
 
 					ul.appendChild(li);
