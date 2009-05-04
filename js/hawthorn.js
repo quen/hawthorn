@@ -499,14 +499,22 @@ function HawthornPopup(useWait)
 	this.maxNumber = 10; // 10 messages (default)
 	this.lastTime = 0;
 	this.pollTime = 0;
+	this.banTime = 4*60*60*1000; // 4 hours (default)
 	this.lastDisplayTime = '';
 
 	this.strJoined = ' joined the chat';
 	this.strLeft = ' left the chat';
 	this.strBanned = ' banned user: ';
 	this.strError = 'A system error occurred';
+	this.strBan = 'Are you sure you want to ban $1?\n\nBanning means they will '
+		+ 'not be able to chat here, or watch this chat, for the next 4 hours.';
 
 	this.initLayout();
+	if(this.permissions.indexOf('m') == -1)
+	{
+		this.banButtonDiv.style.display = 'none';
+	}
+	this.setSelectedUser(null);
 	var p = this;
 	this.textBox.onkeypress=function(e)
 	{
@@ -525,7 +533,7 @@ function HawthornPopup(useWait)
 		}
 	};
 	this.namesArea.present = new Object();
-	this.closeButton.onclick=function()
+	this.closeButton.onclick = function()
 	{
 		p.left=true;
 		hawthorn.leave(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
@@ -539,6 +547,21 @@ function HawthornPopup(useWait)
 	{
 		this.startPoll();
 	}
+	this.banButton.onclick = function()
+	{
+		var ban = p.selectedUser;
+		var banDisplayName = p.namesArea.present[ban].displayName;
+		var until = (new Date()).getTime() + p.banTime;
+		if(confirm(p.strBan.replace('$1', banDisplayName)))
+		{
+			hawthorn.ban(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
+				p.key, ban, banDisplayName, until, function() {},
+				function(error)
+				{
+					p.addError(error);
+				});
+		}
+	};
 }
 
 HawthornPopup.prototype.getPageParam = function(name)
@@ -713,6 +736,13 @@ HawthornPopup.prototype.initLayout = function()
 	this.namesArea = document.getElementById("names");
 	this.textBox = document.getElementById("textbox");
 	this.closeButton = document.getElementById('closebutton');
+	this.banButton = document.getElementById('banbutton');
+	this.banButtonDiv = document.getElementById('banbuttondiv');
+
+	// This div gets added to the top of the names area, because without it,
+	// Firefox won't tab to the first name in the list.
+	var firefoxBug = document.createElement('div');
+	this.namesArea.appendChild(firefoxBug);
 }
 
 /**
@@ -722,6 +752,7 @@ HawthornPopup.prototype.initLayout = function()
  */
 HawthornPopup.prototype.addName = function(user,displayName)
 {
+	var p = this;
 	var el = this.namesArea.present[user];
 	if (el)
 	{
@@ -730,10 +761,56 @@ HawthornPopup.prototype.addName = function(user,displayName)
 
 	var newEl = document.createElement('div');
 	newEl.className = 'name';
-	newEl.appendChild(document.createTextNode(displayName));
+	newEl.displayName = displayName;
+	var newInner = document.createElement('div');
+	newEl.appendChild(newInner);
+	newInner.className = 'inner';
+	newInner.appendChild(document.createTextNode(displayName));
+	if(this.permissions.indexOf('m') != -1)
+	{
+		newEl.user = user;
+		newEl.setAttribute('tabindex','0');
+		p.selectedUser = null;
+		newEl.onselectstart = function()
+		{
+			return false;
+		};
+		newEl.onkeypress = function(e)
+		{
+			var key = e.keyCode ? e.keyCode : e.which;
+			if(key==13 || key==32)
+			{
+			  newEl.onmousedown();
+			}
+		};
+		newEl.onmousedown = function()
+		{
+			for(var otherUser in p.namesArea.present)
+			{
+				if(otherUser == user && p.selectedUser != user)
+				{
+					p.namesArea.present[otherUser].className = 'name selected';
+				}
+				else
+				{
+					p.namesArea.present[otherUser].className = 'name';
+				}
+			}
+			if(p.selectedUser == user)
+			{
+				p.setSelectedUser(null);
+			}
+			else
+			{
+				p.setSelectedUser(user);
+			}
+			p.textBox.focus();
+			return false;
+		};
+	}
 	this.namesArea.present[user] = newEl;
 
-	for (var current = this.namesArea.firstChild; current != null; 
+	for(var current = this.namesArea.firstChild; current != null;
 		current = current.nextSibling)
 	{
 		if(current.className != 'name')
@@ -751,6 +828,12 @@ HawthornPopup.prototype.addName = function(user,displayName)
 	this.namesArea.appendChild(newEl);
 }
 
+HawthornPopup.prototype.setSelectedUser = function(selectedUser)
+{
+	this.selectedUser = selectedUser;
+	this.banButton.disabled = selectedUser == null || selectedUser == this.user;
+}
+
 /**
  * Removes the given user from the name list.
  * @param user User ID
@@ -764,7 +847,11 @@ HawthornPopup.prototype.removeName = function(user,displayName)
 		return;
 	}
 	this.namesArea.removeChild(el);
-	this.namesArea.present[user] = undefined;
+	delete this.namesArea.present[user];
+	if(this.selectedUser == user)
+	{
+		this.setSelectedUser(null);
+	}
 }
 
 /**

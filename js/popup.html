@@ -47,16 +47,39 @@ input
 	bottom: 2px;
 }
 
+#banbuttondiv
+{
+  position:absolute;
+	font-size: 0.75em;
+}
+#banbuttondiv .inner
+{
+  padding:5px 5px;
+}
+#banbuttondiv input
+{
+  width:100%;
+}
+
 #names
 {
 	position: absolute;
-	padding: 5px 5px 0;
 	overflow-y: scroll;
+	overflow-x: hidden;
 }
 #names .name
 {
+  padding: 2px 5px;
+}
+#names .name .inner
+{
 	text-indent: -1em;
 	margin-left: 1em;
+}
+#names .selected
+{
+  background: black;
+  color: white;
 }
 
 #textbox
@@ -112,6 +135,8 @@ input
 </div>
 <div id="main"></div>
 <div id="names"></div>
+<div id="banbuttondiv"><div class="inner"><input id="banbutton" type="button"
+	value="Ban user" /></div></div>
 <input id="textbox" type="text" /></div>
 <script type="text/javascript" src="hawthorn.js"></script>
 <script type="text/javascript">
@@ -133,17 +158,26 @@ window.onresize = function()
 	var textbox = document.getElementById('textbox');
 	var lowerHeight = textbox.offsetHeight;
 
+	var banbuttondiv = document.getElementById('banbuttondiv');
+	var banbuttondivHeight = banbuttondiv.style.display != 'none'
+		? banbuttondiv.offsetHeight : 0;
+
 	popup.mainArea.style.top = introHeight + 'px';
 	popup.mainArea.style.width = (w - namesWidth - 10) + 'px';
 	popup.mainArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
 
 	popup.namesArea.style.top = introHeight + 'px';
 	popup.namesArea.style.left = (w - namesWidth) + 'px';
-	popup.namesArea.style.width = (namesWidth - 10) + 'px';
-	popup.namesArea.style.height = (h - lowerHeight - introHeight - 5) + 'px';
+	popup.namesArea.style.width = namesWidth + 'px';
+	popup.namesArea.style.height = (h - lowerHeight - introHeight
+		- banbuttondivHeight) + 'px';
 
-	textbox.style.top=(h - lowerHeight)+'px';
-	textbox.style.width=w + 'px';
+	banbuttondiv.style.top = (h-lowerHeight-banbuttondivHeight) + 'px';
+	banbuttondiv.style.left = (w-namesWidth) + 'px';
+	banbuttondiv.style.width = (namesWidth) + 'px';
+
+	textbox.style.top = (h - lowerHeight) + 'px';
+	textbox.style.width = w + 'px';
 };
 window.onresize();
 
