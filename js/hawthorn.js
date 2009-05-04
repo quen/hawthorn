@@ -509,7 +509,7 @@ function HawthornPopup()
 	this.strLeft = ' left the chat';
 	this.strBanned = ' banned user: ';
 	this.strError = 'A system error occurred';
-	this.strBan = 'Are you sure you want to ban $1?\n\nBanning means they will '
+	this.strConfirmBan = 'Are you sure you want to ban $1?\n\nBanning means they will '
 		+ 'not be able to chat here, or watch this chat, for the next 4 hours.';
 	this.strCloseChat = 'Close chat';
 	this.strIntro = 'To chat, type messages in the textbox and press Return to send.';
@@ -571,7 +571,7 @@ HawthornPopup.prototype.init = function()
 		var ban = p.selectedUser;
 		var banDisplayName = p.present[ban].displayName;
 		var until = (new Date()).getTime() + p.banTime;
-		if(confirm(p.strBan.replace('$1', banDisplayName)))
+		if(confirm(p.strConfirmBan.replace('$1', banDisplayName)))
 		{
 			hawthorn.ban(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
 				p.key, ban, banDisplayName, until, function() {},
