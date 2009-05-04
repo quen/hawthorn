@@ -531,10 +531,6 @@ public class Configuration
 						Auth.getPermissionSet(permissions), testKeyTime);
 				System.out.println("         Key: " + key);
 				System.out.println();
-				System.out.println("channel=" + channel + "&user=" + user
-					+ "&displayname=" + URLEncoder.encode(displayName, "UTF-8")
-					+ "&keytime=" + testKeyTime + "&key=" + key);
-				System.out.println();
 			}
 			catch(Exception e)
 			{
