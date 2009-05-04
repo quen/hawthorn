@@ -590,10 +590,6 @@ HawthornPopup.prototype.handleMessages = function(messages)
 			this.addMessage(message.time, message.user, message.displayName,
 				message.text, message.user == this.user);
 		}
-		else if(message.type == 'NOTICE')
-		{
-			this.addNotice(message.time, message.text);
-		}
 	}
 }
 
@@ -818,22 +814,6 @@ HawthornPopup.prototype.addMessage = function(time,user,displayName,message,self
 	entry.appendChild(inner);
 	this.addEntry(time, entry);
 }
-
- /**
-  * Adds a newly-received system notice to the message area.
-  * @param time Message time (ms since 1970)
-  * @param message Message from system
-  */
- HawthornPopup.prototype.addNotice = function(time, message)
- {
- 	var entry = document.createElement('div');
- 	entry.className='entry notice';
- 	var inner = document.createElement('div');
- 	inner.className = 'message';
- 	inner.appendChild(document.createTextNode(message));
- 	entry.appendChild(inner);
- 	this.addEntry(time, entry);
- }
 
 /**
  * Adds a newly-received join message to the message area.

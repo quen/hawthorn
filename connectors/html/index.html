@@ -67,7 +67,6 @@ function setMessages(id, messages, names)
 		switch(messages[i].type)
 		{
 		case 'SAY': text=messages[i].text; break;
-		case 'NOTICE': text = "[System notice] " + messages[i].text; break;
 		case 'JOIN': text="JOIN"; break;
 		case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
 		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;

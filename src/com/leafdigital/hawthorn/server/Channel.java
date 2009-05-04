@@ -315,16 +315,6 @@ public class Channel extends HawthornObject
 	}
 
 	/**
-	 * Sends a notice message on this channel and to other servers.
-	 * @param m Message
-	 */
-	private void sendNotice(NoticeMessage m)
-	{
-		getApp().getOtherServers().sendMessage(m);
-		message(m, false);
-	}
-
-	/**
 	 * Called when a user (local or remote) says something in the channel
 	 *
 	 * @param m Message
