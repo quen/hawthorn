@@ -20,12 +20,11 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 package com.leafdigital.hawthorn.server;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
-import java.security.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
