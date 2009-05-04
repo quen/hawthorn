@@ -28,16 +28,16 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 
 function init()
 {
-	var servers=[];
+	var servers = [];
 	for(var i=0;i<3;i++)
 	{
-		var url=document.getElementById('url'+i).value;
-		if(url=='')
+		var url = document.getElementById('url'+i).value;
+		if(url == '')
 		{
 			break;
 		}
 
-		servers[i]=url;
+		servers[i] = url;
 	}
 
 	hawthorn.init(servers);
@@ -45,54 +45,60 @@ function init()
 
 function setText(id,message)
 {
-	var el=document.getElementById(id);
-	while(el.firstChild) el.removeChild(el.firstChild);
+	var el = document.getElementById(id);
+	while(el.firstChild)
+	{
+		el.removeChild(el.firstChild);
+	}
 	el.appendChild(document.createTextNode(message));
 }
 
 function setMessages(id, messages, names)
 {
-	var el=document.getElementById(id);
-	while(el.firstChild) el.removeChild(el.firstChild);
-	var intro=document.createElement('p');
-	intro.appendChild(document.createTextNode(messages.length+' messages:'));
-	el.appendChild(intro);
-	var ul=document.createElement('ul');
-	el.appendChild(ul);
-	for(var i=0;i<messages.length;i++)
+	var el = document.getElementById(id);
+	while(el.firstChild)
 	{
-		var li=document.createElement('li');
+		el.removeChild(el.firstChild);
+	}
+	var intro = document.createElement('p');
+	intro.appendChild(document.createTextNode(messages.length + ' messages:'));
+	el.appendChild(intro);
+	var ul = document.createElement('ul');
+	el.appendChild(ul);
+	for(var i=0; i<messages.length; i++)
+	{
+		var li = document.createElement('li');
 
 		var text;
 		switch(messages[i].type)
 		{
-		case 'SAY': text=messages[i].text; break;
-		case 'JOIN': text="JOIN"; break;
+		case 'SAY': text = messages[i].text; break;
+		case 'JOIN': text = "JOIN"; break;
 		case 'BAN': text = "BAN " + messages[i].ban + " (" 
 			+ messages[i].banDisplayName + ") " + messages[i].until; break;
-		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+		case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 		}
 		
 		ul.appendChild(li);
 		li.appendChild(document.createTextNode(
-				new Date(messages[i].time)+' - '+
-				messages[i].user+' ('+messages[i].displayName+'): '+
+				new Date(messages[i].time) + ' - ' +
+				messages[i].user + ' ('+messages[i].displayName+'): ' +
 				text));
 	}
 	if(!names)
 	{
 		return;
 	}
-	intro=document.createElement('p');
-	intro.appendChild(document.createTextNode(names.length+' names:'));
-	var ul=document.createElement('ul');
+	intro = document.createElement('p');
+	intro.appendChild(document.createTextNode(names.length + ' names:'));
+	var ul = document.createElement('ul');
 	el.appendChild(ul);
-	for(var i=0;i<names.length;i++)
+	for(var i=0; i<names.length; i++)
 	{
-		var li=document.createElement('li');
+		var li = document.createElement('li');
 		ul.appendChild(li);
 		li.appendChild(document.createTextNode(
-				names[i].user+' ('+names[i].displayName+')'));
+				names[i].user + ' (' + names[i].displayName + ')'));
 	}
 }
 
@@ -113,7 +119,7 @@ function recent()
 		},
 		function(error)
 		{
-			setText('recent','ERROR! '+error);
+			setText('recent', 'ERROR! ' + error);
 		});
 }
 
@@ -143,7 +149,7 @@ function poll()
 		},
 		function(error)
 		{
-			setText('poll','ERROR! '+error);
+			setText('poll', 'ERROR! ' + error);
 		});
 }
 
@@ -159,11 +165,11 @@ function say()
 		document.getElementById('message').value,
 		function()
 		{
-			setText('say','OK, said something!');
+			setText('say', 'OK, said something!');
 		},
 		function(error)
 		{
-			setText('say','ERROR! '+error);
+			setText('say', 'ERROR! ' + error);
 		});
 }
 
@@ -181,11 +187,11 @@ function ban()
 		parseInt(document.getElementById('bantime').value) + (new Date()).getTime(),
 		function()
 		{
-			setText('ban','OK, banned user!');
+			setText('ban', 'OK, banned user!');
 		},
 		function(error)
 		{
-			setText('ban','ERROR! '+error);
+			setText('ban', 'ERROR! ' + error);
 		});
 }
 
@@ -200,11 +206,11 @@ function leave()
 		document.getElementById('key').value,
 		function()
 		{
-			setText('leave','OK, left channel');
+			setText('leave', 'OK, left channel');
 		},
 		function(error)
 		{
-			setText('leave','ERROR! '+error);
+			setText('leave', 'ERROR! ' + error);
 	});
 }
 
@@ -212,27 +218,27 @@ var lastWait=0;
 
 function wait()
 {
-	var waitfor=document.getElementById('waitforbutton');
-	waitfor.disabled=true;
+	var waitfor = document.getElementById('waitforbutton');
+	waitfor.disabled = true;
 	setText('waitfor','Waiting for new message...');
 	var yes = function(lastTime, messages)
 	{
-		lastWait=lastTime;
+		lastWait = lastTime;
 		setMessages("waitfor", messages, null);
 		waitfor.disabled=false;
 	};
 	var first = function(messages, names, lastTime)
 	{
-		lastWait=lastTime;
+		lastWait = lastTime;
 		setMessages("waitfor", messages, names);
-		waitfor.disabled=false;
+		waitfor.disabled = false;
 	};
-	var no=function(error)
+	var no = function(error)
 	{
-		setText('waitfor','ERROR! '+error);
-		waitfor.disabled=false;
+		setText('waitfor', 'ERROR! ' + error);
+		waitfor.disabled = false;
 	};
-	if(lastWait==0)
+	if(lastWait == 0)
 	{
 		hawthorn.recent(
 			document.getElementById('channel').value,
@@ -268,15 +274,18 @@ function log()
 		document.getElementById('date').value,
 		function(lines)
 		{
-			var logs=document.getElementById('logs');
-			while(logs.firstChild) logs.removeChild(logs.firstChild);
+			var logs = document.getElementById('logs');
+			while(logs.firstChild)
+			{
+				logs.removeChild(logs.firstChild);
+			}
 
-			var intro=document.createElement('p');
-			intro.appendChild(document.createTextNode(lines.length+' lines:'));
+			var intro = document.createElement('p');
+			intro.appendChild(document.createTextNode(lines.length + ' lines:'));
 			logs.appendChild(intro);
 
-			var pre=document.createElement('pre');
-			for(var i=0;i<lines.length;i++)
+			var pre = document.createElement('pre');
+			for(var i=0; i<lines.length; i++)
 			{
 				pre.appendChild(document.createTextNode(lines[i]));
 				pre.appendChild(document.createElement('br'));
@@ -285,7 +294,7 @@ function log()
 		},
 		function(error)
 		{
-			setText('logs','ERROR! '+error);
+			setText('logs', 'ERROR! ' + error);
 		});
 
 }
@@ -313,13 +322,13 @@ function stats()
 		document.getElementById('keytime').value,
 		document.getElementById('key').value);
 	var target = document.getElementById('stats');
-	while (target.firstChild)
+	while(target.firstChild)
 	{
 		target.removeChild(target.firstChild);
 	}
 	var ul = document.createElement('ul');
 	target.appendChild(ul);
-	for (var i = 0; i<urls.length; i++)
+	for(var i = 0; i<urls.length; i++)
 	{
 		var li = document.createElement('li');
 		ul.appendChild(li);
@@ -332,36 +341,39 @@ function stats()
 
 function saveSettings()
 {
-	value='';
-	value+='[url0&'+escape(document.getElementById('url0').value);
-	value+='[url1&'+escape(document.getElementById('url1').value);
-	value+='[url2&'+escape(document.getElementById('url2').value);
-	value+='[channel&'+escape(document.getElementById('channel').value);
-	value+='[user&'+escape(document.getElementById('user').value);
-	value+='[displayname&'+escape(document.getElementById('displayname').value);
-	value+='[permissions&'+escape(document.getElementById('permissions').value);
-	value+='[keytime&'+escape(document.getElementById('keytime').value);
-	value+='[key&'+escape(document.getElementById('key').value);
+	value = '';
+	value += '[url0&'+escape(document.getElementById('url0').value);
+	value += '[url1&'+escape(document.getElementById('url1').value);
+	value += '[url2&'+escape(document.getElementById('url2').value);
+	value += '[channel&'+escape(document.getElementById('channel').value);
+	value += '[user&'+escape(document.getElementById('user').value);
+	value += '[displayname&'+escape(document.getElementById('displayname').value);
+	value += '[permissions&'+escape(document.getElementById('permissions').value);
+	value += '[keytime&'+escape(document.getElementById('keytime').value);
+	value += '[key&'+escape(document.getElementById('key').value);
 	document.cookie =
 	  'hawthornExampleSettings='+value+'; expires=Mon, 31 Dec 2012 23:59:59 UTC; path=/'		
 }
 
 function loadSettings()
 {
-	var cookies=document.cookie.split(';');
-	for(var i=0;i<cookies.length;i++)
+	var cookies = document.cookie.split(';');
+	for(var i=0; i<cookies.length; i++)
 	{
-		var wholeCookie=cookies[i];
-		while(wholeCookie.charAt(0)==' ') wholeCookie=wholeCookie.substring(1);
-		if(wholeCookie.indexOf('hawthornExampleSettings=')==0)
+		var wholeCookie = cookies[i];
+		while(wholeCookie.charAt(0) == ' ')
 		{
-			var value=wholeCookie.substring(cookies[i].indexOf('=')+1);
-			var parts=value.split('[');
-			for(var j=0;j<parts.length;j++)
+			wholeCookie=wholeCookie.substring(1);
+		}
+		if(wholeCookie.indexOf('hawthornExampleSettings=') == 0)
+		{
+			var value = wholeCookie.substring(cookies[i].indexOf('=') + 1);
+			var parts = value.split('[');
+			for(var j=0; j<parts.length; j++)
 			{
-				if(parts[j]=='') continue;
-				var split=parts[j].split('&');
-				document.getElementById(split[0]).value=unescape(split[1]);
+				if(parts[j] == '') continue;
+				var split = parts[j].split('&');
+				document.getElementById(split[0]).value = unescape(split[1]);
 			}			
 		}
 	}
