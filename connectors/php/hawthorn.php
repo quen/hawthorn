@@ -26,7 +26,7 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
  */
 class Hawthorn
 {
-	private $magicNumber, $servers, $user, $displayName,
+	private $magicNumber, $servers, $user, $displayName, $permissions,
 		$jsUrl, $popupUrl, $reAcquireUrl, $defer, $keyExpiry;
 
 	private $recentCount, $linkToChatCount, $printedJS;
@@ -53,7 +53,7 @@ class Hawthorn
 	 * @throws Exception If user ID is invalid
 	 */
 	function __construct($magicNumber, $servers,
-		$user, $displayName, $jsUrl, $popupUrl, $reAcquireUrl,
+		$user, $displayName, $permissions, $jsUrl, $popupUrl, $reAcquireUrl,
 		$defer=false, $keyExpiry=3600000)
 	{
 		// Check username and displayname
@@ -67,9 +67,10 @@ class Hawthorn
 		}
 
 		$this->magicNumber = $magicNumber;
-		$this->servers = $server;
+		$this->servers = $servers;
 		$this->user = $user;
 		$this->displayName = $displayName;
+		$this->permissions = $permissions;
 		$this->jsUrl = $jsUrl;
 		$this->popupUrl = $popupUrl;
 		$this->reAcquireUrl = $reAcquireUrl;
@@ -79,6 +80,77 @@ class Hawthorn
 		$this->recentCount = 0;
 		$this->linkToChatCount = 0;
 		$this->printedJS = false;
+	}
+	
+	/**
+	 * Escapes a user/channel ID that might contain characters not permitted
+	 * in a Hawthorn ID. This function is optional; if your IDs only contain
+	 * permitted characters, you don't need to call it.
+	 * @param string $id ID to escape
+	 * @return string ID with unsupported bytes changed into _ followed by 2-digit
+	 *   hex number
+	 */
+	static function escapeId($id)
+	{
+		$result = '';
+		while(strlen($id) > 0)
+		{
+			// Characters are converted one byte at a time; UTF-8 strings should
+			// still be OK.
+			$char = substr($id, 0, 1);
+			$id = substr($id, 1);
+		
+			// Check if it's in permitted characters except _ (which we are going
+			// to use as escape character)
+			if(strpos(
+				'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+				$char) === false)
+			{
+				// Escape with _ plus the hex digits
+				$ascii = ord($char);
+				$result .= '_';
+				if($ascii < 16)
+				{
+					$result .= '0';
+				}
+				$result .= dechex($ascii);
+			}
+			else
+			{
+				$result .= $char;
+			}
+		}
+		return $result;		
+	}
+	
+	/**
+	 * Unescapes a user/channel ID that was escaped with escapeId.
+	 * @param string $esc ID to unescape
+	 * @return string ID turned back into full character set
+	 */
+	static function unescapeId($esc)
+	{
+		$result = '';
+		while(true)
+		{
+			// Find next underline
+			$underline = strpos($esc, '_');
+			if($underline === false)
+			{
+				// No more underlines, dump out the rest unchanged
+				$result .= $esc;
+				return $result;
+			}
+			
+			// Add on everything before the underline
+			$result .= substr($esc, 0, $underline);
+			$hex = substr($esc, $underline+1, 2);
+			$esc = substr($esc, $underline+3);
+			
+			// Add on special byte
+			$result .= chr(hexdec($hex));
+		}
+		return $result;	
 	}
 
 	/**
@@ -94,13 +166,14 @@ class Hawthorn
 	 * @param string $noScriptText Text to display if JavaScript is not
 	 *  available; if omitted, English default '(Chat features are not
 	 *  available because JavaScript is disabled.)' is used
+	 * @return string HTML ready to print 
 	 * @throws Exception If channel ID is invalid
 	 */
 	function recent($channel, $maxMessages=3, $maxAge=900000,
 		$maxNames=5, $loadingText='', $noScriptText='')
 	{
 		// Get index of this recent block within page
-		$index = $recentCount++;
+		$index = $this->recentCount++;
 
 		// Get text
 		if (!$loadingText)
@@ -114,71 +187,78 @@ class Hawthorn
 		}
 
 		// Output div
-		print "<div id='hawthorn_recent$index' class='hawthorn_recent' ".
+		$out = "<div id='hawthorn_recent$index' class='hawthorn_recent' ".
 			"style='display:none'>$loadingText</div>\n";
 
 		// Output no-script text
-		print "<noscript>$noScriptText</noscript>\n";
+		$out .= "<noscript>$noScriptText</noscript>\n";
 
 		// Work out JavaScript
 		$keyTime = $this->getKeyTime();
-		$js = "{user:'{$this->user}', displayName:'".
-			self::escapeJS($this->displayName). "',channel:'$channel',".
-			"maxMessages:$maxMessages,maxAge:$maxAge,maxNames:$maxNames,".
-			"key:" . $this->getKey($channel, $keyTime) .
-			",id:'hawthorn_recent$index'}";
+		$js = "{user:'{$this->user}', displayName:'" .
+			self::escapeJS($this->displayName) . 
+			"',permissions:'{$this->permissions}',channel:'$channel'," .
+			"maxMessages:$maxMessages,maxAge:$maxAge,maxNames:$maxNames," .
+			"key:'" . $this->getKey($channel, $keyTime) . "',keyTime:$keyTime," .
+			"id:'hawthorn_recent$index'}";
 
 		// Print script tag if included
-		$this->printJS();
+		$out .= $this->getJS();
 
 		// Print the per-instance script
-		print "<script type='text/javascript'>\n" .
+		$out .= "<script type='text/javascript'>\n" .
 			"/* <![CDATA[ */\n";
-		print "document.getElementById('hawthorn_recent$index')." .
+		$out .= "document.getElementById('hawthorn_recent$index')." .
 			"style.display = 'block';\n";
 		if ($this->defer)
 		{
 			if ($index==0)
 			{
-				print "var hawthorn_recent = new Array();\n";
+				$out .= "var hawthorn_recent = new Array();\n";
 			}
-			print "hawthorn_recent.push($js);\n";
+			$out .= "hawthorn_recent.push($js);\n";
 		}
 		else
 		{
-			print "hawthorn.handle_recent($js);\n";
+			$out .= "hawthorn.handleRecent($js);\n";
 		}
-		print "/* ]]> */\n</script>\n";
+		$out .= "/* ]]> */\n</script>\n";
+		return $out;
 	}
 
-	/** Includes the Hawthorn JavaScript if it was deferred. */
+	/** 
+	 * Includes the Hawthorn JavaScript if it was deferred.
+	 * @return string HTML to print (empty string if none) 
+	 */
 	function includeJavaScript()
 	{
 		// If not deferred, do nothing
 		if (!$this->defer)
 		{
-			return;
+			return '';
 		}
 
 		// If no relevant tags require JS, do nothing
 		if (!$this->recentCount && !$this->linkToChatCount)
 		{
-			return;
+			return '';
 		}
 
 		// Print script tag
-		$this->printJS(true);
+		$out = $this->getJS(true);
 
 		// Run all the deferred recent tags
 		if ($this->recentCount)
 		{
-			print "<script type='text/javascript'>\n";
-			print "for(var i=0;i<hawthorn_recent.length;i++)\n" .
+			$out .= "<script type='text/javascript'>\n";
+			$out .= "for(var i=0;i<hawthorn_recent.length;i++)\n" .
 				"{\n" +
 				"\thawthorn.handleRecent(hawthorn_recent[i]);\n" +
 				"}\n";
-			print "</script>\n";
+			$out .= "</script>\n";
 		}
+
+		return $out;
 	}
 
 	/**
@@ -206,20 +286,20 @@ class Hawthorn
 		$key = $this->getKey($channel, $keyTime);
 
 		// Output div
-		print "<div class='hawthorn_linktochat' style='display:none' " .
+		$out = "<div class='hawthorn_linktochat' style='display:none' " .
 			"id='hawthorn_linktochat$index'>\n";
-		print "<script type='text/javascript'>document.getElementById(" .
+		$out .= "<script type='text/javascript'>document.getElementById(" .
 			"'hawthorn_linktochat$index').style.display='block';</script>\n";
 
 		// Output link
-		print "<a href='#' onclick=\"hawthorn.openPopup('" .
+		$out .= "<a href='#' onclick=\"hawthorn.openPopup('" .
 			self::escapeJS($this->popupUrl) . "','" .
 			self::escapeJS($this->reAcquireUrl) . "','$channel'," .
 			"'$this->user','" . self::escapeJS($this->displayName) . "'," .
-			"$time,'$key','" . self::escapeJS($title) . "');\">\n";
+			"'{$this->permissions}',$keyTime,'$key','" . self::escapeJS($title) . "');\">\n";
 
 		// Print content
-		print $linkText;
+		$out .= $linkText;
 
 		// Print icon if provided
 		if ($icon)
@@ -228,15 +308,17 @@ class Hawthorn
 			{
 				$iconAlt = 'Opens in new window';
 			}
-			print " <img src='" . self::escapeXML($icon) . "' alt='" . self::escapeXML($iconAlt) . "' title='" .
+			$out .= " <img src='" . self::escapeXML($icon) . "' alt='" . self::escapeXML($iconAlt) . "' title='" .
 				self::escapeXML($iconAlt) . "' />\n";
 		}
 
 		// Close tags
-		print "</a></div>\n";
+		$out .= "</a></div>\n";
 
 		// Print script tag
-		$this->printJS();
+		$out .= $this->getJS();
+		
+		return $out;
 	}
 
 	/**
@@ -312,14 +394,16 @@ class Hawthorn
 		$key = $this->getKey("!system", $keyTime, true, "_admin", "_");
 
 		// Output list
-		print "<ul class='hawthorn_statslinks'>\n";
+		$out = "<ul class='hawthorn_statslinks'>\n";
 		foreach ($this->servers as $server)
 		{
-			print "<li><a href='" . self::escapeXML($server) . "hawthorn/html/statistics?channel=!system&amp;" .
+			$out .= "<li><a href='" . self::escapeXML($server) . "hawthorn/html/statistics?channel=!system&amp;" .
 				"user=_admin&amp;displayname=_&amp;keytime=$keyTime&amp;" .
 				"key=$key'>" . self::escapeXML($server) . "</a></li>\n";
 		}
-		print "</ul>\n";
+		$out .= "</ul>\n";
+		
+		return $out;
 	}
 
 	// Private implementation functions
@@ -336,7 +420,7 @@ class Hawthorn
 	 * @throws Exception If channel name is invalid
 	 */
 	private function getKey($channel, $keyTime, $allowSystem = false,
-		$user = '', $displayName = '')
+		$user = '', $displayName = '', $permissions = '')
 	{
 		// Check channel is valid
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$channel) &&
@@ -354,9 +438,13 @@ class Hawthorn
 		{
 			$displayName = $this->displayName;
 		}
+		if ($permissions === '')
+		{
+			$permissions = $this->permissions;
+		}
 
 		// Work out key
-		$hashData = "$channel\n$user\n$displayName\n" .
+		$hashData = "$channel\n$user\n$displayName\n$permissions\n" .
 			"$keyTime\n$this->magicNumber";
 		return sha1($hashData);
 	}
@@ -390,37 +478,43 @@ class Hawthorn
 	}
 
 	/**
-	 * Prints a link to the main Hawthorn JS file, and includes a call to
+	 * Obtains a link to the main Hawthorn JS file, and includes a call to
 	 * the hawthorn.init method. Does nothing if JS has already been
 	 * printed.
 	 * @param bool $evenDeferred If true, prints now even when defer was set
+	 * @return string HTML code for JS script tag
 	 */
-	private function printJS($evenDeferred = false)
+	private function getJS($evenDeferred = false)
 	{
 		if ((!$this->defer || $evenDeferred) && !$this->printedJS)
 		{
 			$this->printedJS = true;
-			print "<script type='text/javascript' src'" .
+			$out = "<script type='text/javascript' src='" .
 				self::escapeXML($this->jsUrl) . "'></script>\n";
-			print "<script type='text/javascript'>\n";
-			print "hawthorn.init([";
+			$out .= "<script type='text/javascript'>\n";
+			$out .= "hawthorn.init([";
 			$first = true;
 			foreach ($this->servers as $server)
 			{
 				if($first)
 				{
 					$first = false;
-					print "'";
+					$out .= "'";
 				}
 				else
 				{
-					print ",'";
+					$out .= ",'";
 				}
-				print $server;
-				print "'";
+				$out .= $server;
+				$out .= "'";
 			}
-			print "]);\n";
-			print "</script>";
+			$out .= "]);\n";
+			$out .= "</script>";
+			return $out;
+		}
+		else
+		{
+			return '';
 		}
 	}
 
