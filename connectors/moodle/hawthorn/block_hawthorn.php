@@ -64,7 +64,7 @@ class block_hawthorn extends block_base
 			$CFG->wwwroot . '/blocks/hawthorn/popup.php',
 			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php');
 		// TODO Use group options
-		$channel = hawthorn::escapeId($COURSE->shortname);
+		$channel = 'c' . $COURSE->id;
 		$this->content->text = $hawthorn->recent($channel, 3, 900000, 5,
 			get_string('loading', 'block_hawthorn'),
 			get_string('noscript', 'block_hawthorn'));

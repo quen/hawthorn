@@ -28,4 +28,18 @@ $string['coursechatlink'] = 'Open chat for $a';
 $string['loading'] = '(Loading chat information, please wait...)';
 $string['noscript'] = '(Chat features are not available because
 	JavaScript is disabled.)';
+
+// Popup text
+$string['popup_joined'] = ' joined the chat';
+$string['popup_left'] = ' left the chat';
+$string['popup_banned'] = ' banned user: ';
+$string['popup_error'] = 'A system error occurred';
+$string['popup_confirmban'] = 'Are you sure you want to ban $1?\n\nBanning ' .
+	'means they will not be able to chat here, or watch this chat, for the ' .
+	'next 4 hours.';
+$string['popup_closechat'] = 'Close chat';
+$string['popup_intro'] = 'To chat, type messages in the textbox and press ' .
+  'Return to send.';
+$string['popup_banuser'] = 'Ban user';
+
 ?>
