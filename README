@@ -1,12 +1,16 @@
 This project is not ready for use yet. When it is I will update this README.
 
 TODO:
-* Consider removing the 'wait' method from code if poll method is adequate
+* Consider removing the 'wait' verb from code if poll method is adequate
 * Add basic example for PHP connector (same as JSP example).
+* Add a messages-only option for the 'recent' verb (throughout server, JS,
+  JSP, PHP).
+* Improve JS display of 'recent' so that it can be integrated to make a
+  presentable message display.
 * Finish Moodle connector
-  - Make it actually work.
+  - Add settings for messages/names to show.
   - Make it support groups as per settings page.
-  - Customise it to include user pictures.
+  - Customise JS to include user pictures.
 * Document JavaScript (how?).
 * Document JSP tags (how?).
 * Add installation/management documentation.
