@@ -401,26 +401,15 @@ public class Configuration
 			}
 			if(magicNumber == null)
 			{
-				MessageDigest m;
+				String sha1;
 				try
 				{
-					m = MessageDigest.getInstance("SHA-1");
+					sha1 = Auth.hash(Math.random() + "");
 				}
 				catch(NoSuchAlgorithmException e)
 				{
-					throw new StartupException(ErrorCode.STARTUP_MISSINGSHA1,
-						"The SHA1 hash algorithm is not available in this Java "
-							+ "installation. Check you are using an appropriate Java "
-							+ "runtime.");
+					throw new Error("Missing SHA-1 support");
 				}
-				String s = Math.random() + "";
-				m.update(s.getBytes(), 0, s.length());
-				String sha1 = new BigInteger(1, m.digest()).toString(16);
-				while(sha1.length() < 40)
-				{
-					sha1 = "0" + sha1;
-				}
-
 				throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 					"Missing required <magicnumber> configuration element. Specify a "
 						+ "suitable random string that will be kept secure. Here's one "

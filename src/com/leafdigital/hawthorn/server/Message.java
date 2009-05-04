@@ -38,27 +38,24 @@ public abstract class Message
 
 	private long time;
 
-	private String channel;
-
-	private String user;
-
-	private String displayName;
-
-	private String ip;
+	private String channel, user, userMasked, displayName, ip;
 
 	/**
 	 * @param time Time of message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
-	 * @param user User who sent message
+	 * @param user User ID who sent message
+	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
 	 */
-	Message(long time, String channel, String ip, String user, String displayName)
+	Message(long time, String channel, String ip, String user, String userMasked,
+		String displayName)
 	{
 		this.time = time;
 		this.channel = channel;
 		this.ip = ip;
 		this.user = user;
+		this.userMasked = userMasked;
 		this.displayName = displayName;
 	}
 
@@ -92,12 +89,15 @@ public abstract class Message
 		return ip;
 	}
 
-	/** @return JS version of message (not including channel as this is known) */
-	public String getJSFormat()
+	/**
+	 * @param trusted True if user gets to see real user ID etc
+	 * @return JS version of message (not including channel as this is known)
+	 */
+	public String getJSFormat(boolean trusted)
 	{
-		return "{type:'" + getType() + "',time:" + time + ",user:'" + user
-			+ "',displayName:'" + JS.esc(displayName) + "'" + getExtraJS()
-			+ "}";
+		return "{type:'" + getType() + "',time:" + time + ",user:'"
+		  + (trusted ? user : userMasked)	+ "',displayName:'" + JS.esc(displayName)
+		  + "'" + getExtraJS(trusted) + "}";
 	}
 
 	/**
@@ -117,8 +117,11 @@ public abstract class Message
 			+ displayName + "\"" + getExtra();
 	}
 
-	/** @return Additional data to go into the JavaScript message representation */
-	protected abstract String getExtraJS();
+	/**
+	 * @param trusted True if user gets to see real user ID etc
+	 * @return Additional data to go into the JavaScript message representation
+	 */
+	protected abstract String getExtraJS(boolean trusted);
 
 	/** @return Additional data to go into server/log message representations */
 	protected abstract String getExtra();
@@ -149,7 +152,7 @@ public abstract class Message
 	{
 		Method m =
 			cl.getMethod("parseMessage", long.class, String.class, String.class,
-				String.class, String.class, String.class);
+				String.class, String.class, String.class, Hawthorn.class);
 		messageInitMethods.put(command, m);
 	}
 
@@ -157,13 +160,14 @@ public abstract class Message
 	 * Constructs a new message based on a server-to-server line.
 	 *
 	 * @param line Line of text (not including \n)
+	 * @param app Hawthorn app object
 	 * @return New message
 	 * @throws IllegalArgumentException If it isn't a valid message line
 	 * @throws InvocationTargetException If there's an error invoking the init
 	 *         method inside the message subclass
 	 * @throws IllegalAccessException Access failure
 	 */
-	public static Message parseMessage(String line)
+	public static Message parseMessage(String line, Hawthorn app)
 		throws IllegalArgumentException, IllegalAccessException,
 		InvocationTargetException
 	{
@@ -180,6 +184,6 @@ public abstract class Message
 		}
 
 		return (Message)parseMessage.invoke(null, System.currentTimeMillis(), m
-			.group(2), m.group(3), m.group(4), m.group(5), m.group(6));
+			.group(2), m.group(3), m.group(4), m.group(5), m.group(6), app);
 	}
 }

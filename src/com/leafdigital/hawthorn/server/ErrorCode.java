@@ -40,8 +40,6 @@ public enum ErrorCode
 	STARTUP_TESTKEY,
 	/** Not able to bind to specified address */
 	STARTUP_CANNOTBIND,
-	/** Error with Java security subsystem */
-	OPERATION_MISSINGSHA1,
 	/** Error reading logfile */
 	OPERATION_LOGREAD
 }

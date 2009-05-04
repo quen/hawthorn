@@ -131,12 +131,26 @@ public abstract class Auth
 		out.append("\n");
 		out.append(magicNumber);
 
+		return hash(out.toString());
+	}
+
+	/**
+	 * @param string String to hash
+	 * @return SHA-1 hash of strung
+	 * @throws NoSuchAlgorithmException If Java is missing the SHA-1 provider
+	 */
+	public static String hash(String string) throws NoSuchAlgorithmException
+	{
+		// Note: I checked getKey() for performance. It runs in about 0.1ms,
+		// compared to about 0.03ms if the results are cached in a HashMap. Since
+		// the difference is only a factor of three, I decided it wasn't worth
+		// the complexity of caching results.
+
 		// Get bytes
-		String hashData = out.toString();
 		byte[] hashDataBytes;
 		try
 		{
-			hashDataBytes = hashData.getBytes("UTF-8");
+			hashDataBytes = string.getBytes("UTF-8");
 		}
 		catch(UnsupportedEncodingException e)
 		{
@@ -152,12 +166,6 @@ public abstract class Auth
 		{
 			sha1 = "0" + sha1;
 		}
-
-		// Note: I checked this method for performance. It runs in about 0.1ms,
-		// compared to about 0.03ms if the results are cached in a HashMap. Since
-		// the difference is only a factor of three, I decided it wasn't worth
-		// the complexity of caching results.
-
 		return sha1;
 	}
 }

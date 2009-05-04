@@ -553,10 +553,6 @@ public final class HttpServer extends HawthornObject
 				{
 					throw new Error("Missing UTF-8 support", e);
 				}
-				catch(OperationException e)
-				{
-					throw new Error(e);
-				}
 			}
 		}
 

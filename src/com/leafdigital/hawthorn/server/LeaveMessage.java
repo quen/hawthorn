@@ -49,18 +49,19 @@ public class LeaveMessage extends Message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
+	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
 	 * @param timeout True if it's a timeout, false if user requested it
 	 */
 	LeaveMessage(long time, String channel, String ip, String user,
-		String displayName, boolean timeout)
+		String userMasked, String displayName, boolean timeout)
 	{
-		super(time, channel, ip, user, displayName);
+		super(time, channel, ip, user, userMasked, displayName);
 		this.timeout = timeout;
 	}
 
 	@Override
-	protected String getExtraJS()
+	protected String getExtraJS(boolean trusted)
 	{
 		return ",timeout:" + timeout;
 	}
@@ -84,10 +85,11 @@ public class LeaveMessage extends Message
 	 * @param user User who sent message
 	 * @param displayName Display name of user
 	 * @param extra Bit that goes after all this in the text
+	 * @param app Hawthorn app object
 	 * @return New message
 	 */
 	public static LeaveMessage parseMessage(long time, String channel, String ip,
-		String user, String displayName, String extra)
+		String user, String displayName, String extra, Hawthorn app)
 	{
 		boolean timeout = extra.equals("timeout");
 		if(!timeout && !extra.equals("explicit"))
@@ -95,7 +97,8 @@ public class LeaveMessage extends Message
 			throw new IllegalArgumentException(
 				"Extra text must be timeout or explicit");
 		}
-		return new LeaveMessage(time, channel, ip, user, displayName, timeout);
+		return new LeaveMessage(time, channel, ip, user, app.getMaskedUser(user),
+			displayName, timeout);
 	}
 
 }

@@ -51,7 +51,7 @@ public class ServerEvent extends Event
 	{
 		try
 		{
-			Message m = Message.parseMessage(request);
+			Message m = Message.parseMessage(request, getApp());
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
 				"Received from remote: " + request);
 			getChannels().get(m.getChannel()).message(m, true);

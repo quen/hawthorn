@@ -29,14 +29,15 @@ public abstract class UniqueMessage extends Message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
+	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
 	 * @param unique A unique identifier (within channel and user) to avoid
 	 *   possibility of duplicated messages
 	 */
 	UniqueMessage(long time, String channel, String ip, String user,
-		String displayName, String unique)
+		String userMasked, String displayName, String unique)
 	{
-		super(time, channel, ip, user, displayName);
+		super(time, channel, ip, user, userMasked, displayName);
 		this.unique = unique;
 	}
 

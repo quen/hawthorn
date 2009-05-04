@@ -63,6 +63,19 @@ public class Hawthorn
 
 	private Hawthorn(File configFile) throws StartupException
 	{
+		// Check SHA-1 support
+		try
+		{
+			Auth.hash("anything");
+		}
+		catch(NoSuchAlgorithmException e)
+		{
+			throw new StartupException(ErrorCode.STARTUP_MISSINGSHA1,
+				"The SHA-1 hash algorithm is not available in this Java "
+				+ "installation. Check you are using an appropriate Java "
+				+ "runtime.");
+		}
+
 		config = new Configuration(configFile);
 		statistics = new Statistics(this);
 		channels = new Channels(this);
@@ -162,11 +175,9 @@ public class Hawthorn
 	 * @param permissions User permissions
 	 * @param keyTime Key issue time
 	 * @return Correct key
-	 * @throws OperationException
 	 */
 	String getValidKey(String channel, String user, String displayName,
 		EnumSet<Auth.Permission> permissions,	long keyTime)
-		throws OperationException
 	{
 		try
 		{
@@ -175,11 +186,27 @@ public class Hawthorn
 		}
 		catch(NoSuchAlgorithmException e)
 		{
-			throw new OperationException(ErrorCode.OPERATION_MISSINGSHA1,
-				"The SHA-1 hash algorithm is not available in this Java "
-					+ "installation. Check you are using an appropriate Java "
-					+ "runtime.");
+			// This is really not expected as we tested during init
+			throw new Error("Unexpected error: missing SHA-1");
 		}
 	}
 
+	/**
+	 * Uses the server's magic number to create a hashed version of a user ID
+	 * which can be sent to people we don't trust to see their real user ID.
+	 * @param user User ID
+	 * @return Masked user ID (begins with ?)
+	 */
+	String getMaskedUser(String user)
+	{
+		try
+		{
+			return "?" + Auth.hash(getConfig().getMagicNumber() + "\n" + user);
+		}
+		catch(NoSuchAlgorithmException e)
+		{
+			// This is really not expected as we tested during init
+			throw new Error("Unexpected error: missing SHA-1");
+		}
+	}
 }

@@ -47,16 +47,17 @@ public class JoinMessage extends Message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
+	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
 	 */
 	JoinMessage(long time, String channel, String ip, String user,
-		String displayName)
+		String userMasked, String displayName)
 	{
-		super(time, channel, ip, user, displayName);
+		super(time, channel, ip, user, userMasked, displayName);
 	}
 
 	@Override
-	protected String getExtraJS()
+	protected String getExtraJS(boolean trusted)
 	{
 		return "";
 	}
@@ -80,12 +81,14 @@ public class JoinMessage extends Message
 	 * @param user User who sent message
 	 * @param displayName Display name of user
 	 * @param extra Bit that goes after all this in the text
+	 * @param app Hawthorn app object
 	 * @return New message
 	 */
 	public static JoinMessage parseMessage(long time, String channel, String ip,
-		String user, String displayName, String extra)
+		String user, String displayName, String extra, Hawthorn app)
 	{
-		return new JoinMessage(time, channel, ip, user, displayName);
+		return new JoinMessage(time, channel, ip, user, app.getMaskedUser(user),
+			displayName);
 	}
 
 }

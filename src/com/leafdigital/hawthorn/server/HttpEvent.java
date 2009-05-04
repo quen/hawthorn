@@ -260,17 +260,17 @@ public class HttpEvent extends Event
 			return;
 		}
 
-		Message m =
-			new SayMessage(System.currentTimeMillis(), c.getName(),
-				connection.toString(), params.get("user"), params.get("displayname"),
-				unique, message);
+		String user = params.get("user");
+		Message m = new SayMessage(System.currentTimeMillis(), c.getName(),
+			connection.toString(), user, getApp().getMaskedUser(user),
+			params.get("displayname"), unique, message);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.sayComplete(" + id + ");");
 	}
 
 	private void handleBan(HashMap<String, String> params)
-	throws OperationException
+		throws OperationException
 	{
 		String errorFunction = "banError";
 		EnumSet<Permission> permissionSet =
@@ -318,10 +318,11 @@ public class HttpEvent extends Event
 			return;
 		}
 
-		Message m =
-			new BanMessage(System.currentTimeMillis(), c.getName(),
-				connection.toString(), params.get("user"), params.get("displayname"),
-				unique, ban, banDisplayName, Long.parseLong(untilText));
+		String user = params.get("user");
+		Message m = new BanMessage(System.currentTimeMillis(), c.getName(),
+				connection.toString(), user, getApp().getMaskedUser(user),
+				params.get("displayname"), unique, ban, getApp().getMaskedUser(ban),
+				banDisplayName, Long.parseLong(untilText));
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.banComplete(" + id + ");");
@@ -357,9 +358,10 @@ public class HttpEvent extends Event
 			return;
 		}
 
-		Message m =
-			new LeaveMessage(System.currentTimeMillis(), c.getName(), connection
-				.toString(), params.get("user"), params.get("displayname"), false);
+		String user = params.get("user");
+		Message m = new LeaveMessage(System.currentTimeMillis(), c.getName(),
+				connection.toString(), user, getApp().getMaskedUser(user),
+				params.get("displayname"), false);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 
@@ -433,7 +435,8 @@ public class HttpEvent extends Event
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.recentComplete(" + id + ",[");
-		long timestamp = buildMessageArray(c, recent, output);
+		long timestamp = buildMessageArray(c, recent,
+			permissionSet.contains(Permission.MODERATE), output);
 		output.append("],[");
 		for(int i = 0; i < names.length; i++)
 		{
@@ -486,7 +489,7 @@ public class HttpEvent extends Event
 
 		long lastTime = Long.parseLong(lastTimeString);
 		c.wait(connection, params.get("user"), params.get("displayname"),
-			id, lastTime);
+			id, lastTime, permissionSet.contains(Permission.MODERATE));
 	}
 
 	private void handlePoll(HashMap<String, String> params)
@@ -531,7 +534,8 @@ public class HttpEvent extends Event
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.pollComplete(" + id + ",[");
-		long timestamp = buildMessageArray(c, messages, output);
+		long timestamp = buildMessageArray(c, messages,
+			permissionSet.contains(Permission.MODERATE), output);
 		output.append("],");
 		output.append(timestamp);
 		output.append(",");
@@ -545,12 +549,14 @@ public class HttpEvent extends Event
 	 * obtains the timestamp of the last message.
 	 * @param c Channel
 	 * @param messages Messages to list
+	 * @param trusted True if user is trusted to see user IDs not just
+	 *   display names
 	 * @param output StringBuilder that receives list
 	 * @return Timestamp of most recent message in list, or of just before now
 	 *   if none are in list
 	 */
 	private long buildMessageArray(Channel c, Message[] messages,
-		StringBuilder output)
+		boolean trusted, StringBuilder output)
 	{
 		long timestamp = c.getPreviousTimestamp();
 		for(int i = 0; i < messages.length; i++)
@@ -559,7 +565,7 @@ public class HttpEvent extends Event
 			{
 				output.append(',');
 			}
-			output.append(messages[i].getJSFormat());
+			output.append(messages[i].getJSFormat(trusted));
 			timestamp = messages[i].getTime();
 		}
 		return timestamp;
