@@ -287,14 +287,21 @@ public class HttpEvent extends Event
 
 		String id = getID(params);
 
-		String ban = params.get("ban");
-		String unique = params.get("unique");
-		String untilText = params.get("until");
+		String
+			ban = params.get("ban"),
+			banDisplayName = params.get("bandisplayname"),
+			unique = params.get("unique"),
+			untilText = params.get("until");
 
 		String error = null;
 		if(ban == null || !ban.matches(Hawthorn.REGEXP_USERCHANNEL))
 		{
 			error = "Missing or invalid ban=";
+		}
+		else if(banDisplayName == null ||
+			!banDisplayName.matches(Hawthorn.REGEXP_DISPLAYNAME))
+		{
+			error = "Missing or invalid bandisplayname=";
 		}
 		else if(untilText==null || !untilText.matches(REGEXP_LONG))
 		{
@@ -314,7 +321,7 @@ public class HttpEvent extends Event
 		Message m =
 			new BanMessage(System.currentTimeMillis(), c.getName(),
 				connection.toString(), params.get("user"), params.get("displayname"),
-				unique, ban, Long.parseLong(untilText));
+				unique, ban, banDisplayName, Long.parseLong(untilText));
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.banComplete(" + id + ");");

@@ -68,7 +68,8 @@ function setMessages(id, messages, names)
 		{
 		case 'SAY': text=messages[i].text; break;
 		case 'JOIN': text="JOIN"; break;
-		case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
+		case 'BAN': text = "BAN " + messages[i].ban + " (" 
+			+ messages[i].banDisplayName + ") " + messages[i].until; break;
 		case 'LEAVE': text="LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 		}
 		
@@ -176,6 +177,7 @@ function ban()
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		document.getElementById('banuser').value,
+		document.getElementById('bandisplayname').value,
 		parseInt(document.getElementById('bantime').value) + (new Date()).getTime(),
 		function()
 		{
@@ -438,6 +440,7 @@ Key <input id="key" type="text" size="40" /></div>
 <h2>Ban</h2>
 <div id="ban">Not banned anyone yet</div>
 <div>User ID <input id="banuser" type="text" size="20" /><br/>
+Display name <input id="bandisplayname" type="text" size="40" /><br/>
 Ban length (ms)  <input id="bantime" type="text" size="20" /><br/>
 <div><input type="button" value="Ban" onclick="ban()" /></div>
 </div>

@@ -250,7 +250,7 @@ var hawthorn =
 	},
 
 	ban : function(channel, user, displayName, permissions, keyTime, key,
-		ban, until, continuation, failure)
+		ban, banDisplayName, until, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -261,7 +261,8 @@ var hawthorn =
 		this.addTag('hawthorn/ban?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime
-				+ '&key=' + key + "&ban=" + ban + "&until=" + until
+				+ '&key=' + key + "&ban=" + ban + "&bandisplayname="
+				+ encodeURIComponent(banDisplayName) + "&until=" + until
 				+ '&unique=' + (new Date()).getTime());
 	},
 
@@ -502,6 +503,7 @@ function HawthornPopup(useWait)
 
 	this.strJoined = ' joined the chat';
 	this.strLeft = ' left the chat';
+	this.strBanned = ' banned user: ';
 	this.strError = 'A system error occurred';
 
 	this.initLayout();
@@ -589,6 +591,12 @@ HawthornPopup.prototype.handleMessages = function(messages)
 		{
 			this.addMessage(message.time, message.user, message.displayName,
 				message.text, message.user == this.user);
+		}
+		else if(message.type == 'BAN')
+		{
+			this.addBan(message.time, message.user, message.displayName,
+				message.ban, message.banDisplayName, message.until,
+				message.user == this.user);
 		}
 	}
 }
@@ -854,6 +862,34 @@ HawthornPopup.prototype.addLeave = function(time,user,displayName,self)
 	name.appendChild(document.createTextNode(displayName));
 	entry.appendChild(name);
 	entry.appendChild(document.createTextNode(this.strLeft));
+	this.addEntry(time, entry);
+}
+
+ /**
+ * Adds a newly-received ban notice to the message area.
+ * @param time Message time (ms since 1970)
+ * @param user User ID sending message
+ * @param displayName Display name for user
+ * @param ban User being banned
+ * @param banDisplayName Display name of user being banned
+ * @param until Time user is banned until
+ * @param self True if it is the current user who set the ban
+ */
+HawthornPopup.prototype.addBan = function(time, user, displayName, ban, 
+	banDisplayName, until, self)
+{
+	var entry = document.createElement('div');
+	entry.className='entry ban' + (self ? ' self' : '');
+	entry.appendChild(document.createTextNode('\u2022 '));
+	var name = document.createElement('strong');
+	name.className = 'name';
+	name.appendChild(document.createTextNode(displayName));
+	entry.appendChild(name);
+	entry.appendChild(document.createTextNode(this.strBanned));
+	name = document.createElement('strong');
+	name.className = 'name';
+	name.appendChild(document.createTextNode(banDisplayName));
+	entry.appendChild(name);
 	this.addEntry(time, entry);
 }
 

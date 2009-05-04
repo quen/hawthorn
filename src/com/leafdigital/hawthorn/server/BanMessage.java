@@ -21,6 +21,8 @@ package com.leafdigital.hawthorn.server;
 
 import java.util.regex.*;
 
+import com.leafdigital.hawthorn.util.JS;
+
 /** Message sent when somebody says something. */
 public class BanMessage extends UniqueMessage
 {
@@ -41,10 +43,10 @@ public class BanMessage extends UniqueMessage
 	}
 
 	private final static Pattern REGEXP_EXTRA = Pattern.compile("^(" +
-		Hawthorn.REGEXP_USERCHANNEL + ") (" +	HttpEvent.REGEXP_LONG +
-		")}([0-9]+)$");
+		Hawthorn.REGEXP_USERCHANNEL + ") \"(" + Hawthorn.REGEXP_DISPLAYNAME +
+		")\" (" +	HttpEvent.REGEXP_LONG + ")$");
 
-	private String ban;
+	private String ban, banDisplayName;
 	private long until;
 
 	/**
@@ -56,13 +58,18 @@ public class BanMessage extends UniqueMessage
 	 * @param unique A unique identifier (within channel and user) to avoid
 	 *   possibility of duplicated messages
 	 * @param ban User ID being banned
+	 * @param banDisplayName Possible display name of user (note: this is
+	 *   not used to identify the user, only to display information about the
+	 *   ban to other users; it can be any text)
 	 * @param until Time they're banned until
 	 */
 	BanMessage(long time, String channel, String ip, String user,
-		String displayName, String unique, String ban, long until)
+		String displayName, String unique, String ban, String banDisplayName,
+		long until)
 	{
 		super(time, channel, ip, user, displayName, unique);
 		this.ban = ban;
+		this.banDisplayName = banDisplayName;
 		this.until = until;
 	}
 
@@ -70,6 +77,12 @@ public class BanMessage extends UniqueMessage
 	public String getBan()
 	{
 		return ban;
+	}
+
+	/** @return Banned user's display name */
+	public String getBanDisplayName()
+	{
+		return banDisplayName;
 	}
 
 	/** @return Time user is banned until */
@@ -81,13 +94,14 @@ public class BanMessage extends UniqueMessage
 	@Override
 	protected String getExtraJS()
 	{
-		return ",ban:'" + ban + "',until:"+until;
+		return ",ban:'" + ban + "',banDisplayName:'" + JS.esc(banDisplayName) +
+			"',until:"+until;
 	}
 
 	@Override
 	protected String getExtra()
 	{
-		return " " + ban + " " + until;
+		return " " + ban + " \"" + banDisplayName + "\" " + until;
 	}
 
 	@Override
@@ -118,7 +132,7 @@ public class BanMessage extends UniqueMessage
 		}
 
 		return new BanMessage(time, channel, ip, user, displayName, m.group(3),
-			m.group(1), Long.parseLong(m.group(2)));
+			m.group(1), m.group(2), Long.parseLong(m.group(3)));
 	}
 
 }
