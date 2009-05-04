@@ -1,0 +1,50 @@
+<table cellpadding="9" cellspacing="0" class="blockconfigtable">
+
+<?php
+global $COURSE;
+
+// Mode (which channels to show)
+$modeoptions = array('course' => get_string('mode_course', 'block_hawthorn'));
+$groups = groups_get_all_groups($COURSE->id);
+if($groups)
+{
+	$modeoptions['group'] = get_string('mode_group', 'block_hawthorn');
+	$modeoptions['both'] = get_string('mode_both', 'block_hawthorn');
+}
+$currentmode = isset($this->config->mode) ? $this->config->mode : 'course';
+?>
+
+<tr valign="top">
+    <td align="right"><?php print_string('mode', 'block_hawthorn'); ?>:</td>
+    <td><?php choose_from_menu($modeoptions, 'mode', $currentmode, ''); ?></td>
+</tr>
+
+<?php
+// Grouping (if enabled/present)
+$groupings = groups_get_all_groupings($COURSE->id);
+if($groupings)
+{
+  $groupingoptions = array( 0 => get_string('anygrouping', 'group'));
+  foreach($groupings as $grouping)
+	{
+		$groupingoptions[$grouping->id] = $grouping->name;
+	}
+	$currentgrouping = isset($this->config->grouping)
+		? $this->config->grouping : 0;
+?>
+
+<tr valign="top">
+    <td align="right"><?php print_string('grouping', 'group'); ?>:</td>
+    <td><?php choose_from_menu($groupingoptions, 'grouping', $currentgrouping, ''); ?></td>
+</tr>
+
+<?php
+}
+?>
+
+<tr>
+    <td colspan="3" align="center">
+    <input type="submit" value="<?php print_string('savechanges') ?>" /></td>
+</tr>
+
+</table>
