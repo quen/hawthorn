@@ -448,21 +448,42 @@ var hawthorn =
 					for(var i=0;i<messages.length;i++)
 					{
 						var li=document.createElement('li');
+						if(i==0)
+						{
+							li.className = 'hawthorn_first';
+						}
 
 						var text;
 						switch(messages[i].type)
 						{
 						case 'SAY': text = messages[i].text; break;
+						// Other types are only for debug/test purposes, display isn't nice
 						case 'JOIN': text = "JOIN"; break;
-						case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
-						case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+						case 'BAN': text = "BAN " + messages[i].ban + " "
+							+ messages[i].until; break;
+						case 'LEAVE': text = "LEAVE" + (messages[i].timeout
+							? " (timeout)" : " (requested)"); break;
 						}
 
 						ul.appendChild(li);
-						li.appendChild(document.createTextNode(
-								new Date(messages[i].time)+' - '+
-								messages[i].user+' ('+messages[i].displayName+'): '+
-								text));
+
+						// Get time in user's locale, but chop off seconds
+						var time = (new Date(messages[i].time)).toLocaleTimeString();
+						time = time.replace(/:[0-9]{2}$/, '');
+						var span = document.createElement('span');
+						li.appendChild(span);
+						span.className = 'hawthorn_recent_time';
+						span.appendChild(document.createTextNode(time));
+						li.appendChild(document.createTextNode(' <'));
+						span = document.createElement('span');
+						li.appendChild(span);
+						span.className = 'hawthorn_recent_name';
+						span.appendChild(document.createTextNode(messages[i].displayName));
+						li.appendChild(document.createTextNode('> '));
+						span = document.createElement('span');
+						li.appendChild(span);
+						span.className = 'hawthorn_recent_text';
+						span.appendChild(document.createTextNode(text));
 					}
 				}
 				if(names.length > 0)
@@ -480,10 +501,21 @@ var hawthorn =
 					div.appendChild(ul);
 					for(var i=0;i<names.length;i++)
 					{
+						ul.appendChild(document.createTextNode(' '));
+						var li=document.createElement('li');
+						if(i==0)
+						{
+							li.className = 'hawthorn_first';
+						}
+						ul.appendChild(li);
+						li.appendChild(document.createTextNode(names[i].displayName));
+					}
+					if(names.length == details.maxNames)
+					{
+						ul.appendChild(document.createTextNode(' '));
 						var li=document.createElement('li');
 						ul.appendChild(li);
-						li.appendChild(document.createTextNode(
-								names[i].user+' ('+names[i].displayName+')'));
+						li.appendChild(document.createTextNode(String.fromCharCode(0x2026)));
 					}
 				}
 			},
