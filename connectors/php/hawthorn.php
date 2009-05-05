@@ -160,6 +160,11 @@ class Hawthorn
 	 * @param int $maxMessages Maximum number of messages to show
 	 * @param int $maxAge Maximum age (in milliseconds) of messages to show
 	 * @param int $maxNames Maximum number of user names to show
+	 * @param int $headingLevel Level for heading tags (3 = h3, default)
+	 * @param string $recentText Text of 'Recent messages' heading;
+	 *   '' = no heading
+	 * @param string $namesText Text of 'People in chat' heading;
+	 *   '' = no heading
 	 * @param string $loadingText Text to display while message information
 	 *  is being loaded; if omitted, English default '(Loading chat
 	 *  information, please wait...)' is used
@@ -170,7 +175,8 @@ class Hawthorn
 	 * @throws Exception If channel ID is invalid
 	 */
 	function recent($channel, $maxMessages=3, $maxAge=900000,
-		$maxNames=5, $loadingText='', $noScriptText='')
+		$maxNames=5, $headingLevel=3, $recentText='Recent messages',
+		$namesText='People in chat', $loadingText='', $noScriptText='')
 	{
 		// Get index of this recent block within page
 		$index = $this->recentCount++;
@@ -200,7 +206,9 @@ class Hawthorn
 			"',permissions:'{$this->permissions}',channel:'$channel'," .
 			"maxMessages:$maxMessages,maxAge:$maxAge,maxNames:$maxNames," .
 			"key:'" . $this->getKey($channel, $keyTime) . "',keyTime:$keyTime," .
-			"id:'hawthorn_recent$index'}";
+			"id:'hawthorn_recent$index',headingLevel:$headingLevel,namesText:'" .
+			self::escapeJS($namesText) . "',recentText:'" .
+			self::escapeJS($recentText) . "',sayOnly:true}";
 
 		// Print script tag if included
 		$out .= $this->getJS();

@@ -403,7 +403,7 @@ public class HttpEvent extends Event
 		String id = getID(params);
 
 		String maxAge = params.get("maxage"), maxNumber = params.get("maxnumber"),
-			maxNames = params.get("maxnames");
+			maxNames = params.get("maxnames"), filter = params.get("filter");
 		String error = null;
 		if(maxAge == null || !maxAge.matches(REGEXP_INT))
 		{
@@ -421,6 +421,10 @@ public class HttpEvent extends Event
 		{
 			error = "Invalid maxnames=";
 		}
+		else if(filter != null && !filter.equals("say"))
+		{
+			error = "Invalid filter=";
+		}
 		if(error != null)
 		{
 			connection.send("hawthorn.recentError(" + id + ",'"
@@ -429,7 +433,7 @@ public class HttpEvent extends Event
 		}
 
 		Message[] recent =
-			c.recent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber));
+			c.recent(Integer.parseInt(maxAge), Integer.parseInt(maxNumber), filter!=null);
 		Name[] names = c.getNames(maxNames == null ? Channel.ANY
 			:	Integer.parseInt(maxNames));
 
@@ -530,7 +534,7 @@ public class HttpEvent extends Event
 		long lastTime = Long.parseLong(lastTimeString);
 		long delay = c.poll(c.toString(),
 			params.get("user"), params.get("displayname"));
-		Message[] messages = c.getSince(lastTime, Channel.ANY);
+		Message[] messages = c.getSince(lastTime, Channel.ANY, false);
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.pollComplete(" + id + ",[");

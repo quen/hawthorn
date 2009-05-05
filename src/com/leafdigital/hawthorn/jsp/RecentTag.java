@@ -35,8 +35,10 @@ public class RecentTag extends SimpleTagSupport
 	private String channel,
 		loadingText="(Loading chat information, please wait...)",
 		noScriptText="(Chat features are not available because JavaScript is " +
-			"disabled.)";
-	private int maxMessages=3, maxAge=30*60*1000, maxNames=5;
+			"disabled.)",
+		recentText="Recent messages",
+		namesText="People in chat";
+	private int maxMessages=3, maxAge=30*60*1000, maxNames=5, headingLevel=3;
 
 	@Override
 	public void doTag() throws JspException, IOException
@@ -72,7 +74,10 @@ public class RecentTag extends SimpleTagSupport
 			+ ",maxNames:" + maxNames + ",permissions:'" + Auth.getPermissions(
 				init.getPermissionSet()) + "',key:'"
 			+ init.getKey(channel, keyTime, false)
-			+ "',keyTime:" + keyTime+ ",id:'hawthorn_recent"+index+"'}";
+			+ "',keyTime:" + keyTime+ ",sayOnly:true,id:'hawthorn_recent"+index+"'"
+			+ ",headingLevel:" + headingLevel + ",namesText:'"
+			+ JS.escInlineAttr(namesText) + "',recentText:'"
+			+ JS.escInlineAttr(recentText) + "',sayOnly:true}";
 
 		// Print script tag if included
 		init.printJS(getJspContext().getOut(),false);
@@ -123,6 +128,24 @@ public class RecentTag extends SimpleTagSupport
 	public void setMaxNames(int maxNames)
 	{
 		this.maxNames = maxNames;
+	}
+
+	/** @param headingLevel Level for headings, 3 = h3 */
+	public void setHeadingLevel(int headingLevel)
+	{
+		this.headingLevel = headingLevel;
+	}
+
+	/** @param recentText Text of 'Recent messages' heading ("" = no heading) */
+	public void setRecentText(String recentText)
+	{
+		this.recentText = recentText;
+	}
+
+	/** @param namesText Text of 'Names' heading ("" = no heading) */
+	public void setNamesText(String namesText)
+	{
+		this.namesText = namesText;
 	}
 
 	/** @param loadingText Text to display while loading */

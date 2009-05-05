@@ -112,7 +112,7 @@ function recent()
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		60*60*1000,
-		10, null,
+		10, null, false,
 		function(messages, names, lastTime)
 		{
 			setMessages('recent', messages, names);
@@ -247,7 +247,7 @@ function wait()
 			document.getElementById('permissions').value,
 			document.getElementById('keytime').value,
 			document.getElementById('key').value,
-			60*60*1000, 10, null, first, no);
+			60*60*1000, 10, null, false, first, no);
 	}
 	else
 	{

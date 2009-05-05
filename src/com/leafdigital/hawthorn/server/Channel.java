@@ -461,12 +461,14 @@ public class Channel extends HawthornObject
 	/**
 	 * @param maxAge Maximum age in milliseconds
 	 * @param maxNumber Maximum number of messages (or ANY)
+	 * @param sayOnly If true, returns only standard SAY messages (not JOIN etc)
 	 * @return Array of messages that match the criteria
 	 */
-	public synchronized Message[] recent(int maxAge, int maxNumber)
+	public synchronized Message[] recent(int maxAge, int maxNumber,
+		boolean sayOnly)
 	{
 		long then = System.currentTimeMillis() - maxAge;
-		return getSince(then, maxNumber);
+		return getSince(then, maxNumber, sayOnly);
 	}
 
 	/**
@@ -474,9 +476,11 @@ public class Channel extends HawthornObject
 	 * @param then Time
 	 * @param maxNumber Maximum number of messages (or ANY); if limited, only
 	 *   the newest messages will be retrieved
+	 * @param sayOnly If true, returns only standard SAY messages (not JOIN etc)
 	 * @return Array of messages, empty if none
 	 */
-	public synchronized Message[] getSince(long then, int maxNumber)
+	public synchronized Message[] getSince(long then, int maxNumber,
+		boolean sayOnly)
 	{
 		int count = 0;
 		ListIterator<Message> iterator = messages.listIterator(messages.size());
@@ -488,13 +492,22 @@ public class Channel extends HawthornObject
 				iterator.next();
 				break;
 			}
+			if(sayOnly && !(m instanceof SayMessage))
+			{
+				continue;
+			}
 			count++;
 		}
 
 		Message[] result = new Message[count];
-		for(int i = 0; i < count; i++)
+		for(int i = 0; i < count; )
 		{
-			result[i] = iterator.next();
+			Message m = iterator.next();
+			if(sayOnly && !(m instanceof SayMessage))
+			{
+				continue;
+			}
+			result[i++] = m;
 		}
 
 		return result;

@@ -28,6 +28,8 @@ $string['coursechatlink'] = 'Open chat for $a';
 $string['loading'] = '(Loading chat information, please wait...)';
 $string['noscript'] = '(Chat features are not available because
 	JavaScript is disabled.)';
+$string['recent'] = 'Recent messages';
+$string['names'] = 'People in chat';
 
 // Popup text
 $string['popup_joined'] = ' joined the chat';

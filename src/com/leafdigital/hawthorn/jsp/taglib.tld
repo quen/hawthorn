@@ -169,6 +169,33 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
+				Heading level for recent message and name headings. Default is 3 (h3).
+			</description>
+			<name>headingLevel</name>
+			<required>false</required>
+			<type>int</type>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
+				Text for heading on recent messages. Default is 'Recent messages'.
+				If set to empty string, omits heading.
+			</description>
+			<name>recentText</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
+				Text for heading on names. Default is 'People in chat'.
+				If set to empty string, omits heading.
+			</description>
+			<name>namesText</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
 				Text to display while message information is being loaded; if omitted,
 				English default '(Loading chat information, please wait...)' is used
 			</description>

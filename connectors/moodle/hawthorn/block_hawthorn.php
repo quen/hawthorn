@@ -65,8 +65,10 @@ class block_hawthorn extends block_base
 			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php');
 		// TODO Use group options
 		$channel = 'c' . $COURSE->id;
-		$this->content->text = $hawthorn->recent($channel, 3, 900000, 5,
-			get_string('loading', 'block_hawthorn'),
+		$this->content->text = $hawthorn->recent($channel, 3, 900000, 5, 3,
+		  get_string('recent', 'block_hawthorn'),
+		  get_string('names', 'block_hawthorn'),
+		  get_string('loading', 'block_hawthorn'),
 			get_string('noscript', 'block_hawthorn'));
 		$this->content->text .= $hawthorn->linkToChat($channel,
 			get_string('coursechat', 'block_hawthorn', $COURSE->shortname),

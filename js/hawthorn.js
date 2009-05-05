@@ -167,7 +167,7 @@ var hawthorn =
 	},
 
 	recent : function(channel, user, displayName, permissions, keyTime, key,
-		maxAge, maxNumber, maxNames, continuation, failure)
+		maxAge, maxNumber, maxNames, sayOnly, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -179,7 +179,8 @@ var hawthorn =
 				+ '&displayname=' + encodeURIComponent(displayName) + '&permissions='
 				+ permissions + '&keytime=' + keyTime
 				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
-				+ (maxNames==null ? '' : "&maxnames=" + maxNames));
+				+ (maxNames==null ? '' : "&maxnames=" + maxNames)
+				+ (sayOnly ? '&filter=say' : ''));
 	},
 
 	recentComplete : function(id, messages, names, lastTime)
@@ -427,41 +428,63 @@ var hawthorn =
 		var el=document.getElementById(details.id);
 		this.recent(details.channel, details.user, details.displayName,
 			details.permissions, details.keyTime, details.key, details.maxAge,
-			details.maxMessages, details.maxNames,
+			details.maxMessages, details.maxNames, details.sayOnly,
 			function(messages, names, lastTime)
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
-				var ul=document.createElement('ul');
-				el.appendChild(ul);
-				for(var i=0;i<messages.length;i++)
+				if(messages.length > 0)
 				{
-					var li=document.createElement('li');
-
-					var text;
-					switch(messages[i].type)
+					var div = document.createElement('div');
+					el.appendChild(div);
+					div.className = 'hawthorn_recent_messages';
+					if(details.recentText != '')
 					{
-					case 'SAY': text = messages[i].text; break;
-					case 'JOIN': text = "JOIN"; break;
-					case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
-					case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+						var heading = document.createElement('h' + details.headingLevel);
+						div.appendChild(heading);
+						heading.appendChild(document.createTextNode(details.recentText));
 					}
+					var ul=document.createElement('ul');
+					div.appendChild(ul);
+					for(var i=0;i<messages.length;i++)
+					{
+						var li=document.createElement('li');
 
-					ul.appendChild(li);
-					li.appendChild(document.createTextNode(
-							new Date(messages[i].time)+' - '+
-							messages[i].user+' ('+messages[i].displayName+'): '+
-							text));
+						var text;
+						switch(messages[i].type)
+						{
+						case 'SAY': text = messages[i].text; break;
+						case 'JOIN': text = "JOIN"; break;
+						case 'BAN': text = "BAN " + messages[i].ban + " " + messages[i].until; break;
+						case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
+						}
+
+						ul.appendChild(li);
+						li.appendChild(document.createTextNode(
+								new Date(messages[i].time)+' - '+
+								messages[i].user+' ('+messages[i].displayName+'): '+
+								text));
+					}
 				}
-				intro=document.createElement('p');
-				intro.appendChild(document.createTextNode(names.length+' names:'));
-				var ul=document.createElement('ul');
-				el.appendChild(ul);
-				for(var i=0;i<names.length;i++)
+				if(names.length > 0)
 				{
-					var li=document.createElement('li');
-					ul.appendChild(li);
-					li.appendChild(document.createTextNode(
-							names[i].user+' ('+names[i].displayName+')'));
+					var div = document.createElement('div');
+					el.appendChild(div);
+					div.className = 'hawthorn_recent_names';
+					if(details.namesText != '')
+					{
+						var heading = document.createElement('h' + details.headingLevel);
+						div.appendChild(heading);
+						heading.appendChild(document.createTextNode(details.namesText));
+					}
+					var ul=document.createElement('ul');
+					div.appendChild(ul);
+					for(var i=0;i<names.length;i++)
+					{
+						var li=document.createElement('li');
+						ul.appendChild(li);
+						li.appendChild(document.createTextNode(
+								names[i].user+' ('+names[i].displayName+')'));
+					}
 				}
 			},
 			function(error)
@@ -692,7 +715,8 @@ HawthornPopup.prototype.poll = function()
 	if (this.lastTime == 0)
 	{
 		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
-				this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
+				this.keyTime, this.key, this.maxAge, this.maxNumber, null, false,
+				first, fail);
 	}
 	else
 	{
@@ -739,7 +763,8 @@ HawthornPopup.prototype.startWait = function()
 	if(this.lastTime == 0)
 	{
 		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
-			this.keyTime, this.key, this.maxAge, this.maxNumber, null, first, fail);
+			this.keyTime, this.key, this.maxAge, this.maxNumber, null, false,
+			first, fail);
 	}
 	else
 	{
