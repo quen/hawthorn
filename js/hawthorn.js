@@ -166,7 +166,7 @@ var hawthorn =
 		}
 	},
 
-	recent : function(channel, user, displayName, permissions, keyTime, key,
+	recent : function(channel, user, displayName, extra, permissions, keyTime, key,
 		maxAge, maxNumber, maxNames, sayOnly, continuation, failure)
 	{
 		this.handlers.push(
@@ -176,9 +176,10 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/recent?channel=' + channel + '&user=' + user
-				+ '&displayname=' + encodeURIComponent(displayName) + '&permissions='
-				+ permissions + '&keytime=' + keyTime
-				+ "&key=" + key + "&maxage=" + maxAge + "&maxnumber=" + maxNumber
+				+ '&displayname=' + encodeURIComponent(displayName) + '&extra='
+				+ encodeURIComponent(extra) + '&permissions=' + permissions
+				+ '&keytime=' + keyTime + "&key=" + key + "&maxage=" + maxAge
+				+ "&maxnumber=" + maxNumber
 				+ (maxNames==null ? '' : "&maxnames=" + maxNames)
 				+ (sayOnly ? '&filter=say' : ''));
 	},
@@ -195,7 +196,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	poll : function(channel, user, displayName, permissions, keyTime, key,
+	poll : function(channel, user, displayName, extra, permissions, keyTime, key,
 		lastTime, continuation, failure)
 	{
 		this.handlers.push(
@@ -205,9 +206,9 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTag('hawthorn/poll?channel=' + channel + '&user=' + user
-			+ '&displayname=' + encodeURIComponent(displayName)
-			+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key
-			+ '&lasttime=' + lastTime);
+			+ '&displayname=' + encodeURIComponent(displayName) + '&extra='
+			+ encodeURIComponent(extra) + '&permissions=' + permissions
+			+ '&keytime=' + keyTime + "&key=" + key + '&lasttime=' + lastTime);
 	},
 
 	pollComplete : function(id, messages, lastTime, delay)
@@ -222,7 +223,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	say : function(channel, user, displayName, permissions, keyTime, key,
+	say : function(channel, user, displayName, extra, permissions, keyTime, key,
 		message, continuation, failure)
 	{
 		this.handlers.push(
@@ -233,6 +234,7 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/say?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime
 				+ '&key=' + key + "&message=" + encodeURIComponent(message)
 				+ '&unique=' + (new Date()).getTime());
@@ -250,8 +252,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	ban : function(channel, user, displayName, permissions, keyTime, key,
-		ban, banDisplayName, until, continuation, failure)
+	ban : function(channel, user, displayName, extra, permissions, keyTime, key,
+		ban, banDisplayName, banExtra, until, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -261,9 +263,11 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/ban?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime
 				+ '&key=' + key + "&ban=" + ban + "&bandisplayname="
-				+ encodeURIComponent(banDisplayName) + "&until=" + until
+				+ encodeURIComponent(banDisplayName) + "&banextra="
+				+ encodeURIComponent(banExtra) + "&until=" + until
 				+ '&unique=' + (new Date()).getTime());
 	},
 
@@ -279,7 +283,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	leave : function(channel, user, displayName, permissions, keyTime, key,
+	leave : function(channel, user, displayName, extra, permissions, keyTime, key,
 		continuation, failure)
 	{
 		this.handlers.push(
@@ -290,6 +294,7 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/leave?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions
 				+ '&keytime=' + keyTime + '&key=' + key);
 	},
@@ -306,7 +311,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	wait : function(channel, user, displayName, permissions, keyTime, key,
+	wait : function(channel, user, displayName, extra, permissions, keyTime, key,
 		lastTime, continuation, failure)
 	{
 		this.handlers.push(
@@ -317,6 +322,7 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/wait?channel=' + channel + '&user=' + user
 				+ '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime
 				+ "&key=" + key + "&lasttime=" + lastTime);
 	},
@@ -333,7 +339,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	reAcquire : function(url, channel, user, permissions, displayName,
+	reAcquire : function(url, channel, user, permissions, displayName, extra,
 		continuation, failure)
 	{
 		this.handlers.push(
@@ -343,6 +349,7 @@ var hawthorn =
 			failure : failure
 		});
 		this.addTagAnyServer(url + '?channel=' + channel + '&user=' + user
+			+ '&extra=' + encodeURIComponent(extra)
 			+ '&displayname=' + encodeURIComponent(displayName)
 			+ '&permissions=' + permissions, false);
 	},
@@ -359,8 +366,8 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	log : function(channel, user, displayName, permissions, keyTime, key, date,
-		continuation, failure)
+	log : function(channel, user, displayName, extra, permissions, keyTime, key,
+		date, continuation, failure)
 	{
 		this.handlers.push(
 		{
@@ -370,6 +377,7 @@ var hawthorn =
 		});
 		this.addTag('hawthorn/log?channel=' + channel
 				+ '&user=' + user + '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key
 				+ "&date=" + date);
 	},
@@ -386,7 +394,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	openPopup : function(url, reAcquireUrl, channel, user, displayName,
+	openPopup : function(url, reAcquireUrl, channel, user, displayName, extra,
 		permissions, keyTime, key, title)
 	{
 		var servers = '';
@@ -401,6 +409,7 @@ var hawthorn =
 		this.chatWindow = window.open(url + '?reacquire='
 			+ encodeURIComponent(reAcquireUrl) + '&channel=' + channel + '&user='
 			+ user + '&displayname=' + encodeURIComponent(displayName)
+			+ '&extra=' + encodeURIComponent(extra)
 			+ '&permissions=' + permissions + '&keyTime='
 			+ keyTime + '&key=' + key + '&title=' + encodeURIComponent(title)
 			+ '&servers=' + encodeURIComponent(servers), '_' + channel,
@@ -411,13 +420,15 @@ var hawthorn =
 		return false;
 	},
 
-	getStatisticsURLs : function(user, displayName, permissions, keyTime, key)
+	getStatisticsURLs : function(user, displayName, extra, permissions,
+		keyTime, key)
 	{
 		var result = new Array();
 		for (var i = 0; i<this.servers.length; i++)
 		{
 			result[i] = this.servers[i] + 'hawthorn/html/statistics?channel=!system'
 				+ '&user=' + user + '&displayname=' + encodeURIComponent(displayName)
+				+ '&extra=' + encodeURIComponent(extra)
 				+ '&permissions=' + permissions + '&keytime=' + keyTime + "&key=" + key;
 		}
 		return result;
@@ -427,8 +438,8 @@ var hawthorn =
 	{
 		var el=document.getElementById(details.id);
 		this.recent(details.channel, details.user, details.displayName,
-			details.permissions, details.keyTime, details.key, details.maxAge,
-			details.maxMessages, details.maxNames, details.sayOnly,
+			details.extra, details.permissions, details.keyTime, details.key,
+			details.maxAge, details.maxMessages, details.maxNames, details.sayOnly,
 			function(messages, names, lastTime)
 			{
 				while(el.firstChild) el.removeChild(el.firstChild);
@@ -547,6 +558,7 @@ function HawthornPopup()
 	this.channel = this.getPageParam('channel');
 	this.user = this.getPageParam('user');
 	this.displayName = this.getPageParam('displayname');
+	this.extra = this.getPageParam('extra');
 	this.permissions = this.getPageParam('permissions');
 	this.keyTime = this.getPageParam('keyTime');
 	this.key = this.getPageParam('key');
@@ -610,8 +622,9 @@ HawthornPopup.prototype.init = function()
 	this.closeButton.onclick = function()
 	{
 		p.left=true;
-		hawthorn.leave(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
-			p.key, function() { window.close(); }, function(error) { window.close(); });
+		hawthorn.leave(p.channel, p.user, p.displayName, p.extra, p.permissions,
+			p.keyTime, p.key, function() { window.close(); },
+			function(error) { window.close(); });
 	};
 	if(this.useWait)
 	{
@@ -625,11 +638,12 @@ HawthornPopup.prototype.init = function()
 	{
 		var ban = p.selectedUser;
 		var banDisplayName = p.present[ban].displayName;
+		var banExtra = p.present[ban].extra;
 		var until = (new Date()).getTime() + p.banTime;
 		if(confirm(p.strConfirmBan.replace('$1', banDisplayName)))
 		{
-			hawthorn.ban(p.channel, p.user, p.displayName, p.permissions, p.keyTime,
-				p.key, ban, banDisplayName, until, function() {},
+			hawthorn.ban(p.channel, p.user, p.displayName, p.extra, p.permissions,
+				p.keyTime, p.key, ban, banDisplayName, banExtra, until, function() {},
 				function(error)
 				{
 					p.addError(error);
@@ -659,7 +673,7 @@ HawthornPopup.prototype.reAcquire = function(continuation)
 {
 	var p = this;
 	hawthorn.reAcquire(this.keyAcquireURL, this.channel, this.user,
-		this.displayName, this.permissions,
+		this.displayName, this.extra, this.permissions,
 		function(key, keyTime)
 		{
 			p.key = key;
@@ -680,23 +694,23 @@ HawthornPopup.prototype.handleMessages = function(messages)
 		if(message.type == 'JOIN')
 		{
 			this.addJoin(message.time, message.user, message.displayName,
-				message.user == this.user);
+				message.extra, message.user == this.user);
 		}
 		else if(message.type == 'LEAVE')
 		{
 			this.addLeave(message.time, message.user, message.displayName,
-				message.user == this.user);
+				message.extra, message.user == this.user);
 		}
 		else if(message.type == 'SAY')
 		{
 			this.addMessage(message.time, message.user, message.displayName,
-				message.text, message.user == this.user);
+				message.extra, message.text, message.user == this.user);
 		}
 		else if(message.type == 'BAN')
 		{
 			this.addBan(message.time, message.user, message.displayName,
-				message.ban, message.banDisplayName, message.until,
-				message.user == this.user);
+				message.extra, message.ban, message.banDisplayName, message.banExtra,
+				message.until, message.user == this.user);
 		}
 	}
 }
@@ -733,7 +747,7 @@ HawthornPopup.prototype.poll = function()
 		for(var i = 0; i < names.length; i++)
 		{
 			var name=names[i];
-			p.addName(name.user, name.displayName);
+			p.addName(name.user, name.displayName, name.extra);
 		}
 		ok(messages, lastTime, 2000);
 	};
@@ -746,14 +760,14 @@ HawthornPopup.prototype.poll = function()
 	// Poll
 	if (this.lastTime == 0)
 	{
-		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
-				this.keyTime, this.key, this.maxAge, this.maxNumber, null, false,
-				first, fail);
+		hawthorn.recent(this.channel, this.user, this.displayName, this.extra,
+			this.permissions, this.keyTime, this.key, this.maxAge, this.maxNumber,
+			null, false, first, fail);
 	}
 	else
 	{
-		hawthorn.poll(this.channel, this.user, this.displayName, this.permissions,
-			this.keyTime, this.key, this.lastTime, ok, fail);
+		hawthorn.poll(this.channel, this.user, this.displayName, this.extra,
+			this.permissions, this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }
 
@@ -783,7 +797,7 @@ HawthornPopup.prototype.startWait = function()
 		for(var i = 0; i < names.length; i++)
 		{
 			var name=names[i];
-			p.addName(name.user, name.displayName);
+			p.addName(name.user, name.displayName, name.extra);
 		}
 		ok(lastTime,messages);
 	}
@@ -794,14 +808,14 @@ HawthornPopup.prototype.startWait = function()
 
 	if(this.lastTime == 0)
 	{
-		hawthorn.recent(this.channel, this.user, this.displayName, this.permissions,
-			this.keyTime, this.key, this.maxAge, this.maxNumber, null, false,
-			first, fail);
+		hawthorn.recent(this.channel, this.user, this.displayName, this.extra,
+			this.permissions, this.keyTime, this.key, this.maxAge, this.maxNumber,
+			null, false, first, fail);
 	}
 	else
 	{
-		hawthorn.wait(this.channel, this.user, this.displayName, this.permissions,
-			this.keyTime, this.key, this.lastTime, ok, fail);
+		hawthorn.wait(this.channel, this.user, this.displayName, this.extra,
+			this.permissions, this.keyTime, this.key, this.lastTime, ok, fail);
 	}
 }
 
@@ -918,8 +932,9 @@ HawthornPopup.prototype.initLayout = function()
  * Adds the given user to the name list (alphabetically sorted).
  * @param user User ID
  * @param displayName Display name for user
+ * @param extra Extra user data
  */
-HawthornPopup.prototype.addName = function(user,displayName)
+HawthornPopup.prototype.addName = function(user, displayName, extra)
 {
 	var p = this;
 	var el = this.present[user];
@@ -931,6 +946,7 @@ HawthornPopup.prototype.addName = function(user,displayName)
 	var newEl = document.createElement('div');
 	newEl.className = 'name';
 	newEl.displayName = displayName;
+	newEl.extra = extra;
 	var newInner = document.createElement('div');
 	newEl.appendChild(newInner);
 	newInner.className = 'inner';
@@ -1060,10 +1076,12 @@ HawthornPopup.prototype.addEntry = function(time,el)
  * @param time Message time (ms since 1970)
  * @param user User ID
  * @param displayName Display name for user
+ * @param extra Extra user data
  * @param message Message from user
  * @param self True if this is a message from the current user
  */
-HawthornPopup.prototype.addMessage = function(time,user,displayName,message,self)
+HawthornPopup.prototype.addMessage = function(time, user, displayName, extra,
+	message, self)
 {
 	var entry = document.createElement('div');
 	entry.className='entry say' + (self ? ' self' : '');
@@ -1084,9 +1102,10 @@ HawthornPopup.prototype.addMessage = function(time,user,displayName,message,self
  * @param time Message time (ms since 1970)
  * @param user User ID
  * @param displayName Display name for user
+ * @param extra Extra user data
  * @param self True if this is a message from the current user
  */
-HawthornPopup.prototype.addJoin = function(time,user,displayName,self)
+HawthornPopup.prototype.addJoin = function(time, user, displayName, extra, self)
 {
 	var entry = document.createElement('div');
 	entry.className='entry join' + (self ? ' self' : '');
@@ -1097,7 +1116,7 @@ HawthornPopup.prototype.addJoin = function(time,user,displayName,self)
 	entry.appendChild(name);
 	entry.appendChild(document.createTextNode(this.strJoined));
 	this.addEntry(time, entry);
-	this.addName(user, displayName);
+	this.addName(user, displayName, extra);
 }
 
 /**
@@ -1105,9 +1124,11 @@ HawthornPopup.prototype.addJoin = function(time,user,displayName,self)
  * @param time Message time (ms since 1970)
  * @param user User ID
  * @param displayName Display name for user
+ * @param extra Extra user data
  * @param self True if this is a message from the current user
  */
-HawthornPopup.prototype.addLeave = function(time,user,displayName,self)
+HawthornPopup.prototype.addLeave = function(time, user, displayName, extra,
+	self)
 {
 	this.removeName(user, displayName);
 	var entry = document.createElement('div');
@@ -1131,8 +1152,8 @@ HawthornPopup.prototype.addLeave = function(time,user,displayName,self)
  * @param until Time user is banned until
  * @param self True if it is the current user who set the ban
  */
-HawthornPopup.prototype.addBan = function(time, user, displayName, ban,
-	banDisplayName, until, self)
+HawthornPopup.prototype.addBan = function(time, user, displayName, extra,
+	ban, banDisplayName, banExtra, until, self)
 {
 	var entry = document.createElement('div');
 	entry.className='entry ban' + (self ? ' self' : '');
@@ -1179,8 +1200,9 @@ HawthornPopup.prototype.say = function()
 		return;
 	}
 	this.textBox.value = '';
-	hawthorn.say(this.channel, this.user, this.displayName, this.permissions,
-		this.keyTime, this.key, text, function() {}, this.addError);
+	hawthorn.say(this.channel, this.user, this.displayName, this.extra,
+		this.permissions, this.keyTime, this.key, text, function() {},
+		this.addError);
 	// Make it poll again real soon to get this (if polling)
 	this.pollTime = 0;
 }

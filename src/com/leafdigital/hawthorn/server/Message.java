@@ -31,14 +31,15 @@ public abstract class Message
 	private final static Pattern COMMAND =
 		Pattern.compile("([A-Z]+) (" + Hawthorn.REGEXP_USERCHANNEL
 			+ ") ([0-9a-f:.]+) (" + Hawthorn.REGEXP_USERCHANNEL + ") \"("
-			+ Hawthorn.REGEXP_DISPLAYNAME + ")\"(.*)");
+			+ Hawthorn.REGEXP_DISPLAYNAME + ")\" \"(" + Hawthorn.REGEXP_EXTRA
+			+ ")\"(.*)");
 
 	private static HashMap<String, Method> messageInitMethods =
 		new HashMap<String, Method>();
 
 	private long time;
 
-	private String channel, user, userMasked, displayName, ip;
+	private String channel, user, userMasked, displayName, extra, ip;
 
 	/**
 	 * @param time Time of message
@@ -47,9 +48,10 @@ public abstract class Message
 	 * @param user User ID who sent message
 	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
+	 * @param extra Extra per-user data
 	 */
 	Message(long time, String channel, String ip, String user, String userMasked,
-		String displayName)
+		String displayName, String extra)
 	{
 		this.time = time;
 		this.channel = channel;
@@ -57,6 +59,7 @@ public abstract class Message
 		this.user = user;
 		this.userMasked = userMasked;
 		this.displayName = displayName;
+		this.extra = extra;
 	}
 
 	/** @return Time of message */
@@ -83,6 +86,12 @@ public abstract class Message
 		return displayName;
 	}
 
+	/** @return Extra user data */
+	public String getExtra()
+	{
+		return extra;
+	}
+
 	/** @return IP address of user */
 	public String getIP()
 	{
@@ -97,34 +106,34 @@ public abstract class Message
 	{
 		return "{type:'" + getType() + "',time:" + time + ",user:'"
 		  + (trusted ? user : userMasked)	+ "',displayName:'" + JS.esc(displayName)
-		  + "'" + getExtraJS(trusted) + "}";
+		  + "',extra:'" + JS.esc(extra) + "'" + getAdditionalJS(trusted) + "}";
 	}
 
 	/**
 	 * @return Version of message to put in logs (not including channel as logfile
-	 *         defines that, or time which is added by logger)
+	 *   defines that, or time which is added by logger)
 	 */
 	public String getLogFormat()
 	{
-		return getType() + ' ' + ip + ' ' + user + " \"" + displayName + "\""
-			+ getExtra();
+		return getType() + ' ' + ip + ' ' + user + " \"" + displayName
+			+  "\" \"" + extra + "\"" + getAdditionalLog();
 	}
 
 	/** @return Version of message that will be sent to other servers */
 	public String getServerFormat()
 	{
 		return getType() + " " + channel + " " + ip + " " + user + " \""
-			+ displayName + "\"" + getExtra();
+			+ displayName + "\" \"" + extra + "\"" + getAdditionalLog();
 	}
 
 	/**
 	 * @param trusted True if user gets to see real user ID etc
 	 * @return Additional data to go into the JavaScript message representation
 	 */
-	protected abstract String getExtraJS(boolean trusted);
+	protected abstract String getAdditionalJS(boolean trusted);
 
 	/** @return Additional data to go into server/log message representations */
-	protected abstract String getExtra();
+	protected abstract String getAdditionalLog();
 
 	/** @return Type of message, used as command string for server-server messages */
 	public abstract String getType();
@@ -150,9 +159,9 @@ public abstract class Message
 	static void registerType(String command, Class<? extends Message> cl)
 		throws SecurityException, NoSuchMethodException
 	{
-		Method m =
-			cl.getMethod("parseMessage", long.class, String.class, String.class,
-				String.class, String.class, String.class, Hawthorn.class);
+		Method m = cl.getMethod("parseMessage", long.class, String.class,
+			String.class, String.class, String.class, String.class, String.class,
+			Hawthorn.class);
 		messageInitMethods.put(command, m);
 	}
 
@@ -183,7 +192,8 @@ public abstract class Message
 			throw new IllegalArgumentException("Unknown command: " + m.group(1));
 		}
 
-		return (Message)parseMessage.invoke(null, System.currentTimeMillis(), m
-			.group(2), m.group(3), m.group(4), m.group(5), m.group(6), app);
+		return (Message)parseMessage.invoke(null, System.currentTimeMillis(),
+			m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7),
+			app);
 	}
 }

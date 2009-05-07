@@ -62,7 +62,7 @@ In a real system you would fill the values in here from:
 4) Hawthorn server URL(s) from your system's configuration.
 -->
 <hawthorn:init magicNumber="23d70acbe28943b3548e500e297afb16"
-	user="${param.user}" displayName="${param.displayname}"
+	user="${param.user}" displayName="${param.displayname}" extra="${param.extra}"
 	permissions="${param.permissions}" jsUrl="hawthorn.js" popupUrl="popup.html"
 	reAcquireUrl="reacquire.jsp">
 	<server>http://192.168.0.100:13370/</server>
@@ -97,6 +97,10 @@ Username (lowercase letters/numbers only)
 <div>
 Display name (any text)
 <input type="text" name="displayname" />
+</div>
+<div>
+Extra data (any text, may be empty)
+<input type="text" name="extra" />
 </div>
 <div>
 Permissions

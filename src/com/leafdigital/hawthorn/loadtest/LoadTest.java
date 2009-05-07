@@ -143,7 +143,7 @@ public class LoadTest
 			try
 			{
 				return parameters + "&channel=" + channel + "&key=" +
-					Auth.getKey(magicNumber, name, name,
+					Auth.getKey(magicNumber, name, name, "",
 						EnumSet.of(Permission.READ, Permission.WRITE), channel, keyTime);
 			}
 			catch(NoSuchAlgorithmException e)

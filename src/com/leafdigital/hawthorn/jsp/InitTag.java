@@ -41,7 +41,8 @@ public class InitTag extends BodyTagSupport
 	static final String HAWTHORN_INIT_TAG = "hawthorn.initTag";
 	private static final long DEFAULT_KEY_EXPIRY = 60*60*1000;
 
-	private String magicNumber, user, displayName, jsUrl, popupUrl, reAcquireUrl;
+	private String magicNumber, user, displayName, extra, jsUrl, popupUrl,
+		reAcquireUrl;
 	private long keyExpiry = DEFAULT_KEY_EXPIRY;
 	private URL[] servers;
 	private boolean defer;
@@ -190,6 +191,12 @@ public class InitTag extends BodyTagSupport
 		this.displayName = displayName;
 	}
 
+	/** @param extra Extra per-user data */
+	public void setExtra(String extra)
+	{
+		this.extra = extra;
+	}
+
 	/**
 	 * @param jsUrl URL to hawthorn.js from this page (may be relative)
 	 */
@@ -237,7 +244,7 @@ public class InitTag extends BodyTagSupport
 		}
 		try
 		{
-			return Auth.getKey(magicNumber, user, displayName,
+			return Auth.getKey(magicNumber, user, displayName, extra,
 				permissionSet, channel, keyTime);
 		}
 		catch(NoSuchAlgorithmException e)
@@ -258,6 +265,12 @@ public class InitTag extends BodyTagSupport
 	public String getDisplayName()
 	{
 		return displayName;
+	}
+
+	/** @return Extra user data */
+	public String getExtra()
+	{
+		return extra;
 	}
 
 	/** @return URL (possibly relative) to popup.html */

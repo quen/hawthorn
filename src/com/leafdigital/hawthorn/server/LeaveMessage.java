@@ -51,23 +51,24 @@ public class LeaveMessage extends Message
 	 * @param user User who sent message
 	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
+	 * @param extra Extra user data
 	 * @param timeout True if it's a timeout, false if user requested it
 	 */
 	LeaveMessage(long time, String channel, String ip, String user,
-		String userMasked, String displayName, boolean timeout)
+		String userMasked, String displayName, String extra, boolean timeout)
 	{
-		super(time, channel, ip, user, userMasked, displayName);
+		super(time, channel, ip, user, userMasked, displayName, extra);
 		this.timeout = timeout;
 	}
 
 	@Override
-	protected String getExtraJS(boolean trusted)
+	protected String getAdditionalJS(boolean trusted)
 	{
 		return ",timeout:" + timeout;
 	}
 
 	@Override
-	protected String getExtra()
+	protected String getAdditionalLog()
 	{
 		return timeout ? " timeout" : " explicit";
 	}
@@ -84,21 +85,23 @@ public class LeaveMessage extends Message
 	 * @param ip IP address of user
 	 * @param user User who sent message
 	 * @param displayName Display name of user
-	 * @param extra Bit that goes after all this in the text
+	 * @param extra Extra user data
+	 * @param additional Bit that goes after all this in the text
 	 * @param app Hawthorn app object
 	 * @return New message
 	 */
 	public static LeaveMessage parseMessage(long time, String channel, String ip,
-		String user, String displayName, String extra, Hawthorn app)
+		String user, String displayName, String extra, String additional,
+		Hawthorn app)
 	{
-		boolean timeout = extra.equals("timeout");
-		if(!timeout && !extra.equals("explicit"))
+		boolean timeout = additional.equals("timeout");
+		if(!timeout && !additional.equals("explicit"))
 		{
 			throw new IllegalArgumentException(
 				"Extra text must be timeout or explicit");
 		}
 		return new LeaveMessage(time, channel, ip, user, app.getMaskedUser(user),
-			displayName, timeout);
+			displayName, extra, timeout);
 	}
 
 }

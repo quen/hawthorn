@@ -58,6 +58,12 @@ public class Hawthorn
 	/** Regular expression for display name: all normal characters except " */
 	public static final String REGEXP_DISPLAYNAME = "[^\u0000-\u001f\"]+";
 
+	/**
+	 * Regular expression for extra: all normal characters except ", may be
+	 * empty
+	 */
+	public static final String REGEXP_EXTRA = "[^\u0000-\u001f\"]*";
+
 	/** Regular expression for message: all normal characters */
 	public static final String REGEXP_MESSAGE = "[^\u0000-\u001f]+";
 
@@ -172,17 +178,18 @@ public class Hawthorn
 	 * @param channel Channel ID
 	 * @param user User ID
 	 * @param displayName User display name
+	 * @param extra Extra user details
 	 * @param permissions User permissions
 	 * @param keyTime Key issue time
 	 * @return Correct key
 	 */
 	String getValidKey(String channel, String user, String displayName,
-		EnumSet<Auth.Permission> permissions,	long keyTime)
+		String extra,	EnumSet<Auth.Permission> permissions,	long keyTime)
 	{
 		try
 		{
 			return Auth.getKey(getConfig().getMagicNumber(), user, displayName,
-				permissions, channel, keyTime);
+				extra, permissions, channel, keyTime);
 		}
 		catch(NoSuchAlgorithmException e)
 		{

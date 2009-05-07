@@ -263,7 +263,7 @@ public class HttpEvent extends Event
 		String user = params.get("user");
 		Message m = new SayMessage(System.currentTimeMillis(), c.getName(),
 			connection.toString(), user, getApp().getMaskedUser(user),
-			params.get("displayname"), unique, message);
+			params.get("displayname"), params.get("extra"), unique, message);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.sayComplete(" + id + ");");
@@ -290,6 +290,7 @@ public class HttpEvent extends Event
 		String
 			ban = params.get("ban"),
 			banDisplayName = params.get("bandisplayname"),
+			banExtra = params.get("banextra"),
 			unique = params.get("unique"),
 			untilText = params.get("until");
 
@@ -300,6 +301,11 @@ public class HttpEvent extends Event
 		}
 		else if(banDisplayName == null ||
 			!banDisplayName.matches(Hawthorn.REGEXP_DISPLAYNAME))
+		{
+			error = "Missing or invalid bandisplayname=";
+		}
+		else if(banExtra == null ||
+			!banExtra.matches(Hawthorn.REGEXP_EXTRA))
 		{
 			error = "Missing or invalid bandisplayname=";
 		}
@@ -320,9 +326,10 @@ public class HttpEvent extends Event
 
 		String user = params.get("user");
 		Message m = new BanMessage(System.currentTimeMillis(), c.getName(),
-				connection.toString(), user, getApp().getMaskedUser(user),
-				params.get("displayname"), unique, ban, getApp().getMaskedUser(ban),
-				banDisplayName, Long.parseLong(untilText));
+			connection.toString(), user, getApp().getMaskedUser(user),
+			params.get("displayname"), params.get("extra"), unique, ban,
+			getApp().getMaskedUser(ban), banDisplayName, banExtra,
+			Long.parseLong(untilText));
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 		connection.send("hawthorn.banComplete(" + id + ");");
@@ -361,7 +368,7 @@ public class HttpEvent extends Event
 		String user = params.get("user");
 		Message m = new LeaveMessage(System.currentTimeMillis(), c.getName(),
 				connection.toString(), user, getApp().getMaskedUser(user),
-				params.get("displayname"), false);
+				params.get("displayname"), params.get("extra"), false);
 		getApp().getOtherServers().sendMessage(m);
 		c.message(m, false);
 
@@ -493,7 +500,8 @@ public class HttpEvent extends Event
 
 		long lastTime = Long.parseLong(lastTimeString);
 		c.wait(connection, params.get("user"), params.get("displayname"),
-			id, lastTime, permissionSet.contains(Permission.MODERATE));
+			params.get("extra"), id, lastTime,
+			permissionSet.contains(Permission.MODERATE));
 	}
 
 	private void handlePoll(HashMap<String, String> params)
@@ -533,7 +541,7 @@ public class HttpEvent extends Event
 
 		long lastTime = Long.parseLong(lastTimeString);
 		long delay = c.poll(c.toString(),
-			params.get("user"), params.get("displayname"));
+			params.get("user"), params.get("displayname"), params.get("extra"));
 		Message[] messages = c.getSince(lastTime, Channel.ANY, false);
 
 		StringBuilder output = new StringBuilder();
@@ -667,8 +675,8 @@ public class HttpEvent extends Event
 		throws OperationException
 	{
 		String channel = params.get("channel"), user = params.get("user"),
-			displayname =	params.get("displayname"), key = params.get("key"),
-			keytime = params.get("keytime");
+			displayname =	params.get("displayname"), extra = params.get("extra"),
+			key = params.get("key"), keytime = params.get("keytime");
 
 		// Check permissions if supplied
 		String permissions = params.get("permissions");
@@ -703,6 +711,10 @@ public class HttpEvent extends Event
 			// Displayname can't contain control characters or "
 			error = "Missing or invalid displayname=";
 		}
+		else if(extra == null || !extra.matches(Hawthorn.REGEXP_EXTRA))
+		{
+			error = "Missing or invalid extra=";
+		}
 		else if(permissions == null)
 		{
 			error = "Missing permissions=";
@@ -719,7 +731,7 @@ public class HttpEvent extends Event
 		{
 			error = "Expired key";
 		}
-		else if(!key.equals(getApp().getValidKey(channel, user, displayname,
+		else if(!key.equals(getApp().getValidKey(channel, user, displayname, extra,
 			permissionSet, Long.parseLong(keytime))))
 		{
 			error = "Invalid key";

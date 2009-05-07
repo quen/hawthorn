@@ -108,6 +108,7 @@ function recent()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -131,6 +132,7 @@ function poll()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -159,6 +161,7 @@ function say()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -179,11 +182,13 @@ function ban()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
 		document.getElementById('banuser').value,
 		document.getElementById('bandisplayname').value,
+		document.getElementById('banextra').value,
 		parseInt(document.getElementById('bantime').value) + (new Date()).getTime(),
 		function()
 		{
@@ -201,6 +206,7 @@ function leave()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -244,6 +250,7 @@ function wait()
 			document.getElementById('channel').value,
 			document.getElementById('user').value,
 			document.getElementById('displayname').value,
+			document.getElementById('extra').value,
 			document.getElementById('permissions').value,
 			document.getElementById('keytime').value,
 			document.getElementById('key').value,
@@ -255,6 +262,7 @@ function wait()
 			document.getElementById('channel').value,
 			document.getElementById('user').value,
 			document.getElementById('displayname').value,
+			document.getElementById('extra').value,
 			document.getElementById('permissions').value,
 			document.getElementById('keytime').value,
 			document.getElementById('key').value,
@@ -268,6 +276,7 @@ function log()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -307,6 +316,7 @@ function openPopup()
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
@@ -318,6 +328,7 @@ function stats()
 	urls = hawthorn.getStatisticsURLs(
 		document.getElementById('user').value,
 		document.getElementById('displayname').value,
+		document.getElementById('extra').value,
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value);
@@ -348,6 +359,7 @@ function saveSettings()
 	value += '[channel&'+escape(document.getElementById('channel').value);
 	value += '[user&'+escape(document.getElementById('user').value);
 	value += '[displayname&'+escape(document.getElementById('displayname').value);
+	value += '[extra&'+escape(document.getElementById('extra').value);
 	value += '[permissions&'+escape(document.getElementById('permissions').value);
 	value += '[keytime&'+escape(document.getElementById('keytime').value);
 	value += '[key&'+escape(document.getElementById('key').value);
@@ -431,6 +443,7 @@ number and is able to generate keys itself.</p>
 <div>Channel <input id="channel" type="text" size="20" /><br />
 User ID <input id="user" type="text" size="20" /><br />
 Display name <input id="displayname" type="text" size="20" /><br />
+Extra data <input id="extra" type="text" size="20" /><br />
 Permissions <input id="permissions" type="text" size="20" value="rw"/><br />
 Key time <input id="keytime" type="text" size="20" /><br />
 Key <input id="key" type="text" size="40" /></div>
@@ -453,6 +466,7 @@ Key <input id="key" type="text" size="40" /></div>
 <div id="ban">Not banned anyone yet</div>
 <div>User ID <input id="banuser" type="text" size="20" /><br/>
 Display name <input id="bandisplayname" type="text" size="40" /><br/>
+Extra <input id="banextra" type="text" size="40" /><br/>
 Ban length (ms)  <input id="bantime" type="text" size="20" /><br/>
 <div><input type="button" value="Ban" onclick="ban()" /></div>
 </div>

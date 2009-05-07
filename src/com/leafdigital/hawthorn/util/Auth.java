@@ -103,6 +103,7 @@ public abstract class Auth
 	 * @param magicNumber Server's secret number
 	 * @param user User ID
 	 * @param displayName Display name
+	 * @param extra Extra user data
 	 * @param permissionSet Permissions
 	 * @param channel Channel ID
 	 * @param keyTime Time of key
@@ -110,7 +111,7 @@ public abstract class Auth
 	 * @throws NoSuchAlgorithmException If SHA-1 isn't installed
 	 */
 	public static String getKey(String magicNumber,
-		String user, String displayName,
+		String user, String displayName, String extra,
 		EnumSet<Permission> permissionSet, String channel,
 		long keyTime) throws NoSuchAlgorithmException
 	{
@@ -121,6 +122,8 @@ public abstract class Auth
 		out.append(user);
 		out.append("\n");
 		out.append(displayName);
+		out.append("\n");
+		out.append(extra);
 		out.append("\n");
 		for(Permission p : permissionSet)
 		{

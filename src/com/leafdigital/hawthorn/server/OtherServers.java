@@ -161,9 +161,8 @@ public class OtherServers extends HawthornObject
 
 					// Send authentication
 					long now = System.currentTimeMillis();
-					String hash =
-						getApp().getValidKey("remote server", address.getHostAddress(), "",
-							Auth.getPermissionSet(""), now);
+					String hash = getApp().getValidKey("remote server",
+						address.getHostAddress(), "", "", Auth.getPermissionSet(""), now);
 					writer.write("*" + now + "*" + hash + "\n");
 					writer.flush();
 

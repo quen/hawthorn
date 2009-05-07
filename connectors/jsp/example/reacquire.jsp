@@ -30,7 +30,7 @@ is authorised.
 --%>
 
 <hawthorn:init magicNumber="23d70acbe28943b3548e500e297afb16"
-	user="${param.user}" displayName="${param.displayname}"
+	user="${param.user}" displayName="${param.displayname}" extra="${param.extra}"
 	permissions="${param.permissions}" jsUrl="hawthorn.js" popupUrl="popup.html"
 	reAcquireUrl="reacquire.jsp">
 	<server>http://192.168.0.100:13370/</server>

@@ -53,13 +53,20 @@ class block_hawthorn extends block_base
 		{
 			$permissions .= 'a';
 		}
+
+		// Get user picture URL
+		$userpic = print_user_picture($USER, $COURSE->id, NULL, 0, true, false);
+		$userpic = preg_replace('~src="([^"]*)"~', '$1', $userpic);
+
 		// Load Hawthorn library
 		// TODO This link should point to a copy of the same file, in the built
 		// version.
 		require_once(dirname(__FILE__) . '/../../php/hawthorn.php');
+
+		// Initialise
 		$hawthorn = new hawthorn($CFG->block_hawthorn_magicnumber,
 			explode(',',$CFG->block_hawthorn_servers), hawthorn::escapeId($USER->username),
-			fullname($USER), $permissions,
+			fullname($USER), $userpic, $permissions,
 			$CFG->wwwroot . '/blocks/hawthorn/hawthorn.js',
 			$CFG->wwwroot . '/blocks/hawthorn/popup.php',
 			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php');

@@ -363,10 +363,15 @@ public class Configuration
 						channel = child.getAttribute("channel"),
 						user = child.getAttribute("user"),
 						displayName =	child.getAttribute("displayname"),
+						extra = child.getAttribute("extra"),
 						permissions = child.getAttribute("permissions");
+					if(extra == null)
+					{
+						extra = "";
+					}
 					if(channel == null
-						|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) && !channel
-							.equals(Logger.SYSTEM_LOG)))
+						|| (!channel.matches(Hawthorn.REGEXP_USERCHANNEL) &&
+							!channel.equals(Logger.SYSTEM_LOG)))
 					{
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires channel=, with no special characters");
@@ -382,7 +387,13 @@ public class Configuration
 						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
 							"<testkey> requires displayname=, with no double quotes");
 					}
-					testKeys.add(new TestKey(channel, user, displayName, permissions));
+					if(!extra.matches(Hawthorn.REGEXP_EXTRA))
+					{
+						throw new StartupException(ErrorCode.STARTUP_CONFIGFORMAT,
+							"<testkey> requires displayname=, with no double quotes");
+					}
+					testKeys.add(new TestKey(channel, user, displayName, extra,
+						permissions));
 				}
 				else
 				{
@@ -481,19 +492,22 @@ public class Configuration
 	 */
 	public static class TestKey
 	{
-		private String channel, user, displayName, permissions;
+		private String channel, user, displayName, extra, permissions;
 
 		/**
 		 * @param channel Channel name
 		 * @param user User name
 		 * @param displayName Display name
+		 * @param extra Extra per-user data
 		 * @param permissions Permissions
 		 */
-		TestKey(String channel, String user, String displayName, String permissions)
+		TestKey(String channel, String user, String displayName, String extra,
+			String permissions)
 		{
 			this.channel = channel;
 			this.user = user;
 			this.displayName = displayName;
+			this.extra = extra;
 			this.permissions = (permissions == null || permissions.equals(""))
 				? "rw" : permissions;
 		}
@@ -511,11 +525,12 @@ public class Configuration
 				System.out.println("     Channel: " + channel);
 				System.out.println("        User: " + user);
 				System.out.println("Display name: " + displayName);
+				System.out.println("       Extra: " + extra);
 				System.out.println(" Permissions: " + permissions);
 				System.out.println("        Time: " + testKeyTime);
 				System.out.println();
 				String key =
-					app.getValidKey(channel, user, displayName,
+					app.getValidKey(channel, user, displayName, extra,
 						Auth.getPermissionSet(permissions), testKeyTime);
 				System.out.println("         Key: " + key);
 				System.out.println();

@@ -26,7 +26,7 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
  */
 class Hawthorn
 {
-	private $magicNumber, $servers, $user, $displayName, $permissions,
+	private $magicNumber, $servers, $user, $displayName, $extra, $permissions,
 		$jsUrl, $popupUrl, $reAcquireUrl, $defer, $keyExpiry;
 
 	private $recentCount, $linkToChatCount, $printedJS;
@@ -37,6 +37,7 @@ class Hawthorn
 	 * @param array $servers Array of server URLs (full URL ending in /)
 	 * @param string $user Hawthorn ID of current user
 	 * @param string $displayName Display name of current user
+	 * @param string $extra Extra per-user data
 	 * @param string $jsUrl URL to hawthorn.js (may be relative to page)
 	 * @param string $popupUrl URL to popup.html (may be relative to page)
 	 * @param string $reAcquireUrl URL that re-acquires a Hawthorn key for
@@ -53,17 +54,21 @@ class Hawthorn
 	 * @throws Exception If user ID is invalid
 	 */
 	function __construct($magicNumber, $servers,
-		$user, $displayName, $permissions, $jsUrl, $popupUrl, $reAcquireUrl,
+		$user, $displayName, $extra, $permissions, $jsUrl, $popupUrl, $reAcquireUrl,
 		$defer=false, $keyExpiry=3600000)
 	{
 		// Check username and displayname
-		if (!preg_match('~^[A-Za-z0-9_]+$~',$user))
+		if(!preg_match('~^[A-Za-z0-9_]+$~',$user))
 		{
 			throw new Exception("Invalid user ID: $user");
 		}
-		if (!preg_match('~^[^\x00-\x1f\"]+$~',$displayName))
+		if(!preg_match('~^[^\x00-\x1f\"]+$~',$displayName))
 		{
 			throw new Exception("Invalid display name: $displayName");
+		}
+		if(!preg_match('~^[^\x00-\x1f\"]*$~',$extra))
+		{
+			throw new Exception("Invalid extra data: $extra");
 		}
 
 		$this->magicNumber = $magicNumber;
@@ -202,7 +207,8 @@ class Hawthorn
 		// Work out JavaScript
 		$keyTime = $this->getKeyTime();
 		$js = "{user:'{$this->user}', displayName:'" .
-			self::escapeJS($this->displayName) . 
+			self::escapeJS($this->displayName) . "',extra:'" .
+			self::escapeJS($this->extra) .
 			"',permissions:'{$this->permissions}',channel:'$channel'," .
 			"maxMessages:$maxMessages,maxAge:$maxAge,maxNames:$maxNames," .
 			"key:'" . $this->getKey($channel, $keyTime) . "',keyTime:$keyTime," .
@@ -399,7 +405,7 @@ class Hawthorn
 	{
 		// Get auth key for special admin user
 		$keyTime = $this->getKeyTime();
-		$key = $this->getKey("!system", $keyTime, true, "_admin", "_");
+		$key = $this->getKey("!system", $keyTime, true);
 
 		// Output list
 		$out = "<ul class='hawthorn_statslinks'>\n";
@@ -428,7 +434,7 @@ class Hawthorn
 	 * @throws Exception If channel name is invalid
 	 */
 	private function getKey($channel, $keyTime, $allowSystem = false,
-		$user = '', $displayName = '', $permissions = '')
+		$user = '', $displayName = '', $extra = '', $permissions = '')
 	{
 		// Check channel is valid
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$channel) &&
@@ -446,13 +452,17 @@ class Hawthorn
 		{
 			$displayName = $this->displayName;
 		}
+		if ($extra === '')
+		{
+			$extra = $this->extra;
+		}
 		if ($permissions === '')
 		{
 			$permissions = $this->permissions;
 		}
 
 		// Work out key
-		$hashData = "$channel\n$user\n$displayName\n$permissions\n" .
+		$hashData = "$channel\n$user\n$displayName\n$extra\n$permissions\n" .
 			"$keyTime\n$this->magicNumber";
 		return sha1($hashData);
 	}

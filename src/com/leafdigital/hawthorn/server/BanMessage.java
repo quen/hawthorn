@@ -42,11 +42,12 @@ public class BanMessage extends UniqueMessage
 		}
 	}
 
-	private final static Pattern REGEXP_EXTRA = Pattern.compile("^(" +
-		Hawthorn.REGEXP_USERCHANNEL + ") \"(" + Hawthorn.REGEXP_DISPLAYNAME +
-		")\" (" +	HttpEvent.REGEXP_LONG + ")$");
+	private final static Pattern REGEXP_ADDITIONAL = Pattern.compile("^("
+		+ Hawthorn.REGEXP_USERCHANNEL + ") \"(" + Hawthorn.REGEXP_DISPLAYNAME
+		+ ")\" \"(" + Hawthorn.REGEXP_EXTRA + ")\" ("
+		+ HttpEvent.REGEXP_LONG + ")}([0-9]+)$");
 
-	private String ban, banMasked, banDisplayName;
+	private String ban, banMasked, banDisplayName, banExtra;
 	private long until;
 
 	/**
@@ -56,6 +57,7 @@ public class BanMessage extends UniqueMessage
 	 * @param user User who sent message
 	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name of user
+	 * @param extra Extra user data
 	 * @param unique A unique identifier (within channel and user) to avoid
 	 *   possibility of duplicated messages
 	 * @param ban User ID being banned
@@ -63,16 +65,19 @@ public class BanMessage extends UniqueMessage
 	 * @param banDisplayName Possible display name of user (note: this is
 	 *   not used to identify the user, only to display information about the
 	 *   ban to other users; it can be any text)
+	 * @param banExtra Possible extra user data (also not used to identify)
 	 * @param until Time they're banned until
 	 */
 	BanMessage(long time, String channel, String ip, String user,
-		String userMasked, String displayName, String unique, String ban, String banMasked,
-		String banDisplayName, long until)
+		String userMasked, String displayName, String extra, String unique,
+		String ban, String banMasked, String banDisplayName, String banExtra,
+		long until)
 	{
-		super(time, channel, ip, user, userMasked, displayName, unique);
+		super(time, channel, ip, user, userMasked, displayName, extra, unique);
 		this.ban = ban;
 		this.banMasked = banMasked;
 		this.banDisplayName = banDisplayName;
+		this.banExtra = banExtra;
 		this.until = until;
 	}
 
@@ -88,6 +93,12 @@ public class BanMessage extends UniqueMessage
 		return banDisplayName;
 	}
 
+	/** @return Banned user's extra data */
+	public String getBanExtra()
+	{
+		return banExtra;
+	}
+
 	/** @return Time user is banned until */
 	public long getUntil()
 	{
@@ -95,16 +106,18 @@ public class BanMessage extends UniqueMessage
 	}
 
 	@Override
-	protected String getExtraJS(boolean trusted)
+	protected String getAdditionalJS(boolean trusted)
 	{
 		return ",ban:'" + (trusted ? ban : banMasked) + "',banDisplayName:'"
-			+ JS.esc(banDisplayName) + "',until:" + until;
+			+ JS.esc(banDisplayName) + "',banExtra:'" + JS.esc(banExtra)
+			+ "',until:" + until;
 	}
 
 	@Override
-	protected String getExtra()
+	protected String getAdditionalLog()
 	{
-		return " " + ban + " \"" + banDisplayName + "\" " + until;
+		return " " + ban + " \"" + banDisplayName + "\" \"" + banExtra
+			+ "\" " + until;
 	}
 
 	@Override
@@ -119,25 +132,27 @@ public class BanMessage extends UniqueMessage
 	 * @param ip IP address of user
 	 * @param user User who sent message
 	 * @param displayName Display name of user
-	 * @param extra Bit that goes after all this in the text
+	 * @param extra Extra user data
+	 * @param additional Bit that goes after all this in the text
 	 * @param app Hawthorn app object
 	 * @return New message
 	 * @throws IllegalArgumentException If the 'extra' value does not match
 	 *   expected pattern
 	 */
 	public static BanMessage parseMessage(long time, String channel, String ip,
-		String user, String displayName, String extra, Hawthorn app)
+		String user, String displayName, String extra, String additional,
+		Hawthorn app)
 		throws IllegalArgumentException
 	{
-		Matcher m = REGEXP_EXTRA.matcher(extra);
+		Matcher m = REGEXP_ADDITIONAL.matcher(additional);
 		if(!m.matches())
 		{
 			throw new IllegalArgumentException("Unexpected 'extra' value");
 		}
 
 		return new BanMessage(time, channel, ip, user, app.getMaskedUser(user),
-			displayName, m.group(3), m.group(1), app.getMaskedUser(m.group(1)),
-			m.group(2), Long.parseLong(m.group(3)));
+			displayName, extra, m.group(5), m.group(1), app.getMaskedUser(m.group(1)),
+			m.group(2), m.group(3), Long.parseLong(m.group(4)));
 	}
 
 }
