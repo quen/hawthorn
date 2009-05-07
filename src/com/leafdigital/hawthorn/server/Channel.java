@@ -194,7 +194,7 @@ public class Channel extends HawthornObject
 		private UserInfo(boolean thisServer, String ip, String user,
 			String displayName, String extra)
 		{
-			super(user, displayName, extra, ip);
+			super(user, getApp().getMaskedUser(user), displayName, extra, ip);
 			System.err.println("UserInfo ["+extra+"]");
 			this.thisServer = thisServer;
 			access();

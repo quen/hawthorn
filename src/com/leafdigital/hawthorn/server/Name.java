@@ -24,17 +24,20 @@ import com.leafdigital.hawthorn.util.JS;
 /** Represents a user name in a channel. */
 public class Name
 {
-	private String user, displayName, extra, ip;
+	private String user, userMasked, displayName, extra, ip;
 
 	/**
 	 * @param user User ID
+	 * @param userMasked Masked version of user ID, for untrusted recipients
 	 * @param displayName Display name
 	 * @param extra Extra per-user data
 	 * @param ip IP address
 	 */
-	public Name(String user, String displayName, String extra, String ip)
+	public Name(String user, String userMasked, String displayName, String extra,
+		String ip)
 	{
 		this.user = user;
+		this.userMasked = userMasked;
 		this.displayName = displayName;
 		this.extra = extra;
 		this.ip = ip;
@@ -64,10 +67,14 @@ public class Name
 		return ip;
 	}
 
-	/** @return JavaScript version of name object */
-	public String getJSFormat()
+	/**
+	 * @param trusted True if user gets to see real user ID etc
+	 * @return JavaScript version of name object
+	 */
+	public String getJSFormat(boolean trusted)
 	{
-		// Does not include IP; we don't send that to users
-		return "{user:'" + user + "',displayName:'" + JS.esc(displayName) + "'}";
+		// Does not include IP; we don't send that to users, even trusted ones
+		return "{user:'" + (trusted ? user : userMasked) + "',displayName:'"
+			+ JS.esc(displayName) + "'}";
 	}
 }

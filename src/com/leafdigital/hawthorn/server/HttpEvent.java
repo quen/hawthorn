@@ -446,8 +446,8 @@ public class HttpEvent extends Event
 
 		StringBuilder output = new StringBuilder();
 		output.append("hawthorn.recentComplete(" + id + ",[");
-		long timestamp = buildMessageArray(c, recent,
-			permissionSet.contains(Permission.MODERATE), output);
+		boolean trusted = permissionSet.contains(Permission.MODERATE);
+		long timestamp = buildMessageArray(c, recent, trusted, output);
 		output.append("],[");
 		for(int i = 0; i < names.length; i++)
 		{
@@ -455,7 +455,7 @@ public class HttpEvent extends Event
 			{
 				output.append(',');
 			}
-			output.append(names[i].getJSFormat());
+			output.append(names[i].getJSFormat(trusted));
 		}
 		output.append("],");
 		output.append(timestamp);
