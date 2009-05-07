@@ -195,6 +195,7 @@ public class Channel extends HawthornObject
 			String displayName, String extra)
 		{
 			super(user, displayName, extra, ip);
+			System.err.println("UserInfo ["+extra+"]");
 			this.thisServer = thisServer;
 			access();
 		}
@@ -358,7 +359,7 @@ public class Channel extends HawthornObject
 
 				// Add to presence list
 				present.put(m.getUser(), new UserInfo(!remote, m.getIP(), m.getUser(),
-					m.getDisplayName(), m.getAdditionalLog()));
+					m.getDisplayName(), m.getExtra()));
 			}
 			else
 			{
@@ -373,7 +374,7 @@ public class Channel extends HawthornObject
 			{
 				// Add to presence list
 				present.put(m.getUser(), new UserInfo(!remote, m.getIP(), m.getUser(),
-					m.getDisplayName(), m.getAdditionalLog()));
+					m.getDisplayName(), m.getExtra()));
 			}
 			else
 			{
