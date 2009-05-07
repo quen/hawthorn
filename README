@@ -3,13 +3,10 @@ This project is not ready for use yet. When it is I will update this README.
 TODO:
 * Consider removing the 'wait' verb from code if 'poll' is adequate
 * Add basic example for PHP connector (same as JSP example).
-* Add 'extra' parameter in addition to displayname for storing arbitrary
-  host-determined extra data
 * Finish Moodle connector
   - Implement reacquire
   - Add settings for messages/names to show.
   - Make it support groups as per settings page.
-  - Customise JS to include user pictures using 'extra' feature.
 * Document JavaScript (how?).
 * Document JSP tags (how?).
 * Add installation/management documentation.
