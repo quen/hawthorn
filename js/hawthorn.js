@@ -653,7 +653,7 @@ HawthornPopup.prototype.init = function()
 
 	// Focus textbox
 	setTimeout(function() { p.textBox.focus(); },0);
-}
+};
 
 HawthornPopup.prototype.getPageParam = function(name)
 {
@@ -667,7 +667,7 @@ HawthornPopup.prototype.getPageParam = function(name)
 	{
 		throw "Window requires parameter '"+name+"'";
 	}
-}
+};
 
 HawthornPopup.prototype.reAcquire = function(continuation)
 {
@@ -684,7 +684,7 @@ HawthornPopup.prototype.reAcquire = function(continuation)
 		{
 			p.addError(error);
 		});
-}
+};
 
 HawthornPopup.prototype.handleMessages = function(messages)
 {
@@ -713,13 +713,13 @@ HawthornPopup.prototype.handleMessages = function(messages)
 				message.until, message.user == this.user);
 		}
 	}
-}
+};
 
 HawthornPopup.prototype.startPoll = function()
 {
 	var p = this;
 	setTimeout(function() { p.poll(); }, 50);
-}
+};
 
 HawthornPopup.prototype.poll = function()
 {
@@ -769,7 +769,7 @@ HawthornPopup.prototype.poll = function()
 		hawthorn.poll(this.channel, this.user, this.displayName, this.extra,
 			this.permissions, this.keyTime, this.key, this.lastTime, ok, fail);
 	}
-}
+};
 
 HawthornPopup.prototype.startWait = function()
 {
@@ -817,7 +817,7 @@ HawthornPopup.prototype.startWait = function()
 		hawthorn.wait(this.channel, this.user, this.displayName, this.extra,
 			this.permissions, this.keyTime, this.key, this.lastTime, ok, fail);
 	}
-}
+};
 
 /**
  * Sets data variables that hold the three main components (used later by
@@ -926,7 +926,7 @@ HawthornPopup.prototype.initLayout = function()
 
 	// Do layout
 	window.onresize();
-}
+};
 
 /**
  * Adds the given user to the name list (alphabetically sorted).
@@ -1011,13 +1011,13 @@ HawthornPopup.prototype.addName = function(user, displayName, extra)
 	}
 
 	this.namesArea.appendChild(newEl);
-}
+};
 
 HawthornPopup.prototype.setSelectedUser = function(selectedUser)
 {
 	this.selectedUser = selectedUser;
 	this.banButton.disabled = selectedUser == null || selectedUser == this.user;
-}
+};
 
 /**
  * Removes the given user from the name list.
@@ -1037,7 +1037,7 @@ HawthornPopup.prototype.removeName = function(user,displayName)
 	{
 		this.setSelectedUser(null);
 	}
-}
+};
 
 /**
  * Adds an entry to the message area.
@@ -1069,7 +1069,7 @@ HawthornPopup.prototype.addEntry = function(time,el)
 
 	this.mainArea.appendChild(el);
 	el.scrollIntoView();
-}
+};
 
 /**
  * Adds a newly-received message to the message area.
@@ -1086,6 +1086,7 @@ HawthornPopup.prototype.addMessage = function(time, user, displayName, extra,
 	var entry = document.createElement('div');
 	entry.className='entry say' + (self ? ' self' : '');
 	var inner = document.createElement('div');
+	entry.appendChild(inner);
 	inner.className = 'message';
 	inner.appendChild(document.createTextNode('<'));
 	var name = document.createElement('strong');
@@ -1093,10 +1094,10 @@ HawthornPopup.prototype.addMessage = function(time, user, displayName, extra,
 	name.appendChild(document.createTextNode(displayName));
 	inner.appendChild(name);
 	inner.appendChild(document.createTextNode('> ' + message));
-	entry.appendChild(inner);
+	this.addMessageExtra('SAY', extra, entry);
 	this.addEntry(time, entry);
-}
-
+};
+ 
 /**
  * Adds a newly-received join message to the message area.
  * @param time Message time (ms since 1970)
@@ -1109,15 +1110,19 @@ HawthornPopup.prototype.addJoin = function(time, user, displayName, extra, self)
 {
 	var entry = document.createElement('div');
 	entry.className='entry join' + (self ? ' self' : '');
-	entry.appendChild(document.createTextNode('\u2022 '));
+	var inner = document.createElement('div');
+	entry.appendChild(inner);
+	inner.className = 'message';
+	inner.appendChild(document.createTextNode('\u2022 '));
 	var name = document.createElement('strong');
 	name.className='name';
 	name.appendChild(document.createTextNode(displayName));
-	entry.appendChild(name);
-	entry.appendChild(document.createTextNode(this.strJoined));
+	inner.appendChild(name);
+	inner.appendChild(document.createTextNode(this.strJoined));
+	this.addMessageExtra('JOIN', extra, entry);
 	this.addEntry(time, entry);
 	this.addName(user, displayName, extra);
-}
+};
 
 /**
  * Adds a newly-received leave message to the message area.
@@ -1133,14 +1138,18 @@ HawthornPopup.prototype.addLeave = function(time, user, displayName, extra,
 	this.removeName(user, displayName);
 	var entry = document.createElement('div');
 	entry.className = 'entry leave' + (self ? ' self' : '');
-	entry.appendChild(document.createTextNode('\u2022 '));
+	var inner = document.createElement('div');
+	entry.appendChild(inner);
+	inner.className = 'message';
+	inner.appendChild(document.createTextNode('\u2022 '));
 	var name = document.createElement('strong');
 	name.className = 'name';
 	name.appendChild(document.createTextNode(displayName));
-	entry.appendChild(name);
-	entry.appendChild(document.createTextNode(this.strLeft));
+	inner.appendChild(name);
+	inner.appendChild(document.createTextNode(this.strLeft));
+	this.addMessageExtra('LEAVE', extra, entry);
 	this.addEntry(time, entry);
-}
+};
 
  /**
  * Adds a newly-received ban notice to the message area.
@@ -1157,18 +1166,45 @@ HawthornPopup.prototype.addBan = function(time, user, displayName, extra,
 {
 	var entry = document.createElement('div');
 	entry.className='entry ban' + (self ? ' self' : '');
-	entry.appendChild(document.createTextNode('\u2022 '));
+	var inner = document.createElement('div');
+	entry.appendChild(inner);
+	inner.className = 'message';
+	inner.appendChild(document.createTextNode('\u2022 '));
 	var name = document.createElement('strong');
 	name.className = 'name';
 	name.appendChild(document.createTextNode(displayName));
-	entry.appendChild(name);
-	entry.appendChild(document.createTextNode(this.strBanned));
+	inner.appendChild(name);
+	inner.appendChild(document.createTextNode(this.strBanned));
 	name = document.createElement('strong');
 	name.className = 'name';
 	name.appendChild(document.createTextNode(banDisplayName));
-	entry.appendChild(name);
+	inner.appendChild(name);
+	this.addMessageExtraBan(extra, banExtra, entry);
 	this.addEntry(time, entry);
-}
+};
+
+/**
+ * Can be overridden to put extra information into display based on the
+ * 'extra' data. Default does nothing.
+ * @param type Type of call (JOIN, LEAVE, SAY, BAN)
+ * @param extra Extra data
+ * @param entry Entry element
+ */
+HawthornPopup.prototype.addMessageExtra = function(type, extra, entry)
+{
+};
+
+/**
+ * Can be overridden to put extra information into display based on the
+ * 'extra' and 'ban extra' data. Default calls standard addMessageExtra().
+ * @param extra Extra data about user sending ban
+ * @param banExtra Extra data about banned user
+ * @param entry Entry element
+ */
+HawthornPopup.prototype.addMessageExtraBan = function(extra, banExtra, entry)
+{
+	this.addMessageExtra('BAN', extra, entry);
+};
 
 /**
  * Adds an error message to the message area.
@@ -1186,7 +1222,7 @@ HawthornPopup.prototype.addError = function(message)
 	entry.appendChild(div);
 	this.addEntry((new Date()).getTime(), entry);
 	this.mainArea.appendChild(entry);
-}
+};
 
 /**
  * Called when user types Return. Obtains text from the textbox and
@@ -1205,4 +1241,4 @@ HawthornPopup.prototype.say = function()
 		this.addError);
 	// Make it poll again real soon to get this (if polling)
 	this.pollTime = 0;
-}
+};

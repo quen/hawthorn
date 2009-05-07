@@ -56,7 +56,7 @@ class block_hawthorn extends block_base
 
 		// Get user picture URL
 		$userpic = print_user_picture($USER, $COURSE->id, NULL, 0, true, false);
-		$userpic = preg_replace('~src="([^"]*)"~', '$1', $userpic);
+		$userpic = preg_replace('~^.*src="([^"]*)".*$~', '$1', $userpic);
 
 		// Load Hawthorn library
 		// TODO This link should point to a copy of the same file, in the built

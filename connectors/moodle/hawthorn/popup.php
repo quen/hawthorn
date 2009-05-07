@@ -11,6 +11,19 @@ require_once('/Users/sam/Sites/moodle/config.php');
 <head>
 <title>Hawthorn popup</title>
 <link rel="stylesheet" type="text/css" href="hawthorn.css" />
+
+<!-- Additional styles for user pics -->
+<style type="text/css">
+.entry .message
+{
+  margin-left:65px;
+  text-indent:-25px;
+}
+.entry .userpic
+{
+  float:left;
+}
+</style>
 </head>
 <body>
 <script type="text/javascript" src="hawthorn.js"></script>
@@ -27,6 +40,25 @@ popup.strConfirmBan = '<?php print addslashes_js(get_string('popup_confirmban', 
 popup.strCloseChat = '<?php print addslashes_js(get_string('popup_closechat', 'block_hawthorn')); ?>';
 popup.strIntro = '<?php print addslashes_js(get_string('popup_intro', 'block_hawthorn')); ?>';
 popup.strBanUser = '<?php print addslashes_js(get_string('popup_banuser', 'block_hawthorn')); ?>';
+
+// Add user pictures
+popup.addMessageExtra = function(type, extra, entry)
+{
+	var div = document.createElement('div');
+	div.className = 'userpic';
+	var img = document.createElement('img');
+	div.appendChild(img);
+	img.src = extra;
+	img.alt = '';
+	if(type == 'LEAVE')
+	{
+		img.style.opacity='0.3';
+	}
+	entry.insertBefore(div, entry.firstChild);
+	div = document.createElement('div');
+	div.style.clear = 'left';
+	entry.appendChild(div);
+};
 
 popup.init();
 </script>
