@@ -309,7 +309,8 @@ class Hawthorn
 		$out .= "<a href='#' onclick=\"hawthorn.openPopup('" .
 			self::escapeJS($this->popupUrl) . "','" .
 			self::escapeJS($this->reAcquireUrl) . "','$channel'," .
-			"'$this->user','" . self::escapeJS($this->displayName) . "'," .
+			"'$this->user','" . self::escapeJS($this->displayName) . "','" .
+			self::escapeJS($this->displayName) . "'," .
 			"'{$this->permissions}',$keyTime,'$key','" . self::escapeJS($title) . "');\">\n";
 
 		// Print content
@@ -411,9 +412,13 @@ class Hawthorn
 		$out = "<ul class='hawthorn_statslinks'>\n";
 		foreach ($this->servers as $server)
 		{
-			$out .= "<li><a href='" . self::escapeXML($server) . "hawthorn/html/statistics?channel=!system&amp;" .
-				"user=_admin&amp;displayname=_&amp;keytime=$keyTime&amp;" .
-				"key=$key'>" . self::escapeXML($server) . "</a></li>\n";
+			$out .= "<li><a href='" . self::escapeXML($server) . 
+				"hawthorn/html/statistics?channel=!system&amp;user={$this->user}".
+				"&amp;displayname=" . self::escapeXML($this->displayName) . 
+				"&amp;extra=" . self::escapeXML($this->extra) .
+				"&amp;permissions={$this->permissions}&amp;keytime=$keyTime".
+				"&amp;key=$key'>" . self::escapeXML($server) .
+				"</a></li>\n";
 		}
 		$out .= "</ul>\n";
 		

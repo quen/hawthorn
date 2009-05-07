@@ -59,7 +59,10 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 		{
 			getJspContext().getOut().println(
 				"<li><a href='"+XML.esc(server.toString())+"hawthorn/html/statistics"
-				+ "?channel=!system&amp;user=_admin&amp;displayname=_&amp;keytime="
+				+ "?channel=!system&amp;user=" + init.getUser() + "&amp;displayname="
+				+ XML.esc(init.getDisplayName()) + "&amp;extra="
+				+ XML.esc(init.getExtra()) + "&amp;permissions="
+				+ Auth.getPermissions(init.getPermissionSet()) + "&amp;keytime="
 				+ time + "&amp;key=" + key + "'>"
 				+ XML.esc(server.toString()) + "</a></li>");
 		}

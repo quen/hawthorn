@@ -69,6 +69,7 @@ public class LinkToChatTag extends SimpleTagSupport
 			+ JS.escInlineAttr(init.getReAcquireUrl()) + "','"
 			+ channel + "','"
 			+ init.getUser() + "','" + JS.escInlineAttr(init.getDisplayName()) + "','"
+			+ JS.escInlineAttr(init.getExtra()) + "','"
 			+ Auth.getPermissions(init.getPermissionSet()) + "',"
 			+ time+",'" + key + "','" + JS.escInlineAttr(title) + "');\">");
 
