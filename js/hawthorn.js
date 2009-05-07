@@ -339,7 +339,7 @@ var hawthorn =
 		this.getHandler(id).failure(error);
 	},
 
-	reAcquire : function(url, channel, user, permissions, displayName, extra,
+	reAcquire : function(url, channel, user, displayName, extra, permissions,
 		continuation, failure)
 	{
 		this.handlers.push(
