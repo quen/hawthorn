@@ -75,6 +75,7 @@ class Hawthorn
 		$this->servers = $servers;
 		$this->user = $user;
 		$this->displayName = $displayName;
+		$this->extra = $extra;
 		$this->permissions = $permissions;
 		$this->jsUrl = $jsUrl;
 		$this->popupUrl = $popupUrl;
@@ -310,7 +311,7 @@ class Hawthorn
 			self::escapeJS($this->popupUrl) . "','" .
 			self::escapeJS($this->reAcquireUrl) . "','$channel'," .
 			"'$this->user','" . self::escapeJS($this->displayName) . "','" .
-			self::escapeJS($this->displayName) . "'," .
+			self::escapeJS($this->extra) . "'," .
 			"'{$this->permissions}',$keyTime,'$key','" . self::escapeJS($title) . "');\">\n";
 
 		// Print content
