@@ -925,7 +925,7 @@ HawthornPopup.prototype.initLayout = function()
 	}
 
 	// Do layout
-	window.onresize();
+	setTimeout(function() { window.onresize(); }, 0);
 };
 
 /**
