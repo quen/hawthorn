@@ -740,7 +740,15 @@ HawthornPopup.prototype.poll = function()
 		var now = (new Date()).getTime();
 		p.pollTime = now + delay;
 		p.lastTime = lastTime;
-		p.startPoll();
+		// If there's only 5 minutes until the key expires, request another
+		if(p.keyTime - lastTime < 5*60*1000)
+		{
+			p.reAcquire(function() { p.startPoll(); });
+		}
+		else
+		{
+			p.startPoll();
+		}
 	};
 	var first = function(messages,names,lastTime)
 	{
