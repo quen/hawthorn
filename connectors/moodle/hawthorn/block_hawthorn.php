@@ -7,7 +7,7 @@ class block_hawthorn extends block_base
 	function init()
 	{
 		$this->title = get_string('blockname','block_hawthorn');
-		$this->version = 2009050400;
+		$this->version = 2009050800;
 	}
 	function instance_allow_config()
 	{
@@ -50,58 +50,25 @@ class block_hawthorn extends block_base
 			return;
 		}
 
-		// Work out user permissions
-		$permissions = 'rw';
-		if(has_capability('block/hawthorn:moderate', $context))
-		{
-			$permissions .= 'm';
-		}
-		if(has_capability('block/hawthorn:admin', $context))
-		{
-			$permissions .= 'a';
-		}
-
-		// Get user picture URL
-		$userpic = print_user_picture($USER, $COURSE->id, NULL, 0, true, false);
-		$userpic = preg_replace('~^.*src="([^"]*)".*$~', '$1', $userpic);
-		
 		// Get name and message options
 		$maxmessages = isset($this->config->maxmessages)
 			? $this->config->maxmessages : HAWTHORN_DEFAULTMESSAGES;
 		$maxnames = isset($this->config->maxnames)
 			? $this->config->maxnames : HAWTHORN_DEFAULTNAMES;
 
-		// Decide key expiry (ms). Usually 1 hour, unless session timeout is lower.
-		$keyExpiry = 3600000;
-		if($CFG->sessiontimeout*1000 < $keyExpiry)
+		// Ridiculously short sessions are going to cause problems.
+		if($CFG->sessiontimeout < 10 * 60)
 		{
-			// Set expiry to session timeout (note that the JS will make a re-acquire
-			// request 5 minutes before this)
-			$keyExpiry = $CFG->sessiontimeout*1000;
-
-			// Ridiculously short sessions are going to cause problems.
-			if($CFG->sessiontimeout < 10 * 60)
-			{
-				$this->content->text = get_string('error_sessions', 'block_hawthorn');
-				return;
-			}
+			$this->content->text = get_string('error_sessions', 'block_hawthorn');
+			return;
 		}
 
 		// Load Hawthorn library.
-		// IF THIS LINE FAILS BECAUSE THE FILE IS NOT PRESENT: This is the
-		// standard PHP connector library. It is not duplicated in the source tree.
-		// The build script makes a copy of this file (connectors/php/hawthorn.php)
-		// into the Moodle block folder so that this reference works.
-		require_once($CFG->dirroot . '/blocks/hawthorn/hawthorn.php');
+		require_once($CFG->dirroot . '/blocks/hawthorn/hawthornlib.php');
 
 		// Initialise
-		$hawthorn = new hawthorn($CFG->block_hawthorn_magicnumber,
-			explode(',',$CFG->block_hawthorn_servers), hawthorn::escapeId($USER->username),
-			fullname($USER), $userpic, $permissions,
-			$CFG->wwwroot . '/blocks/hawthorn/hawthorn.js',
-			$CFG->wwwroot . '/blocks/hawthorn/popup.php',
-			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php',
-			false, $keyExpiry);
+		$hawthorn = get_hawthorn($course);
+
 		// TODO Use group options
 		$channel = 'c' . $COURSE->id;
 		$this->content->text = '';

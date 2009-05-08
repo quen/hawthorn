@@ -5,7 +5,6 @@ TODO:
 * Add basic example for PHP connector (same as JSP example).
 * Finish Moodle connector
   - Make it support groups as per settings page.
-  - Add a link to the statistics page(s) from global settings.
 * Document JavaScript (how?).
 * Document JSP tags (how?).
 * Add installation/management documentation.

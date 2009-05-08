@@ -15,6 +15,7 @@ $string['configmagicnumber'] = 'A number used to authorise Hawthorn system
 $string['servers'] = 'Hawthorn server URLs';
 $string['configservers'] = 'The URL of the Hawthorn server, ending in a /.
   Use a comma-separated list if you have multiple servers.';
+$string['statisticsheading'] = 'Hawthorn server statistics';
 
 // Instance settings
 $string['mode'] = 'Chat with';
