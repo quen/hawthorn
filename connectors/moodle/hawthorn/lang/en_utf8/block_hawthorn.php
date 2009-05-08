@@ -51,4 +51,10 @@ $string['popup_intro'] = 'To chat, type messages in the textbox and press ' .
   'Return to send.';
 $string['popup_banuser'] = 'Ban user';
 
+// Errors
+$string['error_invalid'] = 'Invalid parameters';
+$string['error_sessions'] = 'Your Moodle session timeout is set very low. '.
+	'Hawthorn requires session timeouts of at least 15 minutes. Please increase '.
+	'the session timeout (admin option <strong>sessiontimeout</strong>) in '.
+	'order to use Hawthorn chat.';
 ?>

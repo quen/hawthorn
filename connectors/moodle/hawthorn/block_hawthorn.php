@@ -29,13 +29,8 @@ class block_hawthorn extends block_base
 			return;
 		}
 		$this->content = new stdClass;
-		// Check access
-		$context = get_context_instance(CONTEXT_BLOCK, $this->instance->id);
-		if (!has_capability('block/hawthorn:chat', $context))
-		{
-			// Don't show block at all
-			return;
-		}
+		$this->content->footer = '';
+
 		// Get course object
 		global $USER, $CFG, $COURSE;
 		if ($this->instance->pageid == $COURSE->id)
@@ -46,6 +41,15 @@ class block_hawthorn extends block_base
 		{
 			$course = get_record('course', 'id', $this->instance->pageid);
 		}
+
+		// Check access
+		$context = get_context_instance(CONTEXT_COURSE, $course->id);
+		if (!has_capability('block/hawthorn:chat', $context))
+		{
+			// Don't show block at all
+			return;
+		}
+
 		// Work out user permissions
 		$permissions = 'rw';
 		if(has_capability('block/hawthorn:moderate', $context))
@@ -67,10 +71,28 @@ class block_hawthorn extends block_base
 		$maxnames = isset($this->config->maxnames)
 			? $this->config->maxnames : HAWTHORN_DEFAULTNAMES;
 
-		// Load Hawthorn library
-		// TODO This link should point to a copy of the same file, in the built
-		// version.
-		require_once(dirname(__FILE__) . '/../../php/hawthorn.php');
+		// Decide key expiry (ms). Usually 1 hour, unless session timeout is lower.
+		$keyExpiry = 3600000;
+		if($CFG->sessiontimeout*1000 < $keyExpiry)
+		{
+			// Set expiry to session timeout (note that the JS will make a re-acquire
+			// request 5 minutes before this)
+			$keyExpiry = $CFG->sessiontimeout*1000;
+
+			// Ridiculously short sessions are going to cause problems.
+			if($CFG->sessiontimeout < 10 * 60)
+			{
+				$this->content->text = get_string('error_sessions', 'block_hawthorn');
+				return;
+			}
+		}
+
+		// Load Hawthorn library.
+		// IF THIS LINE FAILS BECAUSE THE FILE IS NOT PRESENT: This is the
+		// standard PHP connector library. It is not duplicated in the source tree.
+		// The build script makes a copy of this file (connectors/php/hawthorn.php)
+		// into the Moodle block folder so that this reference works.
+		require_once($CFG->dirroot . '/blocks/hawthorn/hawthorn.php');
 
 		// Initialise
 		$hawthorn = new hawthorn($CFG->block_hawthorn_magicnumber,
@@ -78,7 +100,8 @@ class block_hawthorn extends block_base
 			fullname($USER), $userpic, $permissions,
 			$CFG->wwwroot . '/blocks/hawthorn/hawthorn.js',
 			$CFG->wwwroot . '/blocks/hawthorn/popup.php',
-			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php');
+			$CFG->wwwroot . '/blocks/hawthorn/reacquire.php',
+			false, $keyExpiry);
 		// TODO Use group options
 		$channel = 'c' . $COURSE->id;
 		$this->content->text = '';
@@ -94,7 +117,6 @@ class block_hawthorn extends block_base
 			  get_string('loading', 'block_hawthorn'),
 				get_string('noscript', 'block_hawthorn'));
 		}
-		$this->content->footer = '';
   }
 }
 ?>
