@@ -1,4 +1,7 @@
 <?php
+define('HAWTHORN_DEFAULTMESSAGES', 3);
+define('HAWTHORN_DEFAULTNAMES', 5);
+
 class block_hawthorn extends block_base
 {
 	function init()
@@ -57,6 +60,12 @@ class block_hawthorn extends block_base
 		// Get user picture URL
 		$userpic = print_user_picture($USER, $COURSE->id, NULL, 0, true, false);
 		$userpic = preg_replace('~^.*src="([^"]*)".*$~', '$1', $userpic);
+		
+		// Get name and message options
+		$maxmessages = isset($this->config->maxmessages)
+			? $this->config->maxmessages : HAWTHORN_DEFAULTMESSAGES;
+		$maxnames = isset($this->config->maxnames)
+			? $this->config->maxnames : HAWTHORN_DEFAULTNAMES;
 
 		// Load Hawthorn library
 		// TODO This link should point to a copy of the same file, in the built
@@ -76,11 +85,15 @@ class block_hawthorn extends block_base
 		$this->content->text .= $hawthorn->linkToChat($channel,
 			get_string('coursechat', 'block_hawthorn', $COURSE->shortname),
 			get_string('coursechatlink', 'block_hawthorn', $COURSE->shortname));
-		$this->content->text .= $hawthorn->recent($channel, 3, 900000, 5, 3,
-		  get_string('recent', 'block_hawthorn'),
-		  get_string('names', 'block_hawthorn'),
-		  get_string('loading', 'block_hawthorn'),
-			get_string('noscript', 'block_hawthorn'));
+		if($maxmessages>0 || $maxnames>0)
+		{
+			$this->content->text .= $hawthorn->recent($channel, $maxmessages, 900000,
+				$maxnames, 3,
+			  get_string('recent', 'block_hawthorn'),
+			  get_string('names', 'block_hawthorn'),
+			  get_string('loading', 'block_hawthorn'),
+				get_string('noscript', 'block_hawthorn'));
+		}
 		$this->content->footer = '';
   }
 }

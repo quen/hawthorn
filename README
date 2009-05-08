@@ -5,7 +5,6 @@ TODO:
 * Add basic example for PHP connector (same as JSP example).
 * Finish Moodle connector
   - Implement reacquire
-  - Add settings for messages/names to show.
   - Make it support groups as per settings page.
 * Document JavaScript (how?).
 * Document JSP tags (how?).

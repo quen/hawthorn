@@ -39,6 +39,36 @@ if($groupings)
 </tr>
 
 <?php
+// Names/messages to show
+$messageoptions = array ( 0 => get_string('nomessages', 'block_hawthorn'),
+	1 => get_string('one_message', 'block_hawthorn') );
+foreach(array(2,3,4,5,6,7) as $number)
+{
+	$messageoptions[$number] = get_string('n_messages', 'block_hawthorn', $number);
+}
+$currentmessages = isset($this->config->maxmessages)
+	? $this->config->maxmessages : HAWTHORN_DEFAULTMESSAGES;
+
+$nameoptions = array ( 0 => get_string('nonames', 'block_hawthorn') );
+foreach(array(3,5,10) as $number)
+{
+	$nameoptions[$number] = get_string('n_names', 'block_hawthorn', $number);
+}
+$currentnames = isset($this->config->maxnames)
+	? $this->config->maxnames : HAWTHORN_DEFAULTNAMES;
+?>
+
+<tr valign="top">
+    <td align="right"><?php print_string('showmessages', 'block_hawthorn'); ?>:</td>
+    <td><?php choose_from_menu($messageoptions, 'maxmessages', $currentmessages, ''); ?></td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string('shownames', 'block_hawthorn'); ?>:</td>
+    <td><?php choose_from_menu($nameoptions, 'maxnames', $currentnames, ''); ?></td>
+</tr>
+
+<?php
 }
 ?>
 

@@ -21,6 +21,13 @@ $string['mode'] = 'Chat with';
 $string['mode_course'] = 'Entire course';
 $string['mode_group'] = 'Own group';
 $string['mode_both'] = 'Course or group';
+$string['showmessages'] = 'Show recent messages';
+$string['nomessages'] = 'Do not display messages';
+$string['one_message'] = 'Up to 1 message';
+$string['n_messages'] = 'Up to $a messages';
+$string['shownames'] = 'Show users present';
+$string['nonames'] = 'Do not display names';
+$string['n_names'] = 'Up to $a names';
 
 // Main text
 $string['coursechat'] = '$a: Chat';
