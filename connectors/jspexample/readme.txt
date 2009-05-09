@@ -10,9 +10,12 @@ Requirements
                         |                         |
                         +-------------------------+
 
+-> THIS IS ONLY AN EXAMPLE! Do not deploy this test on a production server! 
+   It allows full access to a Hawthorn chat channel, without any authentication.
+
 -> You need to make a change to server configuration if you are using Tomcat,
    and probably also for other application servers!
-   
+
 -> I haven't found any way to make this change at webapp level. It needs to
    be changed at server level.
 
@@ -26,12 +29,12 @@ Instructions are for 6.x.
 
 2) Look for the <Connector> tag or tags. (If there's more than one, change
    them all.)
-   
+
 3) The tag has many attributes such as port, protocol, etc. Add the following 
    new attribute into the tag:
 
    URIEncoding="UTF-8"
-   
+
 If you don't do this, the system will break (most likely during the re-acquire
 process, so it might not be immediately obvious) if anyone has a display name
 with any non-ASCII characters (such as an accented letter). Since display names
@@ -44,16 +47,16 @@ requests, but (at least in Tomcat) this doesn't work for GET requests - it
 must be set at the server level.
 
 
-How to connect your JSP application to Hawthorn
------------------------------------------------
+How to install this example
+---------------------------
 
-1) Include tag library (hawthorn.taglib.jar) in your application's WEB-INF/lib.
+1) If your server does not already have them installed elsewhere, add these
+   standard JSTL files:
 
-2) Add code using this library to the page where you want to provide a link
-   to chat. (See example/test.jsp)
-   
-3) Create a new script for Hawthorn chat to use when keys run out; this must
-   checks that a user is authenticated, and if so, provide them with a new
-   key. (See example/reacquire.jsp)
-   
-Detailed information can be found in the system manual.
+   jstl.jar
+   standard.jar
+
+   into the WEB-INF/lib folder.
+
+2) Edit test.jsp and update the 'magicnumber' and 'servers' parameters on 
+   <hawthorn:init> so that they match your Hawthorn server settings.

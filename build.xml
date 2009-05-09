@@ -16,14 +16,12 @@
 	<!-- Output location: server jar -->
 	<property name="output-server" location="${output}/hawthorn.jar" />
 
-	<!-- Output location: tag library -->
-	<property name="output-taglib" location="${output}/hawthorn.taglib.jar" />
-
 	<!-- Init build folders -->
 	<target name="init">
 		<delete dir="${build}" />
 		<mkdir dir="${build}" />
 		<mkdir dir="${build}/classes" />
+		<delete dir="${output}" />
 		<mkdir dir="${output}" />
 	</target>
 
@@ -34,21 +32,64 @@
 		</javac>
 	</target>
 
-	<target name="taglib" depends="compile" description="Create tag library">
-		<delete file="${output-taglib}" />
-		<jar jarfile="${output-taglib}" basedir="${build}/classes"
+	<!-- Build tag library -->
+	<target name="taglib" depends="compile">
+		<jar jarfile="${output}/lib/jsp/hawthorn.taglib.jar" 
+			basedir="${build}/classes"
 			includes="com/leafdigital/hawthorn/jsp/**,com/leafdigital/hawthorn/util/**" />
 		<mkdir dir="${build}/taglib/META-INF" />
 		<copy todir="${build}/taglib/META-INF" 
 			file="src/com/leafdigital/hawthorn/jsp/taglib.tld" />
-		<jar jarfile="${output-taglib}" update="true" basedir="${build}/taglib" />
+		<jar jarfile="${output}/lib/jsp/hawthorn.taglib.jar" update="true"
+			basedir="${build}/taglib" />
+		<mkdir dir="${output}/connectors/jspexample/WEB-INF/lib"/>
+		<copy todir="${output}/connectors/jspexample/WEB-INF/lib" 
+			file="${output}/lib/jsp/hawthorn.taglib.jar"/>
 	</target>
 
-	<target name="server" depends="compile" description="Create server">
-		<jar jarfile="${output-server}" basedir="${build}/classes"
+	<!-- Build server main jar -->
+	<target name="server" depends="compile">
+		<mkdir dir="${output}/bin" />
+		<jar jarfile="${output}/bin/hawthorn.jar" basedir="${build}/classes"
 			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**" />
 	</target>
+	
+	<target name="connectors" depends="init" description="Copy connectors">
+		<!-- Copy connectors and lib folders -->
+		<mkdir dir="${output}/connectors" />
+		<copy todir="${output}/connectors">
+			<fileset dir="connectors" followsymlinks="false">
+			</fileset>
+		</copy>
+		<mkdir dir="${output}/lib" />
+		<copy todir="${output}/lib">
+			<fileset dir="lib" followsymlinks="false">
+			</fileset>
+		</copy>
+		
+		<!-- Copy duplicated files within connectors amd lib -->
+		<copy todir="${output}/lib/jsp">
+			<fileset dir="js"/>
+		</copy>
+		<copy todir="${output}/lib/html">
+			<fileset dir="js"/>
+		</copy>
+		<copy todir="${output}/lib/php">
+			<fileset dir="js"/>
+		</copy>
+		<copy todir="${output}/connectors/jspexample">
+			<fileset dir="js"/>
+		</copy>
+		<copy todir="${output}/connectors/moodle/hawthorn"
+			file="lib/php/hawthorn.php"/>
+		<copy todir="${output}/connectors/moodle/hawthorn">
+			<fileset dir="js">
+				<exclude name="popup.html"/>
+			</fileset>
+		</copy>
+	</target>
 
-	<target name="all" depends="server,taglib" description="Build all" />
+	<target name="all" depends="server, connectors, taglib"
+		description="Build all" />
 
 </project>
