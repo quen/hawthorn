@@ -402,6 +402,7 @@ public class LoadTest
 			countEvents = 0;
 			countErrors = 0;
 			countExceptions = 0;
+			eventTime = 0;
 		}
 		long start = System.currentTimeMillis();
 
