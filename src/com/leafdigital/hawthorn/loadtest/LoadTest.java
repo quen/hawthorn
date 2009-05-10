@@ -90,7 +90,7 @@ public class LoadTest
 {
 	private final static int REQUIRED = -1;
 
-	private final static long WARMUP_TIME = 5000;
+	private final static long WARMUP_TIME = 20000;
 
 	private String magicNumber, host;
 	private int drivebys, users, minutes, siteUsers, channels, sessionMinutes,
@@ -337,7 +337,7 @@ public class LoadTest
 		System.out.println("User sessions (minutes)," + sessionMinutes);
 		System.out.println("Say delay (seconds)," + saySeconds);
 		System.out.println("Message length (characters)," + messageLength);
-		System.out.println("Chance of clean leave (%)," + saySeconds);
+		System.out.println("Chance of clean leave (%)," + leaveChance);
 
 		System.out.println();
 
@@ -385,7 +385,8 @@ public class LoadTest
 		}
 
 		// Wait for warmup period
-		System.err.println("Beginning test (warmup)...");
+		System.err.println("Beginning test (" + (WARMUP_TIME / 1000)
+			+ " second warmup)...");
 		try
 		{
 			Thread.sleep(endWarmupTime - System.currentTimeMillis());
