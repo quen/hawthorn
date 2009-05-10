@@ -54,6 +54,16 @@
 			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**" />
 	</target>
 	
+	<!-- Build load test jar -->
+	<target name="loadtest" depends="server">
+		<jar jarfile="${output}/bin/hawthorn.loadtest.jar" basedir="${build}/classes"
+			includes="com/leafdigital/hawthorn/loadtest/**,com/leafdigital/hawthorn/util/**">
+			<manifest>
+				<attribute name="Main-Class" value="com.leafdigital.hawthorn.loadtest.LoadTest"/>
+			</manifest>
+		</jar>
+	</target>
+
 	<target name="connectors" depends="init" description="Copy connectors">
 		<!-- Copy connectors and lib folders -->
 		<mkdir dir="${output}/connectors" />
@@ -89,7 +99,13 @@
 		</copy>
 	</target>
 
-	<target name="all" depends="server, connectors, taglib"
+	<!-- Build javadoc -->
+	<target name="javadoc">
+		<mkdir dir="${output}/doc/api" />
+		<javadoc sourcepath="src" destdir="${output}/doc/api" classpath="${jspapi}"/>
+	</target>
+
+	<target name="all" depends="server, loadtest, connectors, taglib, javadoc"
 		description="Build all" />
 
 </project>
