@@ -460,11 +460,13 @@ public class LoadTest
 			}
 		}
 
+		int totalSeconds = (int)((System.currentTimeMillis() - start) / 1000L);
+
 		double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
 		System.out.println();
-		System.out.println("Events,Errors,Exceptions,Event mean");
-		System.out.println(countEvents + "," + countErrors + "," + countExceptions
-			 + "," + nf.format(meanTime));
+		System.out.println("Events,Events/s,Errors,Exceptions,Event mean");
+		System.out.println(countEvents + "," + countEvents/totalSeconds + ","
+			+ countErrors + "," + countExceptions + "," + nf.format(meanTime));
 	}
 
 	private static String pad(int length, String string)
