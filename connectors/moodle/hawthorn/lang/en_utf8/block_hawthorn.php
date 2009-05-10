@@ -31,8 +31,12 @@ $string['nonames'] = 'Do not display names';
 $string['n_names'] = 'Up to $a names';
 
 // Main text
+$string['courseheading'] = 'Course chat';
 $string['coursechat'] = '$a: Chat';
 $string['coursechatlink'] = 'Open chat for $a';
+$string['groupheading'] = 'Group chat';
+$string['groupchat'] = '$a->course: Chat - $a->group';
+$string['groupchatlink'] = 'Open chat for $a';
 $string['loading'] = '(Loading chat information, please wait...)';
 $string['noscript'] = '(Chat features are not available because
 	JavaScript is disabled.)';

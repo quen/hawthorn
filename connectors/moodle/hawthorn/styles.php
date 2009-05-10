@@ -3,6 +3,24 @@
   font-size:100%;
 	margin:0 0 0.5em;
 }
+.block_hawthorn h4
+{
+  font-size:100%;
+	margin:0 0 0.5em;
+	font-weight:normal;
+	font-style:italic;
+}
+.block_hawthorn .hawthorn_secondheading
+{
+	margin-top:0.7em;
+	border-top:1px solid #ddd;
+	padding-top:0.5em;
+}
+#hawthorngroupselector
+{
+  display:block;
+	margin: 0.5em 0;
+}
 .hawthorn_recent_messages ul,
 .hawthorn_recent_names ul
 {

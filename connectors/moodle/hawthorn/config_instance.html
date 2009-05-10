@@ -11,7 +11,8 @@ if($groups)
 	$modeoptions['group'] = get_string('mode_group', 'block_hawthorn');
 	$modeoptions['both'] = get_string('mode_both', 'block_hawthorn');
 }
-$currentmode = isset($this->config->mode) ? $this->config->mode : 'course';
+$currentmode = isset($this->config->mode)
+	? $this->config->mode : HAWTHORN_DEFAULTMODE;
 ?>
 
 <tr valign="top">

@@ -1,1 +1,1 @@
-/Users/sam/Documents/workspace/hawthorn/connectors/php/hawthorn.php
+../../../lib/php/hawthorn.php

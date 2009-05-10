@@ -1,8 +1,5 @@
 <?php
-// TODO This is a temporary fix so I can run code from a symlink. It obviously
-// needs to be removed once code is ready.
-require_once('/Users/sam/Sites/moodle/config.php');
-//require_once('../../config.php');
+require_once('../../config.php');
 ?>
 <!DOCTYPE html
 	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
