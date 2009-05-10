@@ -98,6 +98,8 @@ public class LoadTest
 
 	private long keyTime, endWarmupTime;
 
+	private boolean leaveError, pollError, recentError, sayError;
+
 	private int countEvents, countExceptions, countErrors;
 	private long eventTime;
 	private Object countSynch = new Object();
@@ -465,9 +467,10 @@ public class LoadTest
 
 		double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
 		System.out.println();
-		System.out.println("Events,Events/s,Errors,Exceptions,Event mean");
-		System.out.println(countEvents + "," + countEvents/totalSeconds + ","
-			+ countErrors + "," + countExceptions + "," + nf.format(meanTime));
+		System.out.println("Events,Seconds,Events/s,Errors,Exceptions,Event mean");
+		System.out.println(countEvents + "," + totalSeconds + ","
+			+ countEvents/totalSeconds + "," + countErrors + "," + countExceptions
+			+ "," + nf.format(meanTime));
 	}
 
 	private static String pad(int length, String string)
@@ -723,6 +726,11 @@ public class LoadTest
 		{
 			synchronized(countSynch)
 			{
+				if(!recentError)
+				{
+					System.out.println("RECENT error (first): "+result);
+					recentError = true;
+				}
 				countErrors++;
 			}
 			return getFailedResult();
@@ -756,6 +764,11 @@ public class LoadTest
 		{
 			synchronized(countSynch)
 			{
+				if(!pollError)
+				{
+					System.out.println("RECENT error (first): "+result);
+					pollError = true;
+				}
 				countErrors++;
 			}
 			return getFailedResult();
@@ -789,6 +802,11 @@ public class LoadTest
 		{
 			synchronized(countSynch)
 			{
+				if(!sayError)
+				{
+					System.out.println("SAY error (first): "+result);
+					sayError = true;
+				}
 				countErrors++;
 			}
 		}
@@ -813,6 +831,11 @@ public class LoadTest
 		{
 			synchronized(countSynch)
 			{
+				if(!leaveError)
+				{
+					System.out.println("LEAVE error (first): "+result);
+					leaveError = true;
+				}
 				countErrors++;
 			}
 		}
