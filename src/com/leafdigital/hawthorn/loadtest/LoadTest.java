@@ -73,6 +73,8 @@ import com.leafdigital.hawthorn.util.Auth.Permission;
  * <dd>Average length of a chat session before the window is closed. Default: 10.</dd>
  * <dt>sayseconds</dt>
  * <dd>Average number of seconds between each user saying something. Default: 60.</dd>
+ * <dt>messagelength</dt>
+ * <dd>Average length in characters of a message. Default: 40.</dd>
  * <dt>leavechance</dt>
  * <dd>Percentage chance that a 'leave' command is sent when session ends (this
  *   only happens if the user closes the window via the link and not the X
@@ -92,7 +94,7 @@ public class LoadTest
 
 	private String magicNumber, host;
 	private int drivebys, users, minutes, siteUsers, channels, sessionMinutes,
-	  saySeconds, threads, port, leaveChance;
+	  saySeconds, threads, port, leaveChance, messageLength;
 
 	private long keyTime, endWarmupTime;
 
@@ -293,6 +295,27 @@ public class LoadTest
 		return (int)(random.nextDouble() * 2 * 60000000.0 / drivebys);
 	}
 
+	/**
+	 * @return A random message to 'say'; the message will not contain any
+	 *   characters that need to be escaped, etc
+	 */
+	public String pickMessage()
+	{
+		// Make totally random characters to include at start of message
+		// (just in case there are any caching effects)
+		StringBuilder out = new StringBuilder(
+			Integer.toHexString(random.nextInt()));
+
+		// Pick a message length and make up the rest by adding X
+		int characters = random.nextInt(messageLength) * 2;
+		for(int done = out.length(); done < characters; done++)
+		{
+			out.append('X');
+		}
+
+		return out.toString();
+	}
+
 	private void test()
 	{
 		// Display initial stuff
@@ -469,6 +492,7 @@ public class LoadTest
 			t.saySeconds = getIntParameter(args, "sayseconds", 60, 1);
 			t.leaveChance = getIntParameter(args, "leavechance", 30, 0);
 			t.threads = getIntParameter(args, "threads", 1+Math.max(t.users/100, t.drivebys/250), 1);
+			t.messageLength = getIntParameter(args, "messagelength", 40, 10);
 		}
 		catch(IllegalArgumentException e)
 		{
@@ -735,9 +759,8 @@ public class LoadTest
 	 */
 	public void doSay(String parameters, int thread, int unique)
 	{
-		String result = getResult(
-			"/hawthorn/say?message=Load%20testing%20chat&id=1&unique="+unique, parameters,
-			thread);
+		String result = getResult("/hawthorn/say?message=" + pickMessage()
+			+ "&id=1&unique="+unique, parameters, thread);
 		if(result == null)
 		{
 			// Handle failure gracefully so user can keep on keeping on
