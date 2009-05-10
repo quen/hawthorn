@@ -127,7 +127,7 @@ public final class HttpServer extends HawthornObject
 					synchronized(timeLogSynch)
 					{
 						int total = timeBusy + timeInSelect;
-						int percent = (timeBusy*100 + total/2) / total;
+						int percent = total==0 ? 0 : (timeBusy*100 + total/2) / total;
 						timeBusy = 0;
 						timeInSelect = 0;
 						return percent;
