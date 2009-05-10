@@ -37,6 +37,8 @@ public class ActiveUser implements EventSource
 
 	private long[] nextType = new long[4];
 
+	private int unique = 0;
+
 	/**
 	 * @param test Load test
 	 */
@@ -114,7 +116,7 @@ public class ActiveUser implements EventSource
 	private void doSay(int threadIndex)
 	{
 		nextType[SAY] = System.currentTimeMillis() + test.pickSayPause();
-		test.doSay(parameters, threadIndex);
+		test.doSay(parameters, threadIndex, unique++);
 	}
 
 	private void doClose(int threadIndex)

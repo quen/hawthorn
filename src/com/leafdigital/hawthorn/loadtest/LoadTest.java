@@ -42,44 +42,44 @@ import com.leafdigital.hawthorn.util.Auth.Permission;
  * Command line arguments are all of the form name=value (no spaces).
  * <h3>Required parameters</h3>
  * <dl>
- * <dd>host</dd>
- * <dt>Server's host address</dt>
- * <dd>magicnumber</dd>
- * <dt>Server's magic number</dt>
- * <dd>drivebys</dd>
- * <dt>Number of users per minute who view pages that require a Hawthorn
- *   getRecent call</dt>
- * <dd>users</dd>
- * <dt>Number of simulated active Hawthorn chat users who simultaneously
- *   have a Hawthorn chat popup open</dt>
+ * <dt>host</dt>
+ * <dd>Server's host address</dd>
+ * <dt>magicnumber</dt>
+ * <dd>Server's magic number</dd>
+ * <dt>drivebys</dt>
+ * <dd>Number of users per minute who view pages that require a Hawthorn
+ *   getRecent call</dd>
+ * <dt>users</dt>
+ * <dd>Number of simulated active Hawthorn chat users who simultaneously
+ *   have a Hawthorn chat popup open</dd>
  * </dl>
  * <h3>Optional parameters</h3>
  * <p>When these parameters set averages for random numbers, the actual value
  * usually varies from 0 to 2 * average.</p>
  * <dl>
- * <dd>port</dd>
- * <dt>Server's port number. Default: 13370.</dt>
- * <dd>minutes</dd>
- * <dt>The test runs for this many minutes before ending and displaying
+ * <dt>port</dt>
+ * <dd>Server's port number. Default: 13370.</dd>
+ * <dt>minutes</dt>
+ * <dd>The test runs for this many minutes before ending and displaying
  *   summary results. (Temporary information displayed during the test is
  *   sent to System.err; the final results are sent to System.out, so you
- *   can redirect them separately.) Default: 5.</dt>
- * <dd>siteusers</dd>
- * <dt>Size of pool that the driveby and active users are picked from. Default:
- *   max ( users * 10, drivebys * 10)</dt>
- * <dd>channels</dd>
- * <dt>Number of chat channels in use. Default: users / 10 (min 1).</dt>
- * <dd>sessionminutes</dd>
- * <dt>Average length of a chat session before the window is closed. Default: 10.</dt>
- * <dd>sayseconds</dd>
- * <dt>Average number of seconds between each user saying something. Default: 60.</dt>
- * <dd>leavechance</dd>
- * <dt>Percentage chance that a 'leave' command is sent when session ends (this
+ *   can redirect them separately.) Default: 5.</dd>
+ * <dt>siteusers</dt>
+ * <dd>Size of pool that the driveby and active users are picked from. Default:
+ *   max ( users * 10, drivebys * 10)</dd>
+ * <dt>channels</dt>
+ * <dd>Number of chat channels in use. Default: users / 10 (min 1).</dd>
+ * <dt>sessionminutes</dt>
+ * <dd>Average length of a chat session before the window is closed. Default: 10.</dd>
+ * <dt>sayseconds</dt>
+ * <dd>Average number of seconds between each user saying something. Default: 60.</dd>
+ * <dt>leavechance</dt>
+ * <dd>Percentage chance that a 'leave' command is sent when session ends (this
  *   only happens if the user closes the window via the link and not the X
- *   button). Default: 30</dt>
- * <dd>threads</dd>
- * <dt>Number of work threads used by the load-tester. Default:
- *   max(drivebys/250, users/100) + 1.</dt>
+ *   button). Default: 30</dd>
+ * <dt>threads</dt>
+ * <dd>Number of work threads used by the load-tester. Default:
+ *   max(drivebys/250, users/100) + 1.</dd>
  * </dl>
  * If you want to watch the simulation in action, connect to the Hawthorn server
  * in channel "loadtestchan0" (or another such number).
@@ -129,8 +129,8 @@ public class LoadTest
 		private SiteUser(String name)
 		{
 			this.name = name;
-			parameters = "&user=" + name + "&displayname=" +name +
-			  "&keytime=" + keyTime;
+			parameters = "&user=" + name + "&displayname=" +name
+			  + "&keytime=" + keyTime + "&extra=&permissions=rw";
 		}
 
 		/**
@@ -731,11 +731,12 @@ public class LoadTest
 	 * Executes the server 'say' command.
 	 * @param parameters Channel, user, and authentication URL params
 	 * @param thread Index of thread
+	 * @param unique Unique identifier (for this user)
 	 */
-	public void doSay(String parameters, int thread)
+	public void doSay(String parameters, int thread, int unique)
 	{
 		String result = getResult(
-			"/hawthorn/say?message=Load%20testing%20chat&id=1", parameters,
+			"/hawthorn/say?message=Load%20testing%20chat&id=1&unique="+unique, parameters,
 			thread);
 		if(result == null)
 		{
