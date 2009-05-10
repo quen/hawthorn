@@ -51,7 +51,11 @@
 	<target name="server" depends="compile">
 		<mkdir dir="${output}/bin" />
 		<jar jarfile="${output}/bin/hawthorn.jar" basedir="${build}/classes"
-			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**" />
+			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**">
+			<manifest>
+				<attribute name="Main-Class" value="com.leafdigital.hawthorn.server.Hawthorn"/>
+			</manifest>
+		</jar>
 	</target>
 	
 	<!-- Build load test jar -->
