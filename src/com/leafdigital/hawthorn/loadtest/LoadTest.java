@@ -321,14 +321,33 @@ public class LoadTest
 		// Display initial stuff
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd,kk:mm");
 		System.out.println("Hawthorn load test,"+sdf.format(new Date()));
+		System.out.println("Host," + host);
+		System.out.println("Port," + port);
+		System.out.println("Test minutes," + minutes);
 		System.out.println();
+
+		// Important parameters
+		System.out.println("Active users," + users);
+		System.out.println("Drivebys per minute," + drivebys);
+		System.out.println();
+
+		// Other parameters
+		System.out.println("User pool," + siteUsers);
+		System.out.println("Channel pool," + channels);
+		System.out.println("User sessions (minutes)," + sessionMinutes);
+		System.out.println("Say delay (seconds)," + saySeconds);
+		System.out.println("Message length (characters)," + messageLength);
+		System.out.println("Chance of clean leave (%)," + saySeconds);
+
+		System.out.println();
+
+		System.out.println("Threads," + threads);
 
 		// Initialise key time
 		long now = System.currentTimeMillis();
 		keyTime = now + (minutes+1) * 60000L;
 
 		// Initialise user pool
-		System.out.println("User pool," + siteUsers);
 		userPool = new SiteUser[siteUsers];
 		for(int i=0; i<siteUsers; i++)
 		{
@@ -336,7 +355,6 @@ public class LoadTest
 		}
 
 		// Initialise channels
-		System.out.println("Channel pool," + channels);
 		channelPool = new String[channels];
 		for(int i=0; i<channels; i++)
 		{
@@ -344,7 +362,6 @@ public class LoadTest
 		}
 
 		// Initialise active users
-		System.out.println("Active users," + users);
 		activeUsers = new ActiveUser[users];
 		for(int i=0; i<users; i++)
 		{
@@ -352,17 +369,14 @@ public class LoadTest
 		}
 
 		// Initialise driveby source
-		System.out.println("Drivebys per minute," + drivebys);
 		new DriveBySource(this);
 
 		// Initialise event queue
-		System.out.println("Test minutes," + minutes);
 		endWarmupTime = now + WARMUP_TIME;
 		long testEndTime = minutes * 60000L + endWarmupTime;
 		userQueue.add(new UserEvent(null, testEndTime));
 
 		// Start threads
-		System.out.println("Threads," + threads);
 		threadStatus = new char[threads];
 		for(int i=0; i<threads; i++)
 		{
