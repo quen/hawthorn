@@ -69,6 +69,14 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
+				Hawthorn extra user details
+			</description>
+			<name>extra</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>
 				Hawthorn permission string. If omitted, default is "rw".
 			</description>
 			<name>permissions</name>
