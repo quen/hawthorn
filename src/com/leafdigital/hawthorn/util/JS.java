@@ -30,7 +30,18 @@ public abstract class JS
 	 */
 	public static String esc(String text)
 	{
-		return text.replace("\\", "\\\\").replace("'", "\\'");
+		StringBuilder out = new StringBuilder(text.length()*2);
+		for(int i=0;i<text.length();i++)
+		{
+			char c=text.charAt(i);
+			switch(c)
+			{
+			case '\\' : out.append("\\\\"); break;
+			case '\'' : out.append("\\'"); break;
+			default: out.append(c); break;
+			}
+		}
+		return out.toString();
 	}
 
 	/**
@@ -41,7 +52,19 @@ public abstract class JS
 	 */
 	public static String escInlineAttr(String text)
 	{
-		return esc(text).replace("\"","'+String.fromCharCode(34)+'").replace(
-			"&","'+String.fromCharCode(38)+'");
+		StringBuilder out = new StringBuilder(text.length()*2);
+		for(int i=0;i<text.length();i++)
+		{
+			char c=text.charAt(i);
+			switch(c)
+			{
+			case '\\' : out.append("\\\\"); break;
+			case '\'' : out.append("\\'"); break;
+			case '"' : out.append("'+String.fromCharCode(34)+'"); break;
+			case '&' : out.append("'+String.fromCharCode(38)+'"); break;
+			default: out.append(c); break;
+			}
+		}
+		return out.toString();
 	}
 }
