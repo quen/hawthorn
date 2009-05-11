@@ -19,10 +19,10 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.util;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
-import java.util.EnumSet;
+import java.util.*;
 
 /** Calculates Hawthorn authentication keys. */
 public abstract class Auth
@@ -137,6 +137,36 @@ public abstract class Auth
 		return hash(out.toString());
 	}
 
+	private final static int CACHE_MASK = 0x7fff;
+	private static ThreadLocal<FastCache> fastCaches =
+		new ThreadLocal<FastCache>();
+
+	/**
+	 * Call to enable the thread-local hash cache. This must be called on each
+	 * thread that uses the cache. If a thread is to be discarded, call this
+	 * again to disable the cache and free space.
+	 * @param enable True to enable the cache for this thread
+	 */
+	public static void enableHashCache(boolean enable)
+	{
+		if(enable)
+		{
+			fastCaches.set(new FastCache());
+		}
+		else
+		{
+			fastCaches.set(null);
+		}
+	}
+
+	private static class FastCache
+	{
+		String[] fastCache = new String[CACHE_MASK+1];
+		String[] fastCacheValue = new String[CACHE_MASK+1];
+	}
+
+private static int cacheHit, cacheMiss;
+
 	/**
 	 * @param string String to hash
 	 * @return SHA-1 hash of strung
@@ -144,10 +174,19 @@ public abstract class Auth
 	 */
 	public static String hash(String string) throws NoSuchAlgorithmException
 	{
-		// Note: I checked getKey() for performance. It runs in about 0.1ms,
-		// compared to about 0.03ms if the results are cached in a HashMap. Since
-		// the difference is only a factor of three, I decided it wasn't worth
-		// the complexity of caching results.
+		// Try cache
+		int hashCode = -1;
+		FastCache cache = fastCaches.get();
+		if(cache!=null)
+		{
+			hashCode = string.hashCode() & CACHE_MASK;
+			if(string.equals(cache.fastCache[hashCode]))
+			{
+				cacheHit++;
+				return cache.fastCacheValue[hashCode];
+			}
+			cacheMiss++;
+		}
 
 		// Get bytes
 		byte[] hashDataBytes;
@@ -169,6 +208,98 @@ public abstract class Auth
 		{
 			sha1 = "0" + sha1;
 		}
+
+		if(cache!=null)
+		{
+			cache.fastCache[hashCode] = string;
+			cache.fastCacheValue[hashCode] = sha1;
+		}
 		return sha1;
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		String[] lines = new String[50000];
+		String[] out = new String[lines.length], out2 = new String[lines.length];
+		int[] outI = new int[lines.length];
+		BufferedReader in=new BufferedReader(new InputStreamReader(
+			new FileInputStream(System.getProperty("user.home")+"/hash.txt")));
+		for(int i=0;i<lines.length;i++)
+		{
+			lines[i]=in.readLine().replace("----LINEBREAK----","\n");
+		}
+		in.close();
+		System.err.println("Read data. "+System.getProperty("java.version"));
+
+		int loops = 1;
+
+		for(int k = 0 ; k<2 ; k++)
+		{
+			enableHashCache(false);
+			long start = System.currentTimeMillis();
+			for(int j=0;j<loops;j++)
+			{
+				for(int i=0;i<lines.length;i++)
+				{
+					out[i] = hash(lines[i]);
+				}
+			}
+			long end = System.currentTimeMillis();
+
+			System.err.println();
+			System.err.println("Random entry: "+out[(int)(Math.random()*lines.length)]);
+			System.err.println("Random entry: "+outI[(int)(Math.random()*lines.length)]);
+
+			System.err.println("Before Total time "+(end-start));
+			System.err.println("Before Time per hash "+((double)(end-start)/(double)(lines.length*loops)));
+
+			enableHashCache(true);
+			start = System.currentTimeMillis();
+			for(int j=0;j<loops;j++)
+			{
+				for(int i=0;i<lines.length;i++)
+				{
+					out2[i] = hash(lines[i]);
+				}
+			}
+			end = System.currentTimeMillis();
+
+			System.err.println();
+			System.err.println("Random entry: "+out2[(int)(Math.random()*lines.length)]);
+			System.err.println("Random entry: "+outI[(int)(Math.random()*lines.length)]);
+
+			System.err.println("After Total time "+(end-start));
+			System.err.println("After Time per hash "+((double)(end-start)/(double)(lines.length*loops)));
+
+			System.err.println("Hit %: "+((cacheHit*100.0) / (cacheHit + cacheMiss)));
+			cacheHit=0; cacheMiss =0;
+
+			Thread.sleep(1000);
+		}
+
+		for(int i=0;i<lines.length;i++)
+		{
+			if(!out[i].equals(out2[i]))
+			{
+				System.err.println("Diffrent answers!");
+				System.exit(0);
+			}
+		}
+
+		for(int i=0;i<10;i++)
+		{
+			System.gc();
+			Thread.sleep(100);
+		}
+		long withCache = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		enableHashCache(false);
+		for(int i=0;i<10;i++)
+		{
+			System.gc();
+			Thread.sleep(100);
+		}
+		long withoutCache = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+		System.err.println("Cache size "+((withCache-withoutCache)/1024)+" KB");
 	}
 }
