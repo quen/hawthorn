@@ -416,6 +416,10 @@ public class HttpEvent extends Event
 		{
 			error = "Missing or invalid maxage=";
 		}
+		else if(Integer.parseInt(maxAge) > getConfig().getHistoryTime())
+		{
+			error = "maxage= is set longer than server history time";
+		}
 		else if(!permissionSet.contains(Permission.READ))
 		{
 			error = "Must have read permission to [recent]";
