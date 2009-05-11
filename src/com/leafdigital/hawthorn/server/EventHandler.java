@@ -21,6 +21,8 @@ package com.leafdigital.hawthorn.server;
 
 import java.util.*;
 
+import com.leafdigital.hawthorn.util.Auth;
+
 /** Event handler that dispatches events from a queue to multiple threads. */
 public class EventHandler extends HawthornObject
 	implements Statistics.InstantStatisticHandler
@@ -205,6 +207,8 @@ public class EventHandler extends HawthornObject
 		@Override
 		public void run()
 		{
+			// Allow auth key caching [~1MB cost]
+			Auth.enableThreadCache(true);
 			while(true)
 			{
 				// Get next event to handle
@@ -217,6 +221,8 @@ public class EventHandler extends HawthornObject
 						if(close)
 						{
 							openThreads--;
+							// Clear auth key cache
+							Auth.enableThreadCache(false);
 							queue.notifyAll();
 							return;
 						}

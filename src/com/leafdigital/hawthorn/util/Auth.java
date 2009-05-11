@@ -137,17 +137,15 @@ public abstract class Auth
 		return hash(out.toString());
 	}
 
-	private final static int CACHE_MASK = 0x7fff;
-	private static ThreadLocal<FastCache> fastCaches =
-		new ThreadLocal<FastCache>();
-
 	/**
 	 * Call to enable the thread-local hash cache. This must be called on each
 	 * thread that uses the cache. If a thread is to be discarded, call this
 	 * again to disable the cache and free space.
+	 * According to my testing, a single thread cache takes about 1MB (on a 64-bit
+	 * system).
 	 * @param enable True to enable the cache for this thread
 	 */
-	public static void enableHashCache(boolean enable)
+	public static void enableThreadCache(boolean enable)
 	{
 		if(enable)
 		{
@@ -159,13 +157,26 @@ public abstract class Auth
 		}
 	}
 
+	/**
+	 * Number of entries to store in the hash cache (per thread).
+	 * This value must, in binary, have all its rightmost bits set to 1 (ie
+	 * after you have a 0 you can't have any 1s to the left of it).
+	 */
+	private final static int CACHE_MASK = 0x7fff;
+
+	/** Thread-local variable storing cache for each thread. */
+	private static ThreadLocal<FastCache> fastCaches =
+		new ThreadLocal<FastCache>();
+
+	/**
+	 * Cache stores names and values according to their hashCode,
+	 * bitwise AND with CACHE_MASK.
+	 */
 	private static class FastCache
 	{
-		String[] fastCache = new String[CACHE_MASK+1];
-		String[] fastCacheValue = new String[CACHE_MASK+1];
+		private String[] fastCache = new String[CACHE_MASK+1];
+		private String[] fastCacheValue = new String[CACHE_MASK+1];
 	}
-
-private static int cacheHit, cacheMiss;
 
 	/**
 	 * @param string String to hash
@@ -182,10 +193,8 @@ private static int cacheHit, cacheMiss;
 			hashCode = string.hashCode() & CACHE_MASK;
 			if(string.equals(cache.fastCache[hashCode]))
 			{
-				cacheHit++;
 				return cache.fastCacheValue[hashCode];
 			}
-			cacheMiss++;
 		}
 
 		// Get bytes
@@ -215,91 +224,5 @@ private static int cacheHit, cacheMiss;
 			cache.fastCacheValue[hashCode] = sha1;
 		}
 		return sha1;
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		String[] lines = new String[50000];
-		String[] out = new String[lines.length], out2 = new String[lines.length];
-		int[] outI = new int[lines.length];
-		BufferedReader in=new BufferedReader(new InputStreamReader(
-			new FileInputStream(System.getProperty("user.home")+"/hash.txt")));
-		for(int i=0;i<lines.length;i++)
-		{
-			lines[i]=in.readLine().replace("----LINEBREAK----","\n");
-		}
-		in.close();
-		System.err.println("Read data. "+System.getProperty("java.version"));
-
-		int loops = 1;
-
-		for(int k = 0 ; k<2 ; k++)
-		{
-			enableHashCache(false);
-			long start = System.currentTimeMillis();
-			for(int j=0;j<loops;j++)
-			{
-				for(int i=0;i<lines.length;i++)
-				{
-					out[i] = hash(lines[i]);
-				}
-			}
-			long end = System.currentTimeMillis();
-
-			System.err.println();
-			System.err.println("Random entry: "+out[(int)(Math.random()*lines.length)]);
-			System.err.println("Random entry: "+outI[(int)(Math.random()*lines.length)]);
-
-			System.err.println("Before Total time "+(end-start));
-			System.err.println("Before Time per hash "+((double)(end-start)/(double)(lines.length*loops)));
-
-			enableHashCache(true);
-			start = System.currentTimeMillis();
-			for(int j=0;j<loops;j++)
-			{
-				for(int i=0;i<lines.length;i++)
-				{
-					out2[i] = hash(lines[i]);
-				}
-			}
-			end = System.currentTimeMillis();
-
-			System.err.println();
-			System.err.println("Random entry: "+out2[(int)(Math.random()*lines.length)]);
-			System.err.println("Random entry: "+outI[(int)(Math.random()*lines.length)]);
-
-			System.err.println("After Total time "+(end-start));
-			System.err.println("After Time per hash "+((double)(end-start)/(double)(lines.length*loops)));
-
-			System.err.println("Hit %: "+((cacheHit*100.0) / (cacheHit + cacheMiss)));
-			cacheHit=0; cacheMiss =0;
-
-			Thread.sleep(1000);
-		}
-
-		for(int i=0;i<lines.length;i++)
-		{
-			if(!out[i].equals(out2[i]))
-			{
-				System.err.println("Diffrent answers!");
-				System.exit(0);
-			}
-		}
-
-		for(int i=0;i<10;i++)
-		{
-			System.gc();
-			Thread.sleep(100);
-		}
-		long withCache = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		enableHashCache(false);
-		for(int i=0;i<10;i++)
-		{
-			System.gc();
-			Thread.sleep(100);
-		}
-		long withoutCache = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-		System.err.println("Cache size "+((withCache-withoutCache)/1024)+" KB");
 	}
 }
