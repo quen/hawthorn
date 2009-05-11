@@ -81,7 +81,7 @@ import com.leafdigital.hawthorn.util.Auth.Permission;
  *   button). Default: 30</dd>
  * <dt>threads</dt>
  * <dd>Number of work threads used by the load-tester. Default:
- *   max(drivebys/250, users/100) + 1.</dd>
+ *   max(drivebys/250, users/50) + 1.</dd>
  * </dl>
  * If you want to watch the simulation in action, connect to the Hawthorn server
  * in channel "loadtestchan0" (or another such number).
@@ -347,7 +347,7 @@ public class LoadTest
 
 		// Initialise key time
 		long now = System.currentTimeMillis();
-		keyTime = now + (minutes+1) * 60000L;
+		keyTime = now + (minutes+10) * 60000L;
 
 		// Initialise user pool
 		userPool = new SiteUser[siteUsers];
@@ -413,7 +413,9 @@ public class LoadTest
 		nf.setMinimumFractionDigits(2);
 		nf.setMinimumIntegerDigits(2);
 
-		// Now display information about test every 10 seconds
+		int queueLength=0, queueCount=0;
+
+		// Now display information about test every 5 seconds
 		while(true)
 		{
 			now = System.currentTimeMillis();
@@ -437,6 +439,9 @@ public class LoadTest
 					queueDelay++;
 				}
 			}
+
+			queueLength += queueDelay;
+			queueCount++;
 
 			double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
 			System.err.print("@" + time + "s: Events " + pad(7, ""+countEvents) +
@@ -467,10 +472,11 @@ public class LoadTest
 
 		double meanTime = countEvents == 0 ? 0 : (double)eventTime / (double)countEvents;
 		System.out.println();
-		System.out.println("Events,Seconds,Events/s,Errors,Exceptions,Event mean");
+		System.out.println("Events,Seconds,Events/s,Errors,Exceptions,Event mean,Queue mean");
 		System.out.println(countEvents + "," + totalSeconds + ","
 			+ countEvents/totalSeconds + "," + countErrors + "," + countExceptions
-			+ "," + nf.format(meanTime));
+			+ "," + nf.format(meanTime) + ","
+			+ nf.format((double)queueLength/(double)queueCount));
 	}
 
 	private static String pad(int length, String string)
@@ -512,7 +518,7 @@ public class LoadTest
 			t.sessionMinutes = getIntParameter(args, "sessionminutes", 10, 1);
 			t.saySeconds = getIntParameter(args, "sayseconds", 60, 1);
 			t.leaveChance = getIntParameter(args, "leavechance", 30, 0);
-			t.threads = getIntParameter(args, "threads", 1+Math.max(t.users/100, t.drivebys/250), 1);
+			t.threads = getIntParameter(args, "threads", 1+Math.max(t.users/50, t.drivebys/250), 1);
 			t.messageLength = getIntParameter(args, "messagelength", 40, 10);
 		}
 		catch(IllegalArgumentException e)
