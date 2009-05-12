@@ -441,13 +441,21 @@ public class Configuration
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
 				"Hawthorn system startup");
 
+			long maxMemory = Runtime.getRuntime().maxMemory();
+			String maxMemoryString = maxMemory==Long.MAX_VALUE ? "unlimited" :
+				(maxMemory / (1024*1024)) +"MB";
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"Java: " + System.getProperty("java.version") +  " "
+				+ System.getProperty("java.vm.name") + " (max memory "
+				+ maxMemoryString + ")");
+
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Logs: "
 				+ logFolder + " (level "+ minLogLevel + "; deleted after "
 				+ (logDays == 0 ? "never" : logDays + " days; ")
 				+ (logChat ? "chat logged" : "chat not logged") + ")");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Poll delay scale: " + minPollTime + "-" + maxPollTime + "ms, over "
+				"Poll delay scale: " + minPollTime + "-" + maxPollTime + "ms over "
 				+ pollScaleTime + "ms");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
