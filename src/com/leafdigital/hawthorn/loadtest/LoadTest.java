@@ -90,7 +90,7 @@ public class LoadTest
 {
 	private final static int REQUIRED = -1;
 
-	private final static long WARMUP_TIME = 20000;
+	private int warmupTime;
 
 	private String magicNumber, host;
 	private int drivebys, users, minutes, siteUsers, channels, sessionMinutes,
@@ -281,6 +281,15 @@ public class LoadTest
 	}
 
 	/**
+	 * All threads start during the first half of the warmup period.
+	 * @return Random time between 0 and warmup period/2
+	 */
+	public long pickStartPause()
+	{
+		return random.nextInt(warmupTime/2);
+	}
+
+	/**
 	 * @return True if this user bothers to send a leave command before exiting
 	 *   the channel
 	 */
@@ -345,6 +354,10 @@ public class LoadTest
 
 		System.out.println("Threads," + threads);
 
+		// Warmup time: at least 20s, or long enough that only 100 users start
+		// per second (during the first half of it, = 50/s for the whole thing)
+		warmupTime = Math.max(20000, (users/50)*1000);
+
 		// Initialise key time
 		long now = System.currentTimeMillis();
 		keyTime = now + (minutes+10) * 60000L;
@@ -374,7 +387,7 @@ public class LoadTest
 		new DriveBySource(this);
 
 		// Initialise event queue
-		endWarmupTime = now + WARMUP_TIME;
+		endWarmupTime = now + warmupTime;
 		long testEndTime = minutes * 60000L + endWarmupTime;
 		userQueue.add(new UserEvent(null, testEndTime));
 
@@ -387,7 +400,7 @@ public class LoadTest
 		}
 
 		// Wait for warmup period
-		System.err.println("Beginning test (" + (WARMUP_TIME / 1000)
+		System.err.println("Beginning test (" + (warmupTime / 1000)
 			+ " second warmup)...");
 		try
 		{

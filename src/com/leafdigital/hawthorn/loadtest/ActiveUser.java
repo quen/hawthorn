@@ -55,7 +55,7 @@ public class ActiveUser implements EventSource
 		this.channel = test.pickChannel();
 		parameters = user.getParameters(channel);
 
-		long now = System.currentTimeMillis();
+		long now = System.currentTimeMillis() + test.pickStartPause();
 		nextType[REQUEST] = now;
 		nextType[POLL] = 0;
 		nextType[SAY] = now + test.pickSayPause();
