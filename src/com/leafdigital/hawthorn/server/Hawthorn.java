@@ -49,6 +49,9 @@ public class Hawthorn
 	/** Other server connections */
 	private OtherServers otherServers;
 
+	/** Statistic: current memory usage */
+	private final static String STATISTIC_MEMORY_USAGE_KB = "MEMORY_USAGE_KB";
+
 	// NOTE: The following two regexps are duplicated in JSP connector
 	// (InitTag.java) and PHP connector.
 
@@ -88,6 +91,17 @@ public class Hawthorn
 		otherServers = new OtherServers(this);
 		eventHandler = new EventHandler(this);
 		server = new HttpServer(this);
+		statistics.registerInstantStatistic(STATISTIC_MEMORY_USAGE_KB,
+			new Statistics.InstantStatisticHandler()
+			{
+				public int getValue()
+				{
+					long usedMemory = Runtime.getRuntime().totalMemory()
+						- Runtime.getRuntime().freeMemory();
+					return (int)(usedMemory/1024L);
+				}
+
+			});
 		statistics.start();
 
 		if(config.getTestKeys().size() > 0)
