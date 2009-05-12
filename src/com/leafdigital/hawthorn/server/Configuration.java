@@ -40,7 +40,7 @@ public class Configuration
 	private String magicNumber;
 	private boolean logChat = true;
 	private long historyTime = 15*60*1000;
-	private int eventThreads = 4;
+	private int eventThreads = Runtime.getRuntime().availableProcessors() + 2;
 	private int minPollTime = 2000, maxPollTime = 15000, pollScaleTime = 60000;
 	private ServerInfo[] otherServers;
 	private ServerInfo thisServer;
