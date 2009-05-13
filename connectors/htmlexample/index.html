@@ -1,7 +1,7 @@
 <!DOCTYPE html
-	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!-- 
+<!--
 Copyright 2009 Samuel Marshall
 
 This file is part of Hawthorn.
@@ -74,11 +74,11 @@ function setMessages(id, messages, names)
 		{
 		case 'SAY': text = messages[i].text; break;
 		case 'JOIN': text = "JOIN"; break;
-		case 'BAN': text = "BAN " + messages[i].ban + " (" 
+		case 'BAN': text = "BAN " + messages[i].ban + " ("
 			+ messages[i].banDisplayName + ") " + messages[i].until; break;
 		case 'LEAVE': text = "LEAVE" + (messages[i].timeout ? " (timeout)" : " (requested)"); break;
 		}
-		
+
 		ul.appendChild(li);
 		li.appendChild(document.createTextNode(
 				new Date(messages[i].time) + ' - ' +
@@ -364,7 +364,8 @@ function saveSettings()
 	value += '[keytime&'+escape(document.getElementById('keytime').value);
 	value += '[key&'+escape(document.getElementById('key').value);
 	document.cookie =
-	  'hawthornExampleSettings='+value+'; expires=Mon, 31 Dec 2012 23:59:59 UTC; path=/'		
+	  'hawthornExampleSettings=' + value +
+	  '; expires=Mon, 31 Dec 2012 23:59:59 UTC; path=/';
 }
 
 function loadSettings()
@@ -386,7 +387,7 @@ function loadSettings()
 				if(parts[j] == '') continue;
 				var split = parts[j].split('&');
 				document.getElementById(split[0]).value = unescape(split[1]);
-			}			
+			}
 		}
 	}
 }
@@ -400,7 +401,7 @@ function loadSettings()
 <p>You can use this page to test a Hawthorn installation without any
 other software. This page also demonstrates how to call the JavaScript
 functions when implementing your own connector. This is not a usable
-solution - real use of Hawthorn requires a server-side application that 
+solution - real use of Hawthorn requires a server-side application that
 handles authentication.</p>
 
 <p>To obtain keys that work with your server, use the <tt>&lt;testkey/&gt;</tt>
@@ -412,8 +413,8 @@ hour.</p>
 <ol>
 <li>Fill in the server URL in the 'Init' section.</li>
 <li>Click the 'Init connection' button.</li>
-<li>Enter channel, user ID, display name, key time, and key in the 
-'Authorisation details' section. (These should be generated using 
+<li>Enter channel, user ID, display name, key time, and key in the
+'Authorisation details' section. (These should be generated using
 <tt>&lt;testkey/&gt;</tt> as above.)</li>
 <li>Click the 'Open popup' button and start chatting.</li>
 </ol>

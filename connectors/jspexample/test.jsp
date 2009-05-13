@@ -68,21 +68,27 @@ In a real system you would fill the values in here from:
 	<server>http://192.168.0.100:13370/</server>
 </hawthorn:init>
 
-<!-- This uses a load test channel in case you want to watch a load test. -->
-<hawthorn:getAuthKey channel="loadtestchan3"/>
+<!--
+	This test uses a load test channel in case you want to watch a load
+	test.
+-->
 
+<!-- To show it working, just get the auth key and display it. -->
+<hawthorn:getAuthKey channel="loadtestchan3"/>
 <p>Ok, got past init again. Key is ${hawthornKey}, time ${hawthornKeyTime}.</p>
 
+<!-- Print JS code that causes recent messages to be displayed. -->
 <hawthorn:recent channel="loadtestchan3"/>
 
+<!-- Print link to chat in channel. -->
 <hawthorn:linkToChat channel="loadtestchan3" title="Load test channel 3">
 Chat now!
 </hawthorn:linkToChat>
 
+<!-- For admins only, print server statistics link -->
 <%
 boolean isAdmin = request.getParameter("permissions").indexOf('a') != -1;
 %>
-<!-- Only admins can see statistics -->
 <c:if test="${isAdmin}">
 <hawthorn:linkToStatistics/>
 </c:if>
@@ -103,7 +109,7 @@ Extra data (any text, may be empty)
 <input type="text" name="extra" />
 </div>
 <div>
-Permissions
+Permissions (full permissions = rwma)
 <input type="text" name="permissions" value="rw" />
 </div>
 <div>

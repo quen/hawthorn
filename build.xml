@@ -85,13 +85,18 @@
 		<copy todir="${output}/lib/jsp">
 			<fileset dir="js"/>
 		</copy>
-		<copy todir="${output}/lib/html">
+		<copy todir="${output}/connectors/htmlexample">
 			<fileset dir="js"/>
 		</copy>
 		<copy todir="${output}/lib/php">
 			<fileset dir="js"/>
 		</copy>
 		<copy todir="${output}/connectors/jspexample">
+			<fileset dir="js"/>
+		</copy>
+		<copy todir="${output}/connectors/phpexample"
+			file="lib/php/hawthorn.php"/>
+		<copy todir="${output}/connectors/phpexample">
 			<fileset dir="js"/>
 		</copy>
 		<copy todir="${output}/connectors/moodle/hawthorn"
@@ -103,13 +108,30 @@
 		</copy>
 	</target>
 
-	<!-- Build javadoc -->
-	<target name="javadoc">
-		<mkdir dir="${output}/doc/api" />
-		<javadoc sourcepath="src" destdir="${output}/doc/api" classpath="${jspapi}"/>
+	<target name="doc">
+		<!-- Build javadoc -->
+		<mkdir dir="${output}/src/javadoc" />
+		<javadoc sourcepath="src" destdir="${output}/src/javadoc"
+			classpath="${jspapi}"/>
+		
+		<!-- Copy source -->
+		<copy todir="${output}/src">
+			<fileset dir="src"/>
+		</copy>
+		
+		<!-- Copy other documentation into place -->
+		<copy tofile="${output}/bin/readme.txt" file="doc/readme.bin.txt"/>
+		<copy tofile="${output}/src/readme.txt" file="doc/readme.bin.txt"/>
+		<copy todir="${output}" file="doc/hawthorn.pdf"/>
+		<copy todir="${output}">
+			<fileset dir=".">
+				<include name="*.txt"/>
+				<include name="LICENSE"/>
+			</fileset>
+		</copy>
 	</target>
 
-	<target name="all" depends="server, loadtest, connectors, taglib, javadoc"
+	<target name="all" depends="server, loadtest, connectors, taglib, doc"
 		description="Build all" />
 
 </project>

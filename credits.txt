@@ -1,0 +1,44 @@
+Hawthorn was developed by Samuel Marshall and is (C) Copyright 2009 Samuel
+Marshall.
+
+
+Code
+----
+
+Samuel Marshall - Hawthorn system
+
+Documentation
+-------------
+
+Samuel Marshall - Hawthorn manual
+
+Artwork
+-------
+
+Samuel Marshall - Hawthorn logo
+
+
+These credits are a bit dull, aren't they? See contributions.txt if you'd like
+to contribute something and make my credits file more interesting. :)
+
+
+Tools used
+----------
+
+Java
+
+Eclipse (all development)
+
+Apache Ant (build system)
+
+Git (source control); GitHub (free hosting)
+
+OpenOffice (writing the manual)
+
+Inkscape (drawing the logo)
+
+Museo (logo typeface, also manual headings); Helvetica Neue (manual typeface)
+
+Apache Tomcat (testing JSP connector)
+
+PHP (writing and testing PHP connector)

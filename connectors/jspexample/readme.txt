@@ -47,8 +47,8 @@ requests, but (at least in Tomcat) this doesn't work for GET requests - it
 must be set at the server level.
 
 
-How to install this example
----------------------------
+How to use this example
+-----------------------
 
 1) If your server does not already have them installed elsewhere, add these
    standard JSTL files:
@@ -60,3 +60,10 @@ How to install this example
 
 2) Edit test.jsp and update the 'magicnumber' and 'servers' parameters on 
    <hawthorn:init> so that they match your Hawthorn server settings.
+
+2) Visit test.jsp in your Web browser. Enter any valid user name, display name,
+   arbitrary extra data (probably just leave this blank), and permissions.
+
+3) Submit the form. The resulting page includes various information about
+   the channel and a link to open a Hawthorn chat popup. If you specify
+   admin permission (a), it also includes a link to the server statistics page.

@@ -1,0 +1,51 @@
+This file is about contributing to Hawthorn. Hawthorn is an open-source
+project, so contributions that will be useful to others are welcome.
+
+
+Bug reports
+-----------
+
+Please use the issue tracker to report any bugs:
+
+http://github.com/quen/hawthorn/issues
+
+
+Code contributions
+------------------
+
+I would particularly appreciate contributions of the following nature:
+
+* New connectors for additional third-party systems.
+
+* Bugfixes.
+
+If you want to make other contributions such as new core features, it would
+be a good idea to contact me before coding them so that we can agree on a
+specification. I might not want your feature in core code - so to avoid
+disappointment, it's better to ask about it first. (Of course if you just
+want to send me something you've coded in case it might be useful, you're
+welcome. Just as long as you won't be disappointed if I don't included it!)
+
+
+Disclaimer
+----------
+
+I intend to retain full copyright in the Hawthorn system. This will enable me
+to release it under additional licenses in future if I choose. (I don't have
+any particular plans to do so, but want to leave my options open.) If you
+submit contributions, please send me the following text with them:
+
+--
+I, [your name], certify that I am the current copyright owner of the attached
+work. I assign copyright in this work to Samuel Marshall, without any condition
+except that it should be released publicly under the GNU Public License,
+version 3.
+--
+
+The copyright message in each file contains my name. This is not an attempt to
+claim all credit. All contributors will be recognised in credits.txt. (If
+you don't want your name to be included, or you want me to include a particular
+alias, let me know.)
+
+If this policy might prevent you from contributing, get in touch so we can
+discuss it.
