@@ -412,7 +412,7 @@ var hawthorn =
 			+ '&extra=' + encodeURIComponent(extra)
 			+ '&permissions=' + permissions + '&keyTime='
 			+ keyTime + '&key=' + key + '&title=' + encodeURIComponent(title)
-			+ '&servers=' + encodeURIComponent(servers), '_' + channel,
+			+ '&servers=' + encodeURIComponent(servers), '_' + channel + '_' + user,
 			'width=500,height=400,menubar=no,'
 			+ 'toolbar=no,location=no,directories=no,status=no,resizable=yes,'
 			+ 'scrollbars=no');
