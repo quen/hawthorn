@@ -36,15 +36,15 @@ The Hawthorn source tree contains the following folders and contents.
 - src
 
   Java source code for server, load tester, and JSP tag library.
-  
+
 - connectors
 
   (NOTE: These files cannot be used as-is because they assume that files from
   other areas are copied in. This happens when building the distribution.)
-  
+
   Plug-ins for third party systems which connect Hawthorn into those systems
   so that users of those systems can use Hawthorn chat.
-  
+
   Example plug-ins written in different server-side scripting languages to
   assist developers of new connector plug-ins.
 
@@ -56,12 +56,12 @@ The Hawthorn source tree contains the following folders and contents.
 - js
 
   JavaScript and related files for deployment to client browsers.
-  
+
 - lib
 
   (NOTE: These files cannot be used as-is because they assume that files from
   other areas are copied in. This happens when building the distribution.)
-  
+
   Library code for developers of new connector plug-ins.
 
 The main thing missing that you'll find in the distribution releases is
