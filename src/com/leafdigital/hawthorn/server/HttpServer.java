@@ -313,10 +313,13 @@ public final class HttpServer extends HawthornObject
 					}
 
 					// Still some data? OK, wait a bit and try again (yay polling -
-					// but this should probably never really happen)
+					// but this should hardly ever really happen, because usually
+					// the responses we send are far smaller than network buffers;
+					// exception is usually the statistics page).
 					try
 					{
-						System.err.println("Doing the sleep thing");
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+							"Event thread blocked for 50ms (this is OK if rare)");
 						Thread.sleep(50);
 					}
 					catch(InterruptedException ie)
