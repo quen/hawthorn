@@ -25,6 +25,7 @@ var hawthorn =
 	handlers : [],
 	currentServer : null,
 	servers : null,
+	ie6 : /MSIE 6/i.test(navigator.userAgent),
 
 	init : function(servers)
 	{
@@ -88,6 +89,7 @@ var hawthorn =
 
 		var data = new Object();
 		data.tag = newScript;
+		newScript.data = data;
 		data.urls = url;
 		data.eventId = this.id;
 
@@ -130,15 +132,7 @@ var hawthorn =
 			}
 		};
 
-		// onload function: clears the timeout
-		var loadFunction = function()
-		{
-			var currentTag = data.tag;
-			window.clearTimeout(data.timeoutId);
-		}
-
 		newScript.onerror = errorFunction;
-		newScript.onload = loadFunction;
 		head.appendChild(newScript);
 
 		// Timeout 20s
@@ -149,8 +143,21 @@ var hawthorn =
 
 	removeTag : function(id)
 	{
-		var oldScript = document.getElementById('hawthorn_script' + id);
-		oldScript.parentNode.removeChild(oldScript);
+	    var task = function()
+	    {
+			var oldScript = document.getElementById('hawthorn_script' + id);
+			oldScript.parentNode.removeChild(oldScript);
+			window.clearTimeout(oldScript.data.timeoutId);
+		};
+		if(hawthorn.ie6)
+		{
+			// If you run this without the timeout, it crashes IE6.
+			setTimeout(task, 0);
+		}
+		else
+		{
+			task();
+		}
 	},
 
 	getHandler : function(id)
@@ -608,7 +615,7 @@ HawthornPopup.prototype.init = function()
 		var key;
 		if(window.event)
 		{
-			key = e.keyCode;
+			key = window.event.keyCode;
 		}
 		else
 		{
@@ -843,8 +850,8 @@ HawthornPopup.prototype.initLayout = function()
 	intro.appendChild(closeButtonDiv);
 	closeButtonDiv.id = 'closebuttondiv';
 	this.closeButton = document.createElement('input');
-	closeButtonDiv.appendChild(this.closeButton);
 	this.closeButton.type = 'button';
+	closeButtonDiv.appendChild(this.closeButton);
 	this.closeButton.value = this.strCloseChat;
 	var p = document.createElement('p');
 	intro.appendChild(p);
@@ -870,14 +877,14 @@ HawthornPopup.prototype.initLayout = function()
 	this.banButtonDiv.appendChild(inner);
 	inner.className = 'inner';
 	this.banButton = document.createElement('input');
-	inner.appendChild(this.banButton);
 	this.banButton.type = 'button';
+	inner.appendChild(this.banButton);
 	this.banButton.value = this.strBanUser;
 
 	// Text box
 	this.textBox = document.createElement('input');
-	outer.appendChild(this.textBox);
 	this.textBox.type = 'text';
+	outer.appendChild(this.textBox);
 	this.textBox.id = 'textbox';
 
 	// Add the whole lot
@@ -887,8 +894,23 @@ HawthornPopup.prototype.initLayout = function()
 	// implementation.
 	window.onresize = function()
 	{
-		var h = window.innerHeight;
-		var w = window.innerWidth;
+		var w, h;
+		if(window.innerWidth)
+		{
+			w = window.innerWidth;
+			h = window.innerHeight;
+		}
+		else if(document.documentElement &&
+			document.documentElement.clientWidth)
+		{
+			w = document.documentElement.clientWidth;
+			h = document.documentElement.clientHeight;
+		}
+		else
+		{
+			w = document.body.clientWidth;
+			h = document.body.clientHeight;
+		}
 
 		var namesWidth = Math.floor(w / 4);
 
@@ -918,7 +940,15 @@ HawthornPopup.prototype.initLayout = function()
 		banbuttondiv.style.width = (namesWidth) + 'px';
 
 		textbox.style.top = (h - lowerHeight) + 'px';
-		textbox.style.width = w + 'px';
+		textbox.style.left = '0px';
+		if(hawthorn.ie6)
+		{
+			textbox.style.width = (w-6) + 'px';
+		}
+		else
+		{
+			textbox.style.width = w + 'px';
+		}
 	};
 
 	// Put a classname on the BODY so that people can do per-channel CSS if they
