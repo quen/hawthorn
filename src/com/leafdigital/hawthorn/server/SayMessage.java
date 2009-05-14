@@ -29,17 +29,9 @@ public class SayMessage extends UniqueMessage
 	/** Type of message */
 	private final static String TYPE = "SAY";
 
-	static
+	static void init() throws SecurityException, NoSuchMethodException
 	{
-		try
-		{
-			Message.registerType(TYPE, SayMessage.class);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(0);
-		}
+		Message.registerType(TYPE, SayMessage.class);
 	}
 
 	private final static Pattern REGEXP_ADDITIONAL =

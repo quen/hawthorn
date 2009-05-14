@@ -29,17 +29,9 @@ public class LeaveMessage extends Message
 	/** Type of message */
 	private final static String TYPE = "LEAVE";
 
-	static
+	static void init() throws SecurityException, NoSuchMethodException
 	{
-		try
-		{
-			Message.registerType(TYPE, LeaveMessage.class);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(0);
-		}
+		Message.registerType(TYPE, LeaveMessage.class);
 	}
 
 	private boolean timeout;

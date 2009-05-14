@@ -29,17 +29,9 @@ public class BanMessage extends UniqueMessage
 	/** Type of message */
 	private final static String TYPE = "BAN";
 
-	static
+	static void init() throws SecurityException, NoSuchMethodException
 	{
-		try
-		{
-			Message.registerType(TYPE, BanMessage.class);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(0);
-		}
+		Message.registerType(TYPE, BanMessage.class);
 	}
 
 	private final static Pattern REGEXP_ADDITIONAL = Pattern.compile("^("

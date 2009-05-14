@@ -29,17 +29,9 @@ public class JoinMessage extends Message
 	/** Type of message */
 	private final static String TYPE = "JOIN";
 
-	static
+	static void init() throws SecurityException, NoSuchMethodException
 	{
-		try
-		{
-			Message.registerType(TYPE, JoinMessage.class);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(0);
-		}
+		Message.registerType(TYPE, JoinMessage.class);
 	}
 
 	/**

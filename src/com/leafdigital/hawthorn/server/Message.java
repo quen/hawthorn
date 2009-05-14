@@ -41,6 +41,23 @@ public abstract class Message
 
 	private String channel, user, userMasked, displayName, extra, ip;
 
+	static
+	{
+		try
+		{
+			// Initialise all message types
+			SayMessage.init();
+			BanMessage.init();
+			JoinMessage.init();
+			LeaveMessage.init();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+
 	/**
 	 * @param time Time of message
 	 * @param channel Channel of message
