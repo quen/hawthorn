@@ -38,7 +38,7 @@ public class RecentTag extends SimpleTagSupport
 			"disabled.)",
 		recentText="Recent messages",
 		namesText="People in chat";
-	private int maxMessages=3, maxAge=30*60*1000, maxNames=5, headingLevel=3;
+	private int maxMessages=3, maxAge=15*60*1000, maxNames=5, headingLevel=3;
 
 	@Override
 	public void doTag() throws JspException, IOException

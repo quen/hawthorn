@@ -45,7 +45,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>tagdependent</body-content>
 		<attribute>
 			<description>
-				Hawthorn global magic number for authentication
+				Hawthorn global magic number for authentication.
 			</description>
 			<name>magicNumber</name>
 			<required>true</required>
@@ -53,7 +53,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn user ID
+				Hawthorn user ID.
 			</description>
 			<name>user</name>
 			<required>true</required>
@@ -61,7 +61,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn user display name
+				Hawthorn user display name.
 			</description>
 			<name>displayName</name>
 			<required>true</required>
@@ -69,7 +69,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn extra user details
+				Hawthorn extra user details.
 			</description>
 			<name>extra</name>
 			<required>true</required>
@@ -115,7 +115,7 @@ jsptaglibrary_2_0.xsd"
 			<description>
 				If true, delays JavaScript inclusion; you must use 
 				&lt;includeJavaScript/> before the page ends (otherwise, JavaScript
-				is included the first time it is needed)
+				is included the first time it is needed).
 			</description>
 			<name>defer</name>
 			<required>false</required>
@@ -124,7 +124,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				How long before keys expire, in milliseconds (default = 1 hour)
+				How long before keys expire, in milliseconds (default = 1 hour).
 			</description>
 			<name>keyExpiry</name>
 			<required>false</required>
@@ -143,14 +143,14 @@ jsptaglibrary_2_0.xsd"
 		<tag-class>com.leafdigital.hawthorn.jsp.RecentTag</tag-class>
 		<body-content>empty</body-content>
 		<attribute>
-			<description>Hawthorn channel ID</description>
+			<description>Hawthorn channel ID.</description>
 			<name>channel</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
 			<description>
-				Maximum number of messages to show
+				Maximum number of messages to show.
 			</description>
 			<name>maxMessages</name>
 			<required>false</required>
@@ -159,7 +159,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Maximum age (in milliseconds) of messages to show
+				Maximum age (in milliseconds) of messages to show. Default is 15 minutes.
 			</description>
 			<name>maxAge</name>
 			<required>false</required>
@@ -168,7 +168,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Maximum number of user names to show
+				Maximum number of user names to show.
 			</description>
 			<name>maxUsers</name>
 			<required>false</required>
@@ -205,7 +205,7 @@ jsptaglibrary_2_0.xsd"
 		<attribute>
 			<description>
 				Text to display while message information is being loaded; if omitted,
-				English default '(Loading chat information, please wait...)' is used
+				English default '(Loading chat information, please wait...)' is used.
 			</description>
 			<name>loadingText</name>
 			<required>false</required>
@@ -215,7 +215,7 @@ jsptaglibrary_2_0.xsd"
 			<description>
 				Text to display if JavaScript is not available; if omitted, English
 				default '(Chat features are not available because JavaScript is 
-				disabled.)' is used
+				disabled.)' is used.
 			</description>
 			<name>noScriptText</name>
 			<required>false</required>
@@ -245,7 +245,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>scriptless</body-content>
 		<attribute>
 			<description>
-				Hawthorn channel ID
+				Hawthorn channel ID.
 			</description>
 			<name>channel</name>
 			<required>true</required>
@@ -253,7 +253,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Popup window title
+				Popup window title.
 			</description>
 			<name>title</name>
 			<required>true</required>
@@ -290,7 +290,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>empty</body-content>
 		<attribute>
 			<description>
-				Hawthorn channel ID
+				Hawthorn channel ID.
 			</description>
 			<name>channel</name>
 			<required>true</required>
@@ -298,14 +298,14 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<variable>
 			<description>
-			  Variable containing the auth key
+			  Variable containing the auth key.
 			</description>
 			<name-given>hawthornKey</name-given>
 			<scope>AT_END</scope>
 		</variable>
 		<variable>
 			<description>
-			  Variable containing the time of the auth key
+			  Variable containing the time of the auth key.
 			</description>
 			<name-given>hawthornKeyTime</name-given>
 			<variable-class>java.lang.Long</variable-class>
@@ -325,7 +325,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>empty</body-content>
 		<attribute>
 			<description>
-				JavaScript ID
+				JavaScript ID.
 			</description>
 			<name>id</name>
 			<required>true</required>
@@ -333,7 +333,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn channel ID
+				Hawthorn channel ID.
 			</description>
 			<name>channel</name>
 			<required>true</required>
@@ -353,7 +353,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>empty</body-content>
 		<attribute>
 			<description>
-				JavaScript ID
+				JavaScript ID.
 			</description>
 			<name>id</name>
 			<required>true</required>
@@ -361,7 +361,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Error message
+				Error message.
 			</description>
 			<name>error</name>
 			<required>true</required>
