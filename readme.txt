@@ -5,45 +5,93 @@ TODO:
 * Add documentation for writing connectors in JSP and PHP.
 
 Testing TODO:
-* HTML example
 * JSP example
 * PHP example
-* Multiple servers
+* IE7
+* Safari
 
 -- The below is the 'real' intended contents of this README --
 
 Welcome to Hawthorn!
 
-Please read the Hawthorn manual, hawthorn.pdf, before attempting to deploy
+If you are trying to deploy Hawthorn, please do not use this source tree.
+Instead, please download a release distribution. Alternatively, you can
+build your own release distribution by running the Ant build script build.xml
+(see below).
+
+Please read the Hawthorn manual, doc/hawthorn.pdf, before attempting to learn
 the Hawthorn system. It introduces all the required concepts (some of which
 are quite confusing).
 
-The Hawthorn distribution contains the following folders and contents. Note
-that each folder has its own readme.txt that explains the content of that
-folder in more detail.
+The Hawthorn source tree contains the following folders and contents.
 
-- bin
+- (root folder)
 
-  Hawthorn server binary.
-  
-  Hawthorn load-testing binary.
+  This readme.
+
+  The Ant build script build.xml
+
+  License details, credits, information about contributing.
+
+- src
+
+  Java source code for server, load tester, and JSP tag library.
   
 - connectors
 
+  (NOTE: These files cannot be used as-is because they assume that files from
+  other areas are copied in. This happens when building the distribution.)
+  
   Plug-ins for third party systems which connect Hawthorn into those systems
   so that users of those systems can use Hawthorn chat.
   
   Example plug-ins written in different server-side scripting languages to
   assist developers of new connector plug-ins.
 
+- doc
+
+  Documentation files (final and source files) and some of the readme files
+  used in building the release distribution.
+
+- js
+
+  JavaScript and related files for deployment to client browsers.
+  
 - lib
 
-  Library code for developers of new connector plug-ins (this code is also
-  included in the connector examples in connectors/).
+  (NOTE: These files cannot be used as-is because they assume that files from
+  other areas are copied in. This happens when building the distribution.)
+  
+  Library code for developers of new connector plug-ins.
 
-- src
+The main thing missing that you'll find in the distribution releases is
+javadoc API documentation. This is built as part of the distribution. Download
+or build a distribution release to access this documentation.
 
-  Full Java source code, for reference use. See src/readme.txt for more
-  information.
 
-  Javadoc source-code documentation.
+How to build the Hawthorn distribution
+--------------------------------------
+
+Requirements:
+
+* Apache Ant.
+* Java 1.5+ compiler.
+* Apache Tomcat or something else that includes the file jsp-api.jar.
+
+To build from command line:
+
+1. cd [project root folder]
+2. ant -Djspapi=[full path to jsp-api.jar] build.xml
+
+This will build the distribution in [home]/Desktop/hawthorn. It completely
+wipes out any existing folder at that location, so run with care.
+
+See build.xml if you want to change the target location or other properties.
+
+You can also build directly inside most IDEs. To build in Eclipse:
+
+1. Right-click on build.xml and choose 'Run as > Ant build...'
+2. Change to Properties tab.
+3. Turn off 'Use global properties'.
+4. Click Add and add a property 'jspapi', set to the full path of jsp-api.jar.
+5. Click Run.

@@ -121,12 +121,14 @@
 		
 		<!-- Copy other documentation into place -->
 		<copy tofile="${output}/bin/readme.txt" file="doc/readme.bin.txt"/>
-		<copy tofile="${output}/src/readme.txt" file="doc/readme.bin.txt"/>
+		<copy tofile="${output}/src/readme.txt" file="doc/readme.src.txt"/>
+		<copy tofile="${output}/readme.txt" file="doc/readme.root.txt"/>
 		<copy todir="${output}" file="doc/hawthorn.pdf"/>
 		<copy todir="${output}">
 			<fileset dir=".">
-				<include name="*.txt"/>
-				<include name="LICENSE"/>
+				<include name="contributions.txt"/>
+				<include name="credits.txt"/>
+				<include name="license.txt"/>
 			</fileset>
 		</copy>
 	</target>
