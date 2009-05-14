@@ -23,7 +23,7 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 <html>
 <head>
 <title>Hawthorn HTML example (minimal)</title>
-<script type="text/javascript" src="../../js/hawthorn.js"></script>
+<script type="text/javascript" src="hawthorn.js"></script>
 <script type="text/javascript">
 
 function init()
@@ -112,7 +112,7 @@ function recent()
 		document.getElementById('permissions').value,
 		document.getElementById('keytime').value,
 		document.getElementById('key').value,
-		60*60*1000,
+		15*60*1000,
 		10, null, false,
 		function(messages, names, lastTime)
 		{
@@ -311,7 +311,7 @@ function log()
 function openPopup()
 {
 	hawthorn.openPopup(
-		'../../js/popup.html',
+		'popup.html',
 		null,
 		document.getElementById('channel').value,
 		document.getElementById('user').value,
