@@ -58,15 +58,15 @@ public class ServerEvent extends Event
 		}
 		catch(IllegalArgumentException e)
 		{
-			fail();
+			fail(e.getMessage());
 		}
 		catch(IllegalAccessException e)
 		{
-			fail();
+			fail(null);
 		}
 		catch(InvocationTargetException e)
 		{
-			fail();
+			fail(e.getMessage());
 		}
 		finally
 		{
@@ -76,11 +76,19 @@ public class ServerEvent extends Event
 		}
 	}
 
-	private void fail()
+	private void fail(String error)
 	{
 		// Unsupported request
+		if(error == null)
+		{
+			error="";
+		}
+		else
+		{
+			error=" ("+error+")";
+		}
 		getLogger().log(Logger.SYSTEM_LOG, Level.ERROR,
-			"Unexpected line from server " + connection + ": " + request);
+			"Unexpected line from server " + connection + error + ": " + request);
 		connection.close();
 	}
 }
