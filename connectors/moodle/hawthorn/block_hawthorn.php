@@ -8,7 +8,7 @@ class block_hawthorn extends block_base
 	function init()
 	{
 		$this->title = get_string('blockname','block_hawthorn');
-		$this->version = 2009050800;
+		$this->version = 2009051600;
 	}
 
 	function instance_allow_config()
@@ -214,6 +214,15 @@ class block_hawthorn extends block_base
 				  get_string('loading', 'block_hawthorn'),
 					get_string('noscript', 'block_hawthorn'));
 			}
+		}
+
+		// If logo is enabled, display it
+		if($CFG->block_hawthorn_logo)
+		{
+			$this->content->text .= '<div class="hawthorn_logo"><img src="' .
+				$CFG->wwwroot . '/blocks/hawthorn/hawthorn.small.png" alt="' .
+				get_string('poweredby', 'block_hawthorn') . '" title="' .
+				get_string('poweredby', 'block_hawthorn') . '" /></div>';
 		}
 	}
 }

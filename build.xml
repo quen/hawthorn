@@ -101,6 +101,8 @@
 		</copy>
 		<copy todir="${output}/connectors/moodle/hawthorn"
 			file="lib/php/hawthorn.php"/>
+		<copy todir="${output}/connectors/moodle/hawthorn"
+			file="doc/hawthorn.small.png"/>
 		<copy todir="${output}/connectors/moodle/hawthorn">
 			<fileset dir="js">
 				<exclude name="popup.html"/>

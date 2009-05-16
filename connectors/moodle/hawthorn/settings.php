@@ -9,6 +9,10 @@ $settings->add(new admin_setting_configtext('block_hawthorn_servers',
 	get_string('servers', 'block_hawthorn'),
 	get_string('configservers', 'block_hawthorn'), '', PARAM_TEXT));
 
+$settings->add(new admin_setting_configcheckbox('block_hawthorn_logo',
+	get_string('logo', 'block_hawthorn'),
+	get_string('configlogo', 'block_hawthorn'), 1));
+
 $sitecourse = (object)array('id' => SITEID);
 $hawthorn = get_hawthorn($sitecourse);
 $settings->add(new admin_setting_heading('hawthorn_statslink',

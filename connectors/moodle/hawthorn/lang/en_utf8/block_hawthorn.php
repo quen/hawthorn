@@ -16,6 +16,8 @@ $string['servers'] = 'Hawthorn server URLs';
 $string['configservers'] = 'The URL of the Hawthorn server, ending in a /.
   Use a comma-separated list if you have multiple servers.';
 $string['statisticsheading'] = 'Hawthorn server statistics';
+$string['logo'] = 'Show logo';
+$string['configlogo'] = 'If enabled, blocks display Hawthorn logo.';
 
 // Instance settings
 $string['mode'] = 'Chat with';
@@ -42,6 +44,7 @@ $string['noscript'] = '(Chat features are not available because
 	JavaScript is disabled.)';
 $string['recent'] = 'Recent messages';
 $string['names'] = 'People in chat';
+$string['poweredby'] = 'Powered by the Hawthorn open-source chat system';
 
 // Popup text
 $string['popup_joined'] = ' joined the chat';

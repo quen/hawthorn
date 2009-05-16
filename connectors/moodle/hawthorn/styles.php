@@ -60,3 +60,8 @@
 {
   margin-bottom: 0.5em;
 }
+.hawthorn_logo
+{
+  margin-top: 0.5em;
+  text-align: center;
+}
