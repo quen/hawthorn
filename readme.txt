@@ -1,14 +1,8 @@
 This project is not ready for use yet. When it is I will update this README.
 
 TODO:
-* Add installation/management documentation.
+* Add version/build number.
 * Add documentation for writing connectors in JSP and PHP.
-
-Testing TODO:
-* JSP example
-* PHP example
-* IE7
-* Safari
 
 -- The below is the 'real' intended contents of this README --
 
