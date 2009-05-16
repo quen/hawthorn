@@ -569,7 +569,7 @@ public final class HttpServer extends HawthornObject
 		private void receivedRequest(String request)
 		{
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
-				this + ": Requested " + request);
+				"REQUEST " + this + " " + request);
 			getEventHandler().addEvent(new HttpEvent(getApp(), request, this));
 		}
 

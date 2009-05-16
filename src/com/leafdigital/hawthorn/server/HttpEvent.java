@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 
+import com.leafdigital.hawthorn.server.Logger.Level;
 import com.leafdigital.hawthorn.util.*;
 import com.leafdigital.hawthorn.util.Auth.Permission;
 
@@ -544,7 +545,7 @@ public class HttpEvent extends Event
 		}
 
 		long lastTime = Long.parseLong(lastTimeString);
-		long delay = c.poll(c.toString(),
+		long delay = c.poll(connection.toString(),
 			params.get("user"), params.get("displayname"), params.get("extra"));
 		Message[] messages = c.getSince(lastTime, Channel.ANY, false);
 
@@ -621,11 +622,11 @@ public class HttpEvent extends Event
 			return;
 		}
 
+		getLogger().log(Logger.SYSTEM_LOG, Level.NORMAL,
+			"AUDIT LOG " + params.get("user") + " (" + connection.toString()
+			+ ") obtained log for " + channel + " on " + date);
 		connection.send("hawthorn.logComplete(" + getID(params) + ","
 			+ getLogger().getLogJS(channel, date) + ");");
-		getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-			"Sent logs for channel " + channel + "(" + date +
-			") to user " + params.get("user"));
 	}
 
 	private void handleDisplayStatistics(HashMap<String, String> params)
@@ -656,10 +657,11 @@ public class HttpEvent extends Event
 			return;
 		}
 
+		getLogger().log(Logger.SYSTEM_LOG, Level.NORMAL,
+			"AUDIT STATISTICS " + params.get("user") + " (" + connection.toString()
+			+ ") viewed statistics page");
 		connection.send(200, getStatistics().getSummaryHtml(),
 			HttpServer.CONTENT_TYPE_HTML);
-		getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-			"Sent system statistics to " + params.get("user"));
 	}
 
 	/**

@@ -22,6 +22,7 @@ package com.leafdigital.hawthorn.server;
 import java.util.*;
 
 import com.leafdigital.hawthorn.server.HttpServer.Connection;
+import com.leafdigital.hawthorn.server.Logger.Level;
 
 /** Channel. */
 public class Channel extends HawthornObject
@@ -416,6 +417,11 @@ public class Channel extends HawthornObject
 
 			// Remember ban information
 			bans.put(ban.getBan(), ban.getUntil());
+
+			// Log ban in system log for auditing
+			getLogger().log(Logger.SYSTEM_LOG, Level.NORMAL,
+				"AUDIT BAN " + ban.getUser() + " (" + ban.getIP() + ") banned "
+				+ ban.getBan() + " on channel " + ban.getChannel());
 		}
 
 		internalMessage(newMessages);

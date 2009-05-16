@@ -136,7 +136,7 @@ public class Statistics extends HawthornObject
 					minute.clear();
 				}
 				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-					"M Statistic ["+entry.getKey()+"] "+log);
+					"STATISTIC M ["+entry.getKey()+"] "+log);
 			}
 
 			// Update instant statistics
@@ -146,7 +146,7 @@ public class Statistics extends HawthornObject
 				entry.getValue().update();
 				int value = entry.getValue().getLastValue();
 				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-					"M Statistic ["+entry.getKey()+"] "+value);
+					"STATISTIC M ["+entry.getKey()+"] "+value);
 			}
 
 			// Check if times have changed
@@ -169,7 +169,7 @@ public class Statistics extends HawthornObject
 						hour.clear();
 					}
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						"H Statistic [" + entry.getKey() + "] " + log);
+						"STATISTIC H [" + entry.getKey() + "] " + log);
 				}
 
 				// Update instant statistics
@@ -178,7 +178,7 @@ public class Statistics extends HawthornObject
 				{
 					BasicStatistic hour = entry.getValue().getHour();
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						"H Statistic [" + entry.getKey() + "] " + hour.toString());
+						"STATISTIC H [" + entry.getKey() + "] " + hour.toString());
 					hour.clear();
 				}
 
@@ -201,7 +201,7 @@ public class Statistics extends HawthornObject
 						day.clear();
 					}
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						"D Statistic ["+entry.getKey()+"] "+log);
+						"STATISTIC D ["+entry.getKey()+"] "+log);
 				}
 
 				// Update instant statistics
@@ -210,7 +210,7 @@ public class Statistics extends HawthornObject
 				{
 					BasicStatistic day = entry.getValue().getDay();
 					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						"D Statistic [" + entry.getKey() + "] " + day.toString());
+						"STATISTIC D [" + entry.getKey() + "] " + day.toString());
 					day.clear();
 				}
 

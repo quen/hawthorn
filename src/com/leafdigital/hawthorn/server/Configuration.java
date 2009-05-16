@@ -439,43 +439,43 @@ public class Configuration
 				new Logger(logFolder, minLogLevel, logDays, thisServer.getAddress(),
 					thisServer.getPort());
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Hawthorn system startup");
+				"STARTUP Hawthorn system startup");
 
 			long maxMemory = Runtime.getRuntime().maxMemory();
 			String maxMemoryString = maxMemory==Long.MAX_VALUE ? "unlimited" :
 				(maxMemory / (1024*1024)) +"MB";
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Java: " + System.getProperty("java.version") +  " "
+				"STARTUP Java: " + System.getProperty("java.version") +  " "
 				+ System.getProperty("java.vm.name") + " (max memory "
 				+ maxMemoryString + ")");
 
-			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Logs: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "STARTUP Logs: "
 				+ logFolder + " (level "+ minLogLevel + "; deleted after "
 				+ (logDays == 0 ? "never" : logDays + " days; ")
 				+ (logChat ? "chat logged" : "chat not logged") + ")");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Poll delay scale: " + minPollTime + "-" + maxPollTime + "ms over "
+				"STARTUP Poll delay scale: " + minPollTime + "-" + maxPollTime + "ms over "
 				+ pollScaleTime + "ms");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"History retained for: " + (historyTime/60000L) + " minutes");
+				"STARTUP History retained for: " + (historyTime/60000L) + " minutes");
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Event threads: " + eventThreads);
+				"STARTUP Event threads: " + eventThreads);
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"Detailed stats: " + (detailedStats ? "tracked" : "not tracked"));
+				"STARTUP Detailed stats: " + (detailedStats ? "tracked" : "not tracked"));
 
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"IP header: " + (ipHeader==null ? "(none)" : ipHeader));
+				"STARTUP IP header: " + (ipHeader==null ? "(none)" : ipHeader));
 
-			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "This server: "
+			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "STARTUP This server: "
 				+ thisServer);
 			for(int i = 0; i < otherServers.length; i++)
 			{
-				logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "Remote server: "
-					+ otherServers[i]);
+				logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+					"STARTUP Remote server: " + otherServers[i]);
 			}
 		}
 		catch(ParserConfigurationException e)

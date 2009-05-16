@@ -133,7 +133,7 @@ public abstract class Message
 	public String getLogFormat()
 	{
 		return getType() + ' ' + ip + ' ' + user + " \"" + displayName
-			+  "\" \"" + extra + "\"" + getAdditionalLog();
+			+  "\"" + getAdditionalLog();
 	}
 
 	/** @return Version of message that will be sent to other servers */
@@ -149,8 +149,17 @@ public abstract class Message
 	 */
 	protected abstract String getAdditionalJS(boolean trusted);
 
-	/** @return Additional data to go into server/log message representations */
+	/** @return Additional data to go into log message representation */
 	protected abstract String getAdditionalLog();
+
+	/**
+	 * @return Additional data to go into server message representation;
+	 *   by default, same as additional log
+	 */
+	protected String getAdditionalServer()
+	{
+		return getAdditionalLog();
+	}
 
 	/** @return Type of message, used as command string for server-server messages */
 	public abstract String getType();

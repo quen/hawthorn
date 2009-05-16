@@ -19,6 +19,8 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.*;
 
 import com.leafdigital.hawthorn.util.JS;
@@ -108,8 +110,16 @@ public class BanMessage extends UniqueMessage
 	@Override
 	protected String getAdditionalLog()
 	{
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		return " " + ban + " \"" + banDisplayName + "\" until " +
+			sdf.format(new Date(until));
+	}
+
+	@Override
+	protected String getAdditionalServer()
+	{
 		return " " + ban + " \"" + banDisplayName + "\" \"" + banExtra
-			+ "\" " + until;
+		+ "\" " + until;
 	}
 
 	@Override
