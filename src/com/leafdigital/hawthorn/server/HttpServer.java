@@ -189,7 +189,7 @@ public final class HttpServer extends HawthornObject
 		private SocketChannel channel;
 		private ByteBuffer buffer;
 
-		private long lastAction;
+		private long lastAction, startTime;
 		private String hostAddress;
 		private boolean otherServer, serverAuthenticated;
 
@@ -203,8 +203,15 @@ public final class HttpServer extends HawthornObject
 			this.key = key;
 			this.channel = (SocketChannel)key.channel();
 			lastAction = System.currentTimeMillis();
+			startTime = lastAction;
 			buffer = ByteBuffer.allocate(BUFFERSIZE);
 			hostAddress = channel.socket().getInetAddress().getHostAddress();
+		}
+
+		/** @return Time at which connection was accepted */
+		public long getStartTime()
+		{
+			return startTime;
 		}
 
 		/** Closes the connection */

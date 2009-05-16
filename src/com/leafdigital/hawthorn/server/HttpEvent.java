@@ -57,8 +57,6 @@ public class HttpEvent extends Event
 
 	private HttpServer.Connection connection;
 
-	private long requestTime;
-
 	/**
 	 * @param app Main app object
 	 * @param request HTTP request path
@@ -69,7 +67,6 @@ public class HttpEvent extends Event
 		super(app);
 		this.request = request;
 		this.connection = connection;
-		requestTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -190,7 +187,7 @@ public class HttpEvent extends Event
 		}
 		finally
 		{
-			long time = System.currentTimeMillis() - requestTime;
+			long time = System.currentTimeMillis() - connection.getStartTime();
 			getStatistics().updateTimeStatistic(
 				HttpServer.STATISTIC_USER_REQUEST_TIME, (int)time);
 			if(requestType!=null && getConfig().isDetailedStats())
