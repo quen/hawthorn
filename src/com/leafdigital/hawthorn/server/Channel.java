@@ -33,7 +33,7 @@ public class Channel extends HawthornObject
 	public final static int ANY = -1;
 
 	/** Time to wait for new messages before closing connection */
-	private final static int WAIT_TIME = 60 * 1000;
+	private final static int WAIT_TIME = 50 * 1000;
 
 	/** Time to wait with no activity before assuming a user is absent */
 	private final static int PRESENT_TIMEOUT = 10 * 1000;
