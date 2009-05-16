@@ -107,7 +107,7 @@ public class RecentTag extends SimpleTagSupport
 		getJspContext().getOut().println("/* ]]> */\n</script>");
 	}
 
-	/** @param channel Hawthorn channel ID */
+	/** @param channel Hawthorn channel name */
 	public void setChannel(String channel)
 	{
 		this.channel = channel;

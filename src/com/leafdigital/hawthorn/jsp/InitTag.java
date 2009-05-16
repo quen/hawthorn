@@ -60,10 +60,10 @@ public class InitTag extends BodyTagSupport
 	@Override
 	public int doEndTag() throws JspException
 	{
-		// Check user ID is valid
+		// Check user name is valid
 		if(!user.matches(REGEXP_USERCHANNEL))
 		{
-			throw new JspException("User ID not valid: "+user);
+			throw new JspException("User name not valid: "+user);
 		}
 
 		if(!displayName.matches(REGEXP_DISPLAYNAME))
@@ -176,7 +176,7 @@ public class InitTag extends BodyTagSupport
 	}
 
 	/**
-	 * @param user Hawthorn user ID
+	 * @param user Hawthorn user name
 	 */
 	public void setUser(String user)
 	{
@@ -229,18 +229,18 @@ public class InitTag extends BodyTagSupport
 	/**
 	 * Gets an authentication key based on the known data.
 	 *
-	 * @param channel Channel ID
+	 * @param channel Channel name
 	 * @param keyTime Key time
 	 * @param allowSystem True to allow system channel
 	 * @return Key
-	 * @throws JspException If SHA-1 isn't working, or channel ID is invalid
+	 * @throws JspException If SHA-1 isn't working, or channel name is invalid
 	 */
 	String getKey(String channel, long keyTime, boolean allowSystem) throws JspException
 	{
 		if(!channel.matches(REGEXP_USERCHANNEL) &&
 			!(channel.equals("!system") && allowSystem))
 		{
-			throw new JspException("Channel ID not valid: "+user);
+			throw new JspException("Channel name not valid: " + channel);
 		}
 		try
 		{
@@ -255,7 +255,7 @@ public class InitTag extends BodyTagSupport
 		}
 	}
 
-	/** @return Hawthorn user ID */
+	/** @return Hawthorn user name */
 	public String getUser()
 	{
 		return user;

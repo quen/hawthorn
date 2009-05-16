@@ -51,7 +51,7 @@ class Hawthorn
 	 *  (otherwise, JavaScript is included the first time it is needed)
 	 * @param int $keyExpiry How long before granted keys expire (default
 	 *  1 hour), in milliseconds
-	 * @throws Exception If user ID is invalid
+	 * @throws Exception If user name is invalid
 	 */
 	function __construct($magicNumber, $servers,
 		$user, $displayName, $extra, $permissions, $jsUrl, $popupUrl, $reAcquireUrl,
@@ -60,7 +60,7 @@ class Hawthorn
 		// Check username and displayname
 		if(!preg_match('~^[A-Za-z0-9_]+$~',$user))
 		{
-			throw new Exception("Invalid user ID: $user");
+			throw new Exception("Invalid user name: $user");
 		}
 		if(!preg_match('~^[^\x00-\x1f\"]+$~',$displayName))
 		{
@@ -89,11 +89,11 @@ class Hawthorn
 	}
 	
 	/**
-	 * Escapes a user/channel ID that might contain characters not permitted
+	 * Escapes a user/channel name that might contain characters not permitted
 	 * in a Hawthorn ID. This function is optional; if your IDs only contain
 	 * permitted characters, you don't need to call it.
-	 * @param string $id ID to escape
-	 * @return string ID with unsupported bytes changed into _ followed by 2-digit
+	 * @param string $id Name to escape
+	 * @return string Name with unsupported bytes changed into _ followed by 2-digit
 	 *   hex number
 	 */
 	static function escapeId($id)
@@ -130,9 +130,9 @@ class Hawthorn
 	}
 	
 	/**
-	 * Unescapes a user/channel ID that was escaped with escapeId.
-	 * @param string $esc ID to unescape
-	 * @return string ID turned back into full character set
+	 * Unescapes a user/channel name that was escaped with escapeId.
+	 * @param string $esc Name to unescape
+	 * @return string Name turned back into full character set
 	 */
 	static function unescapeId($esc)
 	{
@@ -162,7 +162,7 @@ class Hawthorn
 	/**
 	 * Displays recent messages and names from a Hawthorn chat channel.
 	 * (Gives user a key granting Hawthorn access for one hour.)
-	 * @param string $channel Hawthorn channel ID
+	 * @param string $channel Hawthorn channel name
 	 * @param int $maxMessages Maximum number of messages to show
 	 * @param int $maxAge Maximum age (in milliseconds) of messages to show
 	 * @param int $maxNames Maximum number of user names to show
@@ -178,7 +178,7 @@ class Hawthorn
 	 *  available; if omitted, English default '(Chat features are not
 	 *  available because JavaScript is disabled.)' is used
 	 * @return string HTML ready to print 
-	 * @throws Exception If channel ID is invalid
+	 * @throws Exception If channel name is invalid
 	 */
 	function recent($channel, $maxMessages=3, $maxAge=900000,
 		$maxNames=5, $headingLevel=3, $recentText='Recent messages',
@@ -280,7 +280,7 @@ class Hawthorn
 	 * Provides a link to a popup window for use to chat in a
 	 * Hawthorn chat channel.
 	 * (Gives user a key granting Hawthorn access for one hour.)
-	 * @param string $channel Hawthorn channel ID
+	 * @param string $channel Hawthorn channel name
 	 * @param string $title Popup window title
 	 * @param string $linkText Text (may include HTML) to include
 	 *  within link tag.
@@ -288,7 +288,7 @@ class Hawthorn
 	 *  link to indicate that it opens in a new window
 	 * @param string $iconAlt Alt text for optional icon; if omitted,
 	 *  uses English-language default 'Opens in new window'.
-	 * @throws Exception If channel ID is invalid
+	 * @throws Exception If channel name is invalid
 	 */
 	function linkToChat($channel, $title, $linkText, $icon='',
 		$iconAlt='')
@@ -340,7 +340,7 @@ class Hawthorn
 	/**
 	 * Obtains a raw authorisation key that allows access to a channel
 	 * for one hour (or time specified in constructor).
-	 * @param string $channel Hawthorn channel ID
+	 * @param string $channel Hawthorn channel name
 	 * @param string &$key Out parameter: receives Hawthorn key
 	 * @param string &$keyTime Out parameter: receives key expire time
 	 * @throws Exception If channel name is invalid
@@ -359,7 +359,7 @@ class Hawthorn
 	 * This method also sets up the page header.
 	 * @param string $id Value of 'id' parameter passed to the re-acquire
 	 *  page
-	 * @param string $channel Hawthorn channel ID ('channel' parameter)
+	 * @param string $channel Hawthorn channel name ('channel' parameter)
 	 * @throws Exception If channel name is invalid
 	 */
 	function reAcquireAllow($id, $channel)
@@ -431,10 +431,10 @@ class Hawthorn
 
 	/**
 	 * Obtains an authorisation key.
-	 * @param string $channel Channel ID
+	 * @param string $channel Channel name
 	 * @param string $keyTime Key expiry time in milliseconds
 	 * @param bool $allowSystem True to allow special system channel
-	 * @param string $user User ID (blank to use value set in constructor)
+	 * @param string $user User name (blank to use value set in constructor)
 	 * @param string $displayName Display name (blank for default)
 	 * @return string Key
 	 * @throws Exception If channel name is invalid
@@ -446,7 +446,7 @@ class Hawthorn
 		if (!preg_match('~^[A-Za-z0-9_]+$~',$channel) &&
 			($channel!=='!system' || !$allowSystem))
 		{
-			throw new Exception("Invalid channel ID: $channel");
+			throw new Exception("Invalid channel name: $channel");
 		}
 
 		// Sort out user/display name

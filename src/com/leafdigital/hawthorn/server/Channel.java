@@ -49,14 +49,14 @@ public class Channel extends HawthornObject
 	private HashMap<Integer, Listener> listeners =
 		new HashMap<Integer, Listener>();
 
-	/** Index into listeners by user ID */
+	/** Index into listeners by user name */
 	private HashMap<String, LinkedList<Listener>> listenersByUser =
 		new HashMap<String, LinkedList<Listener>>();
 
-	/** Map from banned user ID to time ban expires */
+	/** Map from banned user name to time ban expires */
 	private HashMap<String, Long> bans = new HashMap<String, Long>();
 
-	/** Map from user ID of everyone present in the channel */
+	/** Map from user name of everyone present in the channel */
 	private HashMap<String, UserInfo> present = new HashMap<String, UserInfo>();
 
 	/** Set containing the userid and unique of all messages in this chan */
@@ -82,7 +82,7 @@ public class Channel extends HawthornObject
 		 *
 		 * @param app Main app object
 		 * @param connection Connection for response
-		 * @param user User ID
+		 * @param user User name
 		 * @param trusted True if user is trusted
 		 * @param id ID string
 		 * @param time Time we started waiting for messages
@@ -187,7 +187,7 @@ public class Channel extends HawthornObject
 		/**
 		 * @param thisServer True if user is connected to this server
 		 * @param ip IP address
-		 * @param user User ID
+		 * @param user User name
 		 * @param displayName Display name
 		 * @param extra Extra user data
 		 */
@@ -592,7 +592,7 @@ public class Channel extends HawthornObject
 	}
 
 	/**
-	 * @param user User ID
+	 * @param user User name
 	 * @return True if user is banned
 	 */
 	public synchronized boolean isBanned(String user)
@@ -605,13 +605,13 @@ public class Channel extends HawthornObject
 	 * joined to the channel.
 	 *
 	 * @param connection Connection that wants to receive messages
-	 * @param user User ID
+	 * @param user User name
 	 * @param displayName User display name
 	 * @param extra Extra user data
 	 * @param id ID number as string
 	 * @param lastTime Time of last message (receives any messages with time
 	 *        greater than this)
-	 * @param trusted True if user is trusted to see user IDs etc
+	 * @param trusted True if user is trusted to see user names etc
 	 * @throws IllegalArgumentException If you specify too many parameters
 	 */
 	public synchronized void wait(Connection connection, String user,

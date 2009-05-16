@@ -49,7 +49,7 @@ public class ReAcquireAllowTag extends SimpleTagSupport
 			id+"','"+key+"','"+time+"');");
 	}
 
-	/** @param channel Hawthorn channel ID */
+	/** @param channel Hawthorn channel name */
 	public void setChannel(String channel)
 	{
 		this.channel = channel;

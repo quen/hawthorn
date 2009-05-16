@@ -968,7 +968,7 @@ HawthornPopup.prototype.initLayout = function()
 
 /**
  * Adds the given user to the name list (alphabetically sorted).
- * @param user User ID
+ * @param user User name
  * @param displayName Display name for user
  * @param extra Extra user data
  */
@@ -1059,7 +1059,7 @@ HawthornPopup.prototype.setSelectedUser = function(selectedUser)
 
 /**
  * Removes the given user from the name list.
- * @param user User ID
+ * @param user User name
  * @param displayName Display name for user
  */
 HawthornPopup.prototype.removeName = function(user,displayName)
@@ -1112,7 +1112,7 @@ HawthornPopup.prototype.addEntry = function(time,el)
 /**
  * Adds a newly-received message to the message area.
  * @param time Message time (ms since 1970)
- * @param user User ID
+ * @param user User name
  * @param displayName Display name for user
  * @param extra Extra user data
  * @param message Message from user
@@ -1139,7 +1139,7 @@ HawthornPopup.prototype.addMessage = function(time, user, displayName, extra,
 /**
  * Adds a newly-received join message to the message area.
  * @param time Message time (ms since 1970)
- * @param user User ID
+ * @param user User name
  * @param displayName Display name for user
  * @param extra Extra user data
  * @param self True if this is a message from the current user
@@ -1165,7 +1165,7 @@ HawthornPopup.prototype.addJoin = function(time, user, displayName, extra, self)
 /**
  * Adds a newly-received leave message to the message area.
  * @param time Message time (ms since 1970)
- * @param user User ID
+ * @param user User name
  * @param displayName Display name for user
  * @param extra Extra user data
  * @param self True if this is a message from the current user
@@ -1192,7 +1192,7 @@ HawthornPopup.prototype.addLeave = function(time, user, displayName, extra,
  /**
  * Adds a newly-received ban notice to the message area.
  * @param time Message time (ms since 1970)
- * @param user User ID sending message
+ * @param user User name sending message
  * @param displayName Display name for user
  * @param ban User being banned
  * @param banDisplayName Display name of user being banned

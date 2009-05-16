@@ -47,13 +47,13 @@ public class BanMessage extends UniqueMessage
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
-	 * @param userMasked Masked version of user ID, for untrusted recipients
+	 * @param userMasked Masked version of user name, for untrusted recipients
 	 * @param displayName Display name of user
 	 * @param extra Extra user data
 	 * @param unique A unique identifier (within channel and user) to avoid
 	 *   possibility of duplicated messages
-	 * @param ban User ID being banned
-	 * @param banMasked Masked version of user ID, for untrusted recipients
+	 * @param ban User name being banned
+	 * @param banMasked Masked version of user name, for untrusted recipients
 	 * @param banDisplayName Possible display name of user (note: this is
 	 *   not used to identify the user, only to display information about the
 	 *   ban to other users; it can be any text)
@@ -73,7 +73,7 @@ public class BanMessage extends UniqueMessage
 		this.until = until;
 	}
 
-	/** @return Banned user ID */
+	/** @return Banned user name */
 	public String getBan()
 	{
 		return ban;

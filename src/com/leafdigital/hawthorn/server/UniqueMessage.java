@@ -29,7 +29,7 @@ public abstract class UniqueMessage extends Message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
 	 * @param user User who sent message
-	 * @param userMasked Masked version of user ID, for untrusted recipients
+	 * @param userMasked Masked version of user name, for untrusted recipients
 	 * @param displayName Display name of user
 	 * @param extra Extra user data
 	 * @param unique A unique identifier (within channel and user) to avoid

@@ -189,8 +189,8 @@ public class Hawthorn
 	/**
 	 * Obtains key to check against for authentication.
 	 *
-	 * @param channel Channel ID
-	 * @param user User ID
+	 * @param channel Channel name
+	 * @param user User name
 	 * @param displayName User display name
 	 * @param extra Extra user details
 	 * @param permissions User permissions
@@ -213,10 +213,10 @@ public class Hawthorn
 	}
 
 	/**
-	 * Uses the server's magic number to create a hashed version of a user ID
-	 * which can be sent to people we don't trust to see their real user ID.
-	 * @param user User ID
-	 * @return Masked user ID (begins with ?)
+	 * Uses the server's magic number to create a hashed version of a user name
+	 * which can be sent to people we don't trust to see their real user name.
+	 * @param user User name
+	 * @return Masked user name (begins with ?)
 	 */
 	String getMaskedUser(String user)
 	{

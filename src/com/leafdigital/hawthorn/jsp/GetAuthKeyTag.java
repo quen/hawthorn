@@ -49,7 +49,7 @@ public class GetAuthKeyTag extends SimpleTagSupport
 	  getJspContext().setAttribute("hawthornKeyTime",time);
 	}
 
-	/** @param channel Hawthorn channel ID */
+	/** @param channel Hawthorn channel name */
 	public void setChannel(String channel)
 	{
 		this.channel = channel;

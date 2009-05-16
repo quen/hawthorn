@@ -565,7 +565,7 @@ public class HttpEvent extends Event
 	 * obtains the timestamp of the last message.
 	 * @param c Channel
 	 * @param messages Messages to list
-	 * @param trusted True if user is trusted to see user IDs not just
+	 * @param trusted True if user is trusted to see user names not just
 	 *   display names
 	 * @param output StringBuilder that receives list
 	 * @return Timestamp of most recent message in list, or of just before now

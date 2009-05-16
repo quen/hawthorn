@@ -101,11 +101,11 @@ public abstract class Auth
 	/**
 	 * Generates an authentication key based on SHA-1 hash.
 	 * @param magicNumber Server's secret number
-	 * @param user User ID
+	 * @param user User name
 	 * @param displayName Display name
 	 * @param extra Extra user data
 	 * @param permissionSet Permissions
-	 * @param channel Channel ID
+	 * @param channel Channel name
 	 * @param keyTime Time of key
 	 * @return Valid key
 	 * @throws NoSuchAlgorithmException If SHA-1 isn't installed

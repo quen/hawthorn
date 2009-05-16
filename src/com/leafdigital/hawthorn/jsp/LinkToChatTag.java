@@ -91,7 +91,7 @@ public class LinkToChatTag extends SimpleTagSupport
 		init.printJS(getJspContext().getOut(),false);
 	}
 
-	/** @param channel Hawthorn channel ID */
+	/** @param channel Hawthorn channel name */
 	public void setChannel(String channel)
 	{
 		this.channel = channel;

@@ -62,8 +62,8 @@ public abstract class Message
 	 * @param time Time of message
 	 * @param channel Channel of message
 	 * @param ip IP address of user
-	 * @param user User ID who sent message
-	 * @param userMasked Masked version of user ID, for untrusted recipients
+	 * @param user User name who sent message
+	 * @param userMasked Masked version of user name, for untrusted recipients
 	 * @param displayName Display name of user
 	 * @param extra Extra per-user data
 	 */
@@ -116,7 +116,7 @@ public abstract class Message
 	}
 
 	/**
-	 * @param trusted True if user gets to see real user ID etc
+	 * @param trusted True if user gets to see real user name etc
 	 * @return JS version of message (not including channel as this is known)
 	 */
 	public String getJSFormat(boolean trusted)
@@ -144,7 +144,7 @@ public abstract class Message
 	}
 
 	/**
-	 * @param trusted True if user gets to see real user ID etc
+	 * @param trusted True if user gets to see real user name etc
 	 * @return Additional data to go into the JavaScript message representation
 	 */
 	protected abstract String getAdditionalJS(boolean trusted);

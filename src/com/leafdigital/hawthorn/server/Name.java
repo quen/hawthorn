@@ -27,8 +27,8 @@ public class Name
 	private String user, userMasked, displayName, extra, ip;
 
 	/**
-	 * @param user User ID
-	 * @param userMasked Masked version of user ID, for untrusted recipients
+	 * @param user User name
+	 * @param userMasked Masked version of user name, for untrusted recipients
 	 * @param displayName Display name
 	 * @param extra Extra per-user data
 	 * @param ip IP address
@@ -43,7 +43,7 @@ public class Name
 		this.ip = ip;
 	}
 
-	/** @return User ID */
+	/** @return User name */
 	public String getUser()
 	{
 		return user;
@@ -68,7 +68,7 @@ public class Name
 	}
 
 	/**
-	 * @param trusted True if user gets to see real user ID etc
+	 * @param trusted True if user gets to see real user name etc
 	 * @return JavaScript version of name object
 	 */
 	public String getJSFormat(boolean trusted)

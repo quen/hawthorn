@@ -53,7 +53,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn user ID.
+				Hawthorn user name.
 			</description>
 			<name>user</name>
 			<required>true</required>
@@ -143,7 +143,7 @@ jsptaglibrary_2_0.xsd"
 		<tag-class>com.leafdigital.hawthorn.jsp.RecentTag</tag-class>
 		<body-content>empty</body-content>
 		<attribute>
-			<description>Hawthorn channel ID.</description>
+			<description>Hawthorn channel name.</description>
 			<name>channel</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -245,7 +245,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>scriptless</body-content>
 		<attribute>
 			<description>
-				Hawthorn channel ID.
+				Hawthorn channel name.
 			</description>
 			<name>channel</name>
 			<required>true</required>
@@ -290,7 +290,7 @@ jsptaglibrary_2_0.xsd"
 		<body-content>empty</body-content>
 		<attribute>
 			<description>
-				Hawthorn channel ID.
+				Hawthorn channel name.
 			</description>
 			<name>channel</name>
 			<required>true</required>
@@ -333,7 +333,7 @@ jsptaglibrary_2_0.xsd"
 		</attribute>
 		<attribute>
 			<description>
-				Hawthorn channel ID.
+				Hawthorn channel name.
 			</description>
 			<name>channel</name>
 			<required>true</required>
