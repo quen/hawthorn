@@ -133,6 +133,11 @@
 				<include name="license.txt"/>
 			</fileset>
 		</copy>
+		<copy todir="${output}/bin/startupscripts">
+			<fileset dir="doc/startupscripts"/>
+		</copy>
+		
+		
 	</target>
 
 	<target name="all" depends="server, loadtest, connectors, taglib, doc"

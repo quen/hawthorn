@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Source common setup, including /etc/hostconfig
+. /etc/rc.common
+
+APPFILE="/UnixApps/hawthorn/hawthorn.jar"
+CONFIGFILE="/UnixData/hawthorn-conf/config.xml"
+PIDFILE="/UnixData/hawthorn-logs/hawthorn.pid"
+
+StartService ( ) {
+	if [ -f $PIDFILE ]; then
+		ConsoleMessage "Hawthorn is already running. Stop it first."
+	else
+		sudo -u hawthorn java -server -d64 -Xmx256M -Xms256M -jar $APPFILE $CONFIGFILE &
+		echo $! > $PIDFILE
+		ConsoleMessage "Starting Hawthorn (pid $!)"
+	fi
+}
+
+StopService ( ) {
+	if [ -f $PIDFILE ]; then
+		PID=`cat $PIDFILE`
+		ConsoleMessage "Stopping Hawthorn (pid $PID)"
+		kill $PID
+		rm $PIDFILE
+	else
+		ConsoleMessage "Hawtorn is not running."
+	fi
+}
+
+RestartService ( ) {
+	ConsoleMessage "Restarting Hawthorn"
+	if [ -f $PIDFILE ]; then
+		StopService
+		sleep 5
+	fi
+	StartService
+}
+
+RunService "$1"
