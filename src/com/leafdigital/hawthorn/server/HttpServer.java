@@ -373,8 +373,16 @@ public final class HttpServer extends HawthornObject
 					}
 					catch(IOException e)
 					{
-						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-							"ERROR " + this + " Error writing data");
+						if(e instanceof ClosedChannelException)
+						{
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+								"ERROR " + this + " User cancelled request");
+						}
+						else
+						{
+							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+								"ERROR " + this + " Error writing data", e);
+						}
 						close();
 						return;
 					}
