@@ -57,7 +57,8 @@ public class Statistics extends HawthornObject
 		".l { position: absolute; top: 100px; }" +
 		".t { height:2px; border-left:1px solid black; }" +
 		".d { position: absolute; top: 0; height:100px; width: 1px; " +
-			"border-left: dotted 1px black; }";
+			"border-left: dotted 1px black; }" +
+		"a:link, a:visited, a:active, strong { color:#483e37; } ";
 
 	/**
 	 * @param app Main app object
