@@ -654,10 +654,23 @@ public class HttpEvent extends Event
 			return;
 		}
 
+		if(params.get("gc")!=null)
+		{
+			long before = System.currentTimeMillis();
+			System.gc();
+			getLogger().log(Logger.SYSTEM_LOG, Level.NORMAL,
+				"AUDIT STATISTICS " + params.get("user") + " (" + connection.toString()
+				+ ") ran garbage collection ("
+				+ (System.currentTimeMillis() - before) + "ms)");
+			connection.send(302, getConfig().getThisServer().getURL()
+				+ request.replace("&gc=y",""), HttpServer.CONTENT_TYPE_REDIRECT);
+			return;
+		}
+
 		getLogger().log(Logger.SYSTEM_LOG, Level.NORMAL,
 			"AUDIT STATISTICS " + params.get("user") + " (" + connection.toString()
 			+ ") viewed statistics page");
-		connection.send(200, getStatistics().getSummaryHtml(),
+		connection.send(200, getStatistics().getSummaryHtml(request),
 			HttpServer.CONTENT_TYPE_HTML);
 	}
 

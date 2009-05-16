@@ -795,9 +795,10 @@ public class Statistics extends HawthornObject
 
 	/**
 	 * Administration function to get statistics in HTML.
+	 * @param request Browser request path (used to create the link to GC)
 	 * @return An HTML summary of current statistics
 	 */
-	String getSummaryHtml()
+	String getSummaryHtml(String request)
 	{
 		StringBuilder output = new StringBuilder();
 
@@ -888,6 +889,10 @@ public class Statistics extends HawthornObject
 		}
 
 		output.append("</ul>");
+
+		output.append("<h2>Tools</h2>");
+		output.append("<ul><li><a href='" + XML.esc(request)
+			+ "&amp;gc=y'>Run garbage collection to release unused memory</a></li></ul>");
 
 		ServerInfo thisServer = getConfig().getThisServer();
 		String serverDetails;

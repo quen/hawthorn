@@ -26,7 +26,7 @@ import java.nio.channels.*;
 import java.util.*;
 import java.util.regex.*;
 
-import com.leafdigital.hawthorn.util.Auth;
+import com.leafdigital.hawthorn.util.*;
 
 /** Server that accepts incoming HTTP requests and dispatches them as events. */
 public final class HttpServer extends HawthornObject
@@ -39,6 +39,8 @@ public final class HttpServer extends HawthornObject
 	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
 	/** Content type for UTF-8 HTML */
 	final static String CONTENT_TYPE_HTML = "text/html; charset=UTF-8";
+	/** Psuedo-content type for redirects */
+	final static String CONTENT_TYPE_REDIRECT = "[redirect]";
 
 	/** Statistic: request time for all HTTP events from users */
 	final static String STATISTIC_USER_REQUEST_TIME = "USER_REQUEST_TIME";
@@ -236,8 +238,9 @@ public final class HttpServer extends HawthornObject
 		 * Sends an HTTP response on this connection and closes it.
 		 *
 		 * @param code HTTP code. Use 200 except for fatal errors where we don't
-		 *        know which callback function to call
-		 * @param data Data to send (will be turned into UTF-8)
+		 *   know which callback function to call
+		 * @param data Data to send (will be turned into UTF-8); or URL for
+		 *   CONTENT_TYPE_REDIRECT
 		 * @param contentType Content type to send
 		 * @throws IllegalArgumentException If the HTTP code isn't supported
 		 */
@@ -245,6 +248,14 @@ public final class HttpServer extends HawthornObject
 		{
 			try
 			{
+				String location = null;
+				if(code == 302)
+				{
+					location = data;
+					data = XML.getXHTML("Redirect", "", "<p><a href=\""
+						+ XML.esc(location) + "\">" + XML.esc(location) + "</a></p>");
+				}
+
 				// Get data
 				byte[] dataBytes = data.getBytes("UTF-8");
 
@@ -256,6 +267,9 @@ public final class HttpServer extends HawthornObject
 				{
 				case 200:
 					codeText = "OK";
+					break;
+				case 302:
+					codeText = "Redirect";
 					break;
 				case 403:
 					codeText = "Access denied";
@@ -286,6 +300,13 @@ public final class HttpServer extends HawthornObject
 				header.append("Content-Length: ");
 				header.append(dataBytes.length);
 				header.append(CRLF);
+
+				if(location!=null)
+				{
+					header.append("Location: ");
+					header.append(location);
+					header.append(CRLF);
+				}
 
 				header.append(CRLF);
 				byte[] headerBytes = header.toString().getBytes("US-ASCII");

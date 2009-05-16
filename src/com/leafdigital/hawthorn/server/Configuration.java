@@ -115,6 +115,12 @@ public class Configuration
 		{
 			return address.getHostAddress() + ":" + port;
 		}
+
+		/** @return URL of server http://address:port (no final /) */
+		public String getURL()
+		{
+			return "http://" + this;
+		}
 	}
 
 	/**
