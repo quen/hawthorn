@@ -23,6 +23,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.*;
 
@@ -35,12 +36,18 @@ public final class HttpServer extends HawthornObject
 	private final static int CONNECTION_TIMEOUT = 90000, CLEANUP_EVERY = 30000,
 		LOGTIME_EVERY = 10000;
 	private final static String STATISTIC_CONNECTION_COUNT = "CONNECTION_COUNT";
+
+	/** How long the 'ages' items will be cached by browser (30 days) */
+	private final static long HOW_LONG_IS_AGES = 30L * 24L * 60L * 60L * 1000L;
+
 	/** Content type for UTF-8 JavaScript */
 	final static String CONTENT_TYPE_JAVASCRIPT = "application/javascript; charset=UTF-8";
 	/** Content type for UTF-8 HTML */
 	final static String CONTENT_TYPE_HTML = "text/html; charset=UTF-8";
 	/** Psuedo-content type for redirects */
 	final static String CONTENT_TYPE_REDIRECT = "[redirect]";
+	/** Content type for Windows icons */
+	final static String CONTENT_TYPE_ICON = "image/vnd.microsoft.icon";
 
 	/** Statistic: request time for all HTTP events from users */
 	final static String STATISTIC_USER_REQUEST_TIME = "USER_REQUEST_TIME";
@@ -109,6 +116,8 @@ public final class HttpServer extends HawthornObject
 				HttpEvent.LOG);
 			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
 				HttpEvent.STATISTICS);
+			getStatistics().registerTimeStatistic(STATISTIC_SPECIFIC_REQUEST +
+				HttpEvent.FAVICON);
 		}
 		getStatistics().registerInstantStatistic(STATISTIC_CLOSE_QUEUE_SIZE,
 			new Statistics.InstantStatisticHandler()
@@ -259,6 +268,32 @@ public final class HttpServer extends HawthornObject
 				// Get data
 				byte[] dataBytes = data.getBytes("UTF-8");
 
+				// Send bytes
+				send(code, dataBytes, contentType, location, false);
+			}
+			catch(UnsupportedEncodingException e)
+			{
+				throw new Error("Basic encoding not supported?!", e);
+			}
+		}
+
+		/**
+		 * Sends an HTTP response on this connection and closes it.
+		 *
+		 * @param code HTTP code. Use 200 except for fatal errors where we don't
+		 *   know which callback function to call
+		 * @param dataBytes Data to send (will be turned into UTF-8); or URL for
+		 *   CONTENT_TYPE_REDIRECT
+		 * @param contentType Content type to send
+		 * @param location Location header (null = none)
+		 * @param cacheForAges If true, caches data for ages
+		 * @throws IllegalArgumentException If the HTTP code isn't supported
+		 */
+		public void send(int code, byte[] dataBytes, String contentType,
+			String location, boolean cacheForAges) throws IllegalArgumentException
+		{
+			try
+			{
 				// Get header
 				StringBuilder header = new StringBuilder();
 
@@ -305,6 +340,17 @@ public final class HttpServer extends HawthornObject
 				{
 					header.append("Location: ");
 					header.append(location);
+					header.append(CRLF);
+				}
+
+				if(cacheForAges)
+				{
+					SimpleDateFormat sdf = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss");
+					sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+					header.append("Expires: ");
+					header.append(sdf.format(new Date(System.currentTimeMillis()
+						+ HOW_LONG_IS_AGES)));
+					header.append(" GMT");
 					header.append(CRLF);
 				}
 

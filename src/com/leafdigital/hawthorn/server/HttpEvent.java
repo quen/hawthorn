@@ -19,7 +19,7 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.leafdigital.hawthorn.server;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -46,12 +46,17 @@ public class HttpEvent extends Event
 	static final String LOG = "log";
 	/** Request type: statistics */
 	static final String STATISTICS = "statistics";
+	/** Request type: favicon */
+	static final String FAVICON = "favicon";
 
 	/** Regular expression matching positive longs */
 	static final String REGEXP_LONG = "[0-9]{1,18}";
 
 	/** Regular expression matching positive ints */
 	static final String REGEXP_INT = "[0-9]{1,9}";
+
+	/** Favicon data */
+	private static byte[] favIcon=null;
 
 	private String request;
 
@@ -164,6 +169,11 @@ public class HttpEvent extends Event
 			{
 				requestType = STATISTICS;
 				handleDisplayStatistics(params);
+			}
+			else if(path.equals("/favicon.ico"))
+			{
+				requestType = FAVICON;
+				handleDisplayFavicon();
 			}
 			else
 			{
@@ -672,6 +682,42 @@ public class HttpEvent extends Event
 			+ ") viewed statistics page");
 		connection.send(200, getStatistics().getSummaryHtml(request),
 			HttpServer.CONTENT_TYPE_HTML);
+	}
+
+	private void handleDisplayFavicon() throws OperationException
+	{
+		// Load favicon
+		if(favIcon == null)
+		{
+			try
+			{
+				InputStream input = HttpEvent.class.getResourceAsStream(
+					"hawthorn.favicon.ico");
+				byte[] buffer = new byte[65536];
+				int pos = 0;
+				while(pos < buffer.length)
+				{
+					int read = input.read(buffer, pos, buffer.length - pos);
+					if(read == -1)
+					{
+						break;
+					}
+					pos += read;
+				}
+				input.close();
+
+				favIcon = new byte[pos];
+				System.arraycopy(buffer, 0, favIcon, 0, favIcon.length);
+			}
+			catch(IOException e)
+			{
+				throw new OperationException(ErrorCode.OPERATION_FAVICONREAD,
+					"Failed to load favicon data", e);
+			}
+		}
+
+		// Send data
+		connection.send(200, favIcon, HttpServer.CONTENT_TYPE_ICON, null, true);
 	}
 
 	/**

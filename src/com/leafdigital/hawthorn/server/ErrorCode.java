@@ -41,5 +41,7 @@ public enum ErrorCode
 	/** Not able to bind to specified address */
 	STARTUP_CANNOTBIND,
 	/** Error reading logfile */
-	OPERATION_LOGREAD
+	OPERATION_LOGREAD,
+	/** Error reading favicon */
+	OPERATION_FAVICONREAD
 }
