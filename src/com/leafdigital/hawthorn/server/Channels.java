@@ -26,7 +26,7 @@ public class Channels extends HawthornObject
 {
 	private final static int CHANNEL_DUMP_FREQUENCY = 5 * 1000;
 
-	private final static String STATISTIC_CHANNELS = "CHANNELS";
+	private final static String STATISTIC_CHANNEL_COUNT = "CHANNEL_COUNT";
 
 	/** Stores data about each available channel. */
 	private HashMap<String, Channel> channels = new HashMap<String, Channel>();
@@ -39,7 +39,7 @@ public class Channels extends HawthornObject
 	{
 		super(app);
 
-		getStatistics().registerInstantStatistic(STATISTIC_CHANNELS,
+		getStatistics().registerInstantStatistic(STATISTIC_CHANNEL_COUNT,
 			new Statistics.InstantStatisticHandler()
 			{
 				public int getValue()
