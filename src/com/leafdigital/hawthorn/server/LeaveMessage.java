@@ -86,8 +86,8 @@ public class LeaveMessage extends Message
 		String user, String displayName, String extra, String additional,
 		Hawthorn app)
 	{
-		boolean timeout = additional.equals("timeout");
-		if(!timeout && !additional.equals("explicit"))
+		boolean timeout = additional.equals(" timeout");
+		if(!timeout && !additional.equals(" explicit"))
 		{
 			throw new IllegalArgumentException(
 				"Extra text must be timeout or explicit");

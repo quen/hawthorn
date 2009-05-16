@@ -113,7 +113,7 @@ public class Configuration
 		@Override
 		public String toString()
 		{
-			return address.getHostAddress() + " port=" + port;
+			return address.getHostAddress() + ":" + port;
 		}
 	}
 

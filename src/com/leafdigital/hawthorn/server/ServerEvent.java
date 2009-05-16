@@ -53,20 +53,20 @@ public class ServerEvent extends Event
 		{
 			Message m = Message.parseMessage(request, getApp());
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
-				"Received from remote: " + request);
+				"SERVERFROM " + connection + " REQUEST " + request);
 			getChannels().get(m.getChannel()).message(m, true);
 		}
 		catch(IllegalArgumentException e)
 		{
-			fail(e.getMessage());
+			fail(e);
 		}
 		catch(IllegalAccessException e)
 		{
-			fail(null);
+			fail(e);
 		}
 		catch(InvocationTargetException e)
 		{
-			fail(e.getMessage());
+			fail(e.getCause());
 		}
 		finally
 		{
@@ -76,19 +76,20 @@ public class ServerEvent extends Event
 		}
 	}
 
-	private void fail(String error)
+	private void fail(Throwable t)
 	{
 		// Unsupported request
-		if(error == null)
+		String error;
+		if(t.getMessage()==null || t.getMessage().equals(""))
 		{
-			error="";
+			error = t.getClass().getName();
 		}
 		else
 		{
-			error=" ("+error+")";
+			error = t.getMessage();
 		}
 		getLogger().log(Logger.SYSTEM_LOG, Level.ERROR,
-			"Unexpected line from server " + connection + error + ": " + request);
+			"SERVERFROM " + connection + " ERROR " + error + ": " + request);
 		connection.close();
 	}
 }

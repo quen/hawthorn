@@ -381,7 +381,8 @@ public final class Logger
 		PrintWriter pw = new PrintWriter(sw);
 		t.printStackTrace(pw);
 		pw.flush();
-		log(fileName, level, line + " [Exception]\n" + sw.toString() + "\n");
+		log(fileName, level, line + " [Exception] "
+			+ sw.toString().trim().replaceAll("[\\r\\n]+(\\s*at )?", " | "));
 	}
 
 	/**

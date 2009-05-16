@@ -31,10 +31,11 @@ import com.leafdigital.hawthorn.util.Auth;
  */
 public class OtherServers extends HawthornObject
 {
+	/** Number of buffered messages while other server is down. */
 	private final static int TRANSFER_LIMIT = 1000;
-
-	private final static int RETRY_DELAY = 60 * 1000;
-
+	/** Delay after failing to connect to remote server. */
+	private final static int RETRY_DELAY = 30 * 1000;
+	/** Delay before flushing send buffer. */
 	private final static int FLUSH_DELAY = 300;
 
 	private OtherServer[] otherServers;
@@ -136,8 +137,8 @@ public class OtherServers extends HawthornObject
 		@Override
 		public void run()
 		{
-			long lastFailure = System.currentTimeMillis();
 			boolean flushed = true;
+			Socket s = null;
 			outerloop: while(true)
 			{
 				synchronized (this)
@@ -152,12 +153,12 @@ public class OtherServers extends HawthornObject
 				try
 				{
 					// Connect to server
-					Socket s = new Socket(address, port);
+					s = new Socket(address, port);
 					BufferedWriter writer =
 						new BufferedWriter(new OutputStreamWriter(s.getOutputStream(),
 							"UTF-8"));
-					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						this + ": Connected to remote server");
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "SERVERTO "
+						+ this + " CONNECTED");
 
 					// Send authentication
 					long now = System.currentTimeMillis();
@@ -209,30 +210,63 @@ public class OtherServers extends HawthornObject
 							}
 							throw t;
 						}
-						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL,
-							this + ": Sent " + say);
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.DETAIL, "SERVERTO "
+							+	this + " REQUEST " + say);
 						flushed = false;
 					}
 				}
 				catch(Throwable t)
 				{
-					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-						this + ": Remote server send error", t);
-					long now = System.currentTimeMillis();
-					if(now - lastFailure < RETRY_DELAY)
+					// Close socket if still open
+					boolean hadConnection = s != null;
+					if(hadConnection)
 					{
 						try
 						{
-							synchronized (this)
-							{
-								wait(RETRY_DELAY);
-							}
+							s.close();
+							s = null;
 						}
-						catch(InterruptedException e1)
+						catch(Throwable t2)
 						{
+							// Ignore close failures
 						}
 					}
-					lastFailure = now;
+
+					// Log error
+					if(t instanceof java.net.ConnectException)
+					{
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR, "SERVERTO "
+							+ this + " ERROR Connect failure: " + t.getMessage());
+					}
+					else if(t.getClass().equals(java.net.SocketException.class))
+					{
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR, "SERVERTO "
+							+ this + " ERROR Send error: " + t.getMessage());
+					}
+					else
+					{
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR, "SERVERTO "
+							+ this + " ERROR Exception", t);
+					}
+
+					// If a connect attempt failed, don't try again for a bit
+					if(!hadConnection)
+					{
+						long until = System.currentTimeMillis() + RETRY_DELAY;
+						while(System.currentTimeMillis() < until && !close)
+						{
+							try
+							{
+								synchronized (this)
+								{
+									wait(RETRY_DELAY);
+								}
+							}
+							catch(InterruptedException e1)
+							{
+							}
+						}
+					}
 				}
 			}
 		}
@@ -240,7 +274,7 @@ public class OtherServers extends HawthornObject
 		@Override
 		public String toString()
 		{
-			return address + " port " + port;
+			return address.getHostAddress() + ":" + port;
 		}
 
 	}

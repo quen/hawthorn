@@ -300,7 +300,7 @@ public final class HttpServer extends HawthornObject
 					catch(IOException e)
 					{
 						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-							this + ": Error writing data");
+							"ERROR " + this + " Error writing data");
 						close();
 						return;
 					}
@@ -319,8 +319,8 @@ public final class HttpServer extends HawthornObject
 					try
 					{
 						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-							"Event thread blocked for 50ms (this is OK if rare)");
-						Thread.sleep(50);
+							"WARNING Event thread blocked for 10ms (this is OK if rare)");
+						Thread.sleep(10);
 					}
 					catch(InterruptedException ie)
 					{
@@ -371,8 +371,8 @@ public final class HttpServer extends HawthornObject
 			{
 				if(!getConfig().isOtherServer(channel.socket().getInetAddress()))
 				{
-					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						this + ": Remote server connection from disallowed IP");
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,	"SECURITY "
+						+ this + " Remote server connection from disallowed IP");
 					close();
 					return;
 				}
@@ -413,8 +413,8 @@ public final class HttpServer extends HawthornObject
 					Matcher m = REGEXP_HTTPREQUEST.matcher(firstLine);
 					if(!m.matches())
 					{
-						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-							this + ": Invalid request line: " + firstLine);
+						getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "SECURITY "
+							+ this + " Invalid request line: " + firstLine);
 						close();
 						return;
 					}
@@ -454,8 +454,8 @@ public final class HttpServer extends HawthornObject
 				// give up on it.
 				if(bufferPos == BUFFERSIZE)
 				{
-					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-						this + ": Received large invalid request");
+					getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL, "SECURITY "
+						+ this + " Received large invalid request");
 					close();
 					return;
 				}
@@ -515,14 +515,9 @@ public final class HttpServer extends HawthornObject
 							long time = Long.parseLong(m.group(1));
 							if(Math.abs(time - System.currentTimeMillis()) > 5000)
 							{
-								getLogger()
-									.log(
-										Logger.SYSTEM_LOG,
-										Logger.Level.ERROR,
-										this
-											+ ": Remote server reports incorrect time (>5 seconds "
-											+ "out). You must use network time synchronization for all "
-											+ "servers.");
+								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
+									"SERVERFROM " + this + "ERROR Remote server reports incorrect "
+									+ "time (>5 seconds out). Install NTP on all servers.");
 								close();
 								return;
 							}
@@ -533,17 +528,18 @@ public final class HttpServer extends HawthornObject
 							if(!valid.equals(m.group(2)))
 							{
 								getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-									this + ": Invalid remote server authorisation key: " + line);
+									"SECURITY " + this + " Invalid server authorisation key: "
+									+ line);
 							}
 
 							serverAuthenticated = true;
 							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-								this + ": Successful remote server login");
+								"SERVERFROM " + this + " CONNECTED");
 						}
 						else
 						{
 							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-								this + ": Invalid remote server auth line: " + line);
+								"SECURITY " + this + " Invalid remote server auth: " + line);
 							close();
 							return;
 						}
@@ -578,7 +574,7 @@ public final class HttpServer extends HawthornObject
 			if(!serverAuthenticated && now - lastAction > CONNECTION_TIMEOUT)
 			{
 				getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-					channel.socket().getInetAddress().getHostAddress() + " (timeout)");
+					"SECURITY " + this + " (timeout)");
 				close();
 				return true;
 			}
@@ -634,7 +630,7 @@ public final class HttpServer extends HawthornObject
 						catch(IOException e)
 						{
 							getLogger().log(Logger.SYSTEM_LOG, Logger.Level.ERROR,
-								"Failed to accept connection", e);
+								"ERROR Failed to accept connection", e);
 						}
 					}
 					if((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
@@ -682,7 +678,7 @@ public final class HttpServer extends HawthornObject
 		catch(Throwable t)
 		{
 			getLogger().log(Logger.SYSTEM_LOG, Logger.Level.FATAL_ERROR,
-				"Fatal error in main server thread", t);
+				"ERROR Fatal error in main server thread", t);
 			// If the main thread crashed, better exit the whole server
 			closed = true;
 			getApp().close();
