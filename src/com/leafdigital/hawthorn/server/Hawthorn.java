@@ -23,6 +23,7 @@ import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
 
+import com.leafdigital.hawthorn.server.Logger.Level;
 import com.leafdigital.hawthorn.util.Auth;
 
 /**
@@ -85,35 +86,53 @@ public class Hawthorn
 				+ "runtime.");
 		}
 
-		config = new Configuration(configFile);
-		statistics = new Statistics(this);
-		channels = new Channels(this);
-		otherServers = new OtherServers(this);
-		eventHandler = new EventHandler(this);
-		server = new HttpServer(this);
-		statistics.registerInstantStatistic(STATISTIC_MEMORY_USAGE_KB,
-			new Statistics.InstantStatisticHandler()
-			{
-				public int getValue()
+		try
+		{
+			config = new Configuration(configFile);
+			statistics = new Statistics(this);
+			channels = new Channels(this);
+			otherServers = new OtherServers(this);
+			eventHandler = new EventHandler(this);
+			server = new HttpServer(this);
+			statistics.registerInstantStatistic(STATISTIC_MEMORY_USAGE_KB,
+				new Statistics.InstantStatisticHandler()
 				{
-					long usedMemory = Runtime.getRuntime().totalMemory()
-						- Runtime.getRuntime().freeMemory();
-					return (int)(usedMemory/1024L);
-				}
+					public int getValue()
+					{
+						long usedMemory = Runtime.getRuntime().totalMemory()
+							- Runtime.getRuntime().freeMemory();
+						return (int)(usedMemory/1024L);
+					}
 
-			});
-		statistics.start();
+				});
+			statistics.start();
 
-		if(config.getTestKeys().size() > 0)
-		{
-			System.out.println("http://"
-				+ config.getThisServer().getAddress().getHostAddress() + ":"
-				+ config.getThisServer().getPort() + "/");
-			System.out.println();
+			if(config.getTestKeys().size() > 0)
+			{
+				System.out.println("http://"
+					+ config.getThisServer().getAddress().getHostAddress() + ":"
+					+ config.getThisServer().getPort() + "/");
+				System.out.println();
+			}
+			for(Configuration.TestKey test : config.getTestKeys())
+			{
+				test.show(this);
+			}
 		}
-		for(Configuration.TestKey test : config.getTestKeys())
+		catch(StartupException e)
 		{
-			test.show(this);
+			// Log error if possible
+			if(config != null)
+			{
+				config.getLogger().log(Logger.SYSTEM_LOG, Level.FATAL_ERROR,
+					"Fatal exception on startup", e);
+			}
+
+			// Close threads
+			close();
+
+			// Throw the exception back out
+			throw e;
 		}
 	}
 
@@ -137,6 +156,7 @@ public class Hawthorn
 		}
 		catch(StartupException e)
 		{
+			// This will also have been logged
 			System.err.println(e);
 		}
 	}
@@ -176,14 +196,32 @@ public class Hawthorn
 	 */
 	public void close()
 	{
-		statistics.close();
-		server.close();
-		channels.close();
-		eventHandler.close();
-		otherServers.close();
-		config.getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-			"Hawthorn system closed down.");
-		config.getLogger().close();
+		if(statistics != null)
+		{
+			statistics.close();
+		}
+		if(server != null)
+		{
+			server.close();
+		}
+		if(channels != null)
+		{
+			channels.close();
+		}
+		if(eventHandler != null)
+		{
+			eventHandler.close();
+		}
+		if(otherServers != null)
+		{
+			otherServers.close();
+		}
+		if(config != null)
+		{
+			config.getLogger().log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
+				"Hawthorn system closed down.");
+			config.getLogger().close();
+		}
 	}
 
 	/**
