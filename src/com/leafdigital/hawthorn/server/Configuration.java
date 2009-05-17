@@ -445,7 +445,7 @@ public class Configuration
 				new Logger(logFolder, minLogLevel, logDays, thisServer.getAddress(),
 					thisServer.getPort());
 			logger.log(Logger.SYSTEM_LOG, Logger.Level.NORMAL,
-				"STARTUP Hawthorn system startup");
+				"STARTUP Hawthorn system version " + HawthornVersion.getDescription());
 
 			long maxMemory = Runtime.getRuntime().maxMemory();
 			String maxMemoryString = maxMemory==Long.MAX_VALUE ? "unlimited" :

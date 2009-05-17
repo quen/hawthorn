@@ -7,17 +7,31 @@
 	<!-- Path to JSP API -->
 	<property name="jspapi" location="/UnixApps/tomcat/lib/jsp-api.jar" />
 	
-	<!-- Build folder -->
+	<!-- Build folder (will be deleted on run!) -->
 	<property name="build" location="${java.io.tmpdir}/build/hawthorn" />
 
-	<!-- Output folder -->
+	<!-- Output folder (will be deleted on run!) -->
 	<property name="output" location="${user.home}/Desktop/hawthorn" />
 
-	<!-- Output location: server jar -->
-	<property name="output-server" location="${output}/hawthorn.jar" />
+	<!-- Get date in format used for build version -->
+	<target name="timestamp">
+		<tstamp>
+			<format property="build-date" pattern="yyyy-MM-dd HH:mm"/>
+		</tstamp>
+	</target>
+
+	<!-- Display message about build -->
+	<target name="versioncheck1" if="release-version">
+		<echo message="Building release version ${release-version} (${build-date})"/>
+		<property name="build-version" value="${release-version}/${build-date}"/>
+	</target>
+	<target name="versioncheck2" unless="release-version">
+		<echo message="Building developer version (${build-date})"/>
+		<property name="build-version" value="/${build-date}"/>
+	</target>
 
 	<!-- Init build folders -->
-	<target name="init">
+	<target name="init" depends="timestamp, versioncheck1, versioncheck2">
 		<delete dir="${build}" />
 		<mkdir dir="${build}" />
 		<mkdir dir="${build}/classes" />
@@ -25,11 +39,13 @@
 		<mkdir dir="${output}" />
 	</target>
 
-	<!-- Compile Java source -->
+	<!-- Compile Java source and write the version file -->
 	<target name="compile" depends="init">
 		<javac srcdir="src" destdir="${build}/classes" classpath="${jspapi}"
 			source="1.5" target="1.5" encoding="UTF-8" debug="true">
 		</javac>
+		<echo message="${build-version}"
+			file="${build}/classes/com/leafdigital/hawthorn/util/version.txt" />
 	</target>
 
 	<!-- Build tag library -->
