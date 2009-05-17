@@ -4,6 +4,7 @@ Requirements
 * Moodle 1.9.x
 * PHP 5.x
 
+
 How to install this block
 -------------------------
 
@@ -17,6 +18,7 @@ How to install this block
 3) Enter your Hawthorn server URL(s) and the magic number from your Hawthorn
    configuration.
    
+
 Using the block
 ---------------
 
@@ -44,8 +46,23 @@ To override these permissions for a particular course, use the *course* roles
 page and not the *block* roles page. Hawthorn permissions are configured
 at block level.
 
+
 Statistics
 ----------
 
 There is a link to view server statistics on the Hawthorn block settings admin
 page.
+
+
+Logs
+----
+
+This connector does not provide direct access to chat logs. Please access the
+log files manually.
+
+* Moodle user names are used directly as Hawthorn usernames. If they contain
+  invalid characters, these are converted into Unicode of the form _002a.
+
+* Channel names use the numerical IDs, as follows:
+  c123    = Course channel for course with ID 123
+  c123g47 = Group channel for group with ID 47, within course with ID 123

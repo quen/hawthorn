@@ -198,7 +198,7 @@ class block_hawthorn extends block_base
 			}
 
 			// Actual link to chat and recent messages
-			$channel = 'g' . $selectedgroup;
+			$channel = 'c' . $COURSE->id . 'g' . $selectedgroup;
 			$this->content->text .= $hawthorn->linkToChat($channel,
 				get_string('groupchat', 'block_hawthorn', (object)array(
 					'course' => format_string($COURSE->shortname),
