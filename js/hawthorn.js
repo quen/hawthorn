@@ -443,6 +443,14 @@ var hawthorn =
 
 	handleRecent : function(details)
 	{
+		if(!details.recentText)
+		{
+			details.recentText = 'Recent messages';
+		}
+		if(!details.namesText)
+		{
+			details.namesText = 'People in chat';
+		}
 		var el=document.getElementById(details.id);
 		this.recent(details.channel, details.user, details.displayName,
 			details.extra, details.permissions, details.keyTime, details.key,

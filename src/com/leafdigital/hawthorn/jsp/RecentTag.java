@@ -36,8 +36,8 @@ public class RecentTag extends SimpleTagSupport
 		loadingText="(Loading chat information, please wait...)",
 		noScriptText="(Chat features are not available because JavaScript is " +
 			"disabled.)",
-		recentText="Recent messages",
-		namesText="People in chat";
+		recentText=null,
+		namesText=null;
 	private int maxMessages=3, maxAge=15*60*1000, maxNames=5, headingLevel=3;
 
 	@Override
@@ -68,6 +68,10 @@ public class RecentTag extends SimpleTagSupport
 
 		// Work out JavaScript
 		long keyTime = System.currentTimeMillis() + init.getKeyExpiry();
+		String namesTextPart = namesText != null
+			? ",namesText:'" + JS.escInlineAttr(namesText) + "'" : "";
+		String recentTextPart = recentText != null
+			? ",recentText:'" + JS.escInlineAttr(recentText) + "'" : "";
 		String js = "{user:'" + init.getUser() + "',displayName:'"
 			+ JS.escInlineAttr(init.getDisplayName()) + "',extra:'"
 			+ JS.escInlineAttr(init.getExtra()) + "',channel:'"+channel
@@ -76,9 +80,8 @@ public class RecentTag extends SimpleTagSupport
 				init.getPermissionSet()) + "',key:'"
 			+ init.getKey(channel, keyTime, false)
 			+ "',keyTime:" + keyTime+ ",sayOnly:true,id:'hawthorn_recent"+index+"'"
-			+ ",headingLevel:" + headingLevel + ",namesText:'"
-			+ JS.escInlineAttr(namesText) + "',recentText:'"
-			+ JS.escInlineAttr(recentText) + "',sayOnly:true}";
+			+ ",headingLevel:" + headingLevel + namesTextPart + recentTextPart
+			+ "',sayOnly:true}";
 
 		// Print script tag if included
 		init.printJS(getJspContext().getOut(),false);

@@ -181,8 +181,8 @@ class Hawthorn
 	 * @throws Exception If channel name is invalid
 	 */
 	function recent($channel, $maxMessages=3, $maxAge=900000,
-		$maxNames=5, $headingLevel=3, $recentText='Recent messages',
-		$namesText='People in chat', $loadingText='', $noScriptText='')
+		$maxNames=5, $headingLevel=3, $recentText=null,	$namesText=null,
+		$loadingText='', $noScriptText='')
 	{
 		// Get index of this recent block within page
 		$index = $this->recentCount++;
@@ -207,15 +207,18 @@ class Hawthorn
 
 		// Work out JavaScript
 		$keyTime = $this->getKeyTime();
+		$namesTextPart = $namesText
+			? ",namesText:'" . self::escapeJS($namesText) . "'" : '';
+		$recentTextPart = $recentText
+			? ",recentText:'" . self::escapeJS($recentText) . "'" : '';
 		$js = "{user:'{$this->user}', displayName:'" .
 			self::escapeJS($this->displayName) . "',extra:'" .
 			self::escapeJS($this->extra) .
 			"',permissions:'{$this->permissions}',channel:'$channel'," .
 			"maxMessages:$maxMessages,maxAge:$maxAge,maxNames:$maxNames," .
 			"key:'" . $this->getKey($channel, $keyTime) . "',keyTime:$keyTime," .
-			"id:'hawthorn_recent$index',headingLevel:$headingLevel,namesText:'" .
-			self::escapeJS($namesText) . "',recentText:'" .
-			self::escapeJS($recentText) . "',sayOnly:true}";
+			"id:'hawthorn_recent$index',headingLevel:$headingLevel" .
+			"$namesTextPart$recentTextPart,sayOnly:true}";
 
 		// Print script tag if included
 		$out .= $this->getJS();
