@@ -142,6 +142,7 @@
 		<copy tofile="${output}/src/readme.txt" file="doc/readme.src.txt"/>
 		<copy tofile="${output}/readme.txt" file="doc/readme.root.txt"/>
 		<copy todir="${output}" file="doc/hawthorn.pdf"/>
+		<copy todir="${output}/connectors" file="doc/connectordevelopment.pdf"/>
 		<copy todir="${output}">
 			<fileset dir=".">
 				<include name="contributions.txt"/>

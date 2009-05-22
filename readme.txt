@@ -1,8 +1,7 @@
 This project is not ready for use yet. When it is I will update this README.
 
 TODO:
-* Add version/build number.
-* Add documentation for writing connectors in JSP and PHP.
+* Add missing re-acquire script to PHP connector example.
 
 -- The below is the 'real' intended contents of this README --
 
