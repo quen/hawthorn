@@ -37,15 +37,27 @@ public abstract class Message
 	private static HashMap<String, Method> messageInitMethods =
 		new HashMap<String, Method>();
 
+	private static boolean initedMessages = false;
+
 	private long time;
 
 	private String channel, user, userMasked, displayName, extra, ip;
 
-	static
+	/**
+	 * Initialises all message types.
+	 * @throws StartupException If an error occurs during initialisation (this
+	 *   could be due to a programming error that causes reflection to fail)
+	 */
+	synchronized static void initMessageTypes() throws StartupException
 	{
+		if(initedMessages)
+		{
+			return;
+		}
+		initedMessages = true;
+		// Initialise all message types
 		try
 		{
-			// Initialise all message types
 			SayMessage.init();
 			BanMessage.init();
 			JoinMessage.init();
@@ -53,8 +65,7 @@ public abstract class Message
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
-			System.exit(0);
+			throw new StartupException(ErrorCode.STARTUP_MESSAGEINIT, e.getMessage());
 		}
 	}
 

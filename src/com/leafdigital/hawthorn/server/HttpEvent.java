@@ -56,7 +56,7 @@ public class HttpEvent extends Event
 	static final String REGEXP_INT = "[0-9]{1,9}";
 
 	/** Favicon data */
-	private static byte[] favIcon=null;
+	private volatile static byte[] favIcon=null;
 
 	private String request;
 
@@ -689,30 +689,36 @@ public class HttpEvent extends Event
 		// Load favicon
 		if(favIcon == null)
 		{
-			try
+			synchronized(HttpEvent.class)
 			{
-				InputStream input = HttpEvent.class.getResourceAsStream(
-					"hawthorn.favicon.ico");
-				byte[] buffer = new byte[65536];
-				int pos = 0;
-				while(pos < buffer.length)
+				if(favIcon == null)
 				{
-					int read = input.read(buffer, pos, buffer.length - pos);
-					if(read == -1)
+					try
 					{
-						break;
-					}
-					pos += read;
-				}
-				input.close();
+						InputStream input = HttpEvent.class.getResourceAsStream(
+							"hawthorn.favicon.ico");
+						byte[] buffer = new byte[65536];
+						int pos = 0;
+						while(pos < buffer.length)
+						{
+							int read = input.read(buffer, pos, buffer.length - pos);
+							if(read == -1)
+							{
+								break;
+							}
+							pos += read;
+						}
+						input.close();
 
-				favIcon = new byte[pos];
-				System.arraycopy(buffer, 0, favIcon, 0, favIcon.length);
-			}
-			catch(IOException e)
-			{
-				throw new OperationException(ErrorCode.OPERATION_FAVICONREAD,
-					"Failed to load favicon data", e);
+						favIcon = new byte[pos];
+						System.arraycopy(buffer, 0, favIcon, 0, favIcon.length);
+					}
+					catch(IOException e)
+					{
+						throw new OperationException(ErrorCode.OPERATION_FAVICONREAD,
+							"Failed to load favicon data", e);
+					}
+				}
 			}
 		}
 

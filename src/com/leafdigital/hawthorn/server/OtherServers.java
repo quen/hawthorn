@@ -42,13 +42,14 @@ public class OtherServers extends HawthornObject
 
 	private int count;
 
-
 	/**
 	 * @param app Application main object
+	 * @throws StartupException If initialisation fails
 	 */
-	public OtherServers(Hawthorn app)
+	public OtherServers(Hawthorn app) throws StartupException
 	{
 		super(app);
+		Message.initMessageTypes();
 		otherServers = new OtherServer[app.getConfig().getOtherServers().length];
 		count = 0;
 		for(Configuration.ServerInfo info : app.getConfig().getOtherServers())

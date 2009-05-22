@@ -29,6 +29,7 @@ public abstract class HawthornVersion
 						version = m.group(1);
 						buildDate = m.group(2);
 					}
+					reader.close();
 				}
 			}
 			catch(IOException e)

@@ -40,6 +40,8 @@ public enum ErrorCode
 	STARTUP_TESTKEY,
 	/** Not able to bind to specified address */
 	STARTUP_CANNOTBIND,
+	/** Unable to initialise the message constructors (reflection glitch) */
+	STARTUP_MESSAGEINIT,
 	/** Error reading logfile */
 	OPERATION_LOGREAD,
 	/** Error reading favicon */
