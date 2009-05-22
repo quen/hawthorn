@@ -34,14 +34,6 @@ public class ReAcquireDenyTag extends SimpleTagSupport
 	@Override
 	public void doTag() throws JspException, IOException
 	{
-		// Get init tag with basic settings
-		InitTag init =
-			(InitTag)getJspContext().getAttribute(InitTag.HAWTHORN_INIT_TAG);
-		if(init==null)
-		{
-			throw new JspException("Cannot use <reAcquireDeny> without <init>");
-		}
-
 		// Print JavaScript
 		getJspContext().getOut().println("hawthorn.reAcquireDeny('" +
 			id+"','" + JS.esc(error) + "');");
