@@ -1,20 +1,26 @@
 This project is not ready for use yet. When it is I will update this README.
 
 TODO:
-* Add missing re-acquire script to PHP connector example.
+* Retest PHP, JSP, and Moodle examples and fix any bugs
+* Update version number for release
+* Build release version
 
 -- The below is the 'real' intended contents of this README --
 
 Welcome to Hawthorn!
 
 If you are trying to deploy Hawthorn, please do not use this source tree.
-Instead, please download a release distribution. Alternatively, you can
-build your own release distribution by running the Ant build script build.xml
-(see below).
+Instead, please download a release distribution from the 'Downloads' tab:
 
-Please read the Hawthorn manual, doc/hawthorn.pdf, before attempting to learn
-the Hawthorn system. It introduces all the required concepts (some of which
-are quite confusing).
+http://github.com/quen/hawthorn/downloads
+
+Alternatively, you can build your own release distribution by running the Ant
+build script build.xml (see below).
+
+If you want to know more about the system, please read the Hawthorn manual,
+which is included in the release distribution or in this source tree as
+doc/hawthorn.pdf. The manual explains what the system does and introduces
+all the required concepts (some of which are quite confusing).
 
 The Hawthorn source tree contains the following folders and contents.
 
