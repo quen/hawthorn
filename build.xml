@@ -13,6 +13,9 @@
 	<!-- Output folder (will be deleted on run!) -->
 	<property name="output" location="${user.home}/Desktop/hawthorn" />
 
+	<!-- Target zip (base path - will have version and .zip added) -->
+	<property name="zip" location="${user.home}/Desktop/hawthorn" />
+
 	<!-- Get date in format used for build version -->
 	<target name="timestamp">
 		<tstamp>
@@ -67,7 +70,8 @@
 	<target name="server" depends="compile">
 		<mkdir dir="${output}/bin" />
 		<jar jarfile="${output}/bin/hawthorn.jar" basedir="${build}/classes"
-			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**">
+			includes="com/leafdigital/hawthorn/server/**,com/leafdigital/hawthorn/util/**"
+			level="9">
 			<manifest>
 				<attribute name="Main-Class" value="com.leafdigital.hawthorn.server.Hawthorn"/>
 			</manifest>
@@ -77,7 +81,8 @@
 	<!-- Build load test jar -->
 	<target name="loadtest" depends="server">
 		<jar jarfile="${output}/bin/hawthorn.loadtest.jar" basedir="${build}/classes"
-			includes="com/leafdigital/hawthorn/loadtest/**,com/leafdigital/hawthorn/util/**">
+			includes="com/leafdigital/hawthorn/loadtest/**,com/leafdigital/hawthorn/util/**"
+			level="9">
 			<manifest>
 				<attribute name="Main-Class" value="com.leafdigital.hawthorn.loadtest.LoadTest"/>
 			</manifest>
@@ -153,11 +158,15 @@
 		<copy todir="${output}/bin/startupscripts">
 			<fileset dir="doc/startupscripts"/>
 		</copy>
-		
-		
 	</target>
 
-	<target name="all" depends="server, loadtest, connectors, taglib, doc"
+	<target name="zip" depends="server, loadtest, connectors, taglib, doc"
+		if="release-version">
+		<zip destfile="${zip}.${release-version}.zip" basedir="${output}/.."
+			includes="hawthorn/**"/>
+	</target>
+
+	<target name="all" depends="server, loadtest, connectors, taglib, doc, zip"
 		description="Build all" />
 
 </project>

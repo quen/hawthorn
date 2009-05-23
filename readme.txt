@@ -1,12 +1,3 @@
-This project is not ready for use yet. When it is I will update this README.
-
-TODO:
-* Retest PHP, JSP, and Moodle examples and fix any bugs
-* Update version number for release
-* Build release version
-
--- The below is the 'real' intended contents of this README --
-
 Welcome to Hawthorn!
 
 If you are trying to deploy Hawthorn, please do not use this source tree.
@@ -73,7 +64,7 @@ How to build the Hawthorn distribution
 
 Requirements:
 
-* Apache Ant.
+* Apache Ant 1.7+.
 * Java 1.5+ compiler.
 * Apache Tomcat or something else that includes the file jsp-api.jar.
 
