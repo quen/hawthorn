@@ -87,7 +87,9 @@ Chat now!
 
 <!-- For admins only, print server statistics link -->
 <%
-boolean isAdmin = request.getParameter("permissions").indexOf('a') != -1;
+pageContext.setAttribute("isAdmin",
+	request.getParameter("permissions").indexOf('a') != -1
+	? Boolean.TRUE : Boolean.FALSE);
 %>
 <c:if test="${isAdmin}">
 <hawthorn:linkToStatistics/>

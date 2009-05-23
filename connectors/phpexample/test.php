@@ -69,8 +69,8 @@ if(array_key_exists('user', $_GET))
 		'Chat now!');
 
 	// For admins only, print server statistics link
-	$isAdmin = (strpos('a', $_GET['permissions']) !== false);
-	if($isadmin)
+	$isAdmin = (strpos($_GET['permissions'], 'a') !== false);
+	if($isAdmin)
 	{
 		print $hawthorn->linkToStatistics();
 	}
