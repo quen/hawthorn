@@ -81,7 +81,7 @@ public class RecentTag extends SimpleTagSupport
 			+ init.getKey(channel, keyTime, false)
 			+ "',keyTime:" + keyTime+ ",sayOnly:true,id:'hawthorn_recent"+index+"'"
 			+ ",headingLevel:" + headingLevel + namesTextPart + recentTextPart
-			+ "',sayOnly:true}";
+			+ ",sayOnly:true}";
 
 		// Print script tag if included
 		init.printJS(getJspContext().getOut(),false);
