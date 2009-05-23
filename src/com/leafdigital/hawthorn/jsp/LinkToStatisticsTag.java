@@ -20,7 +20,7 @@ along with Hawthorn.  If not, see <http://www.gnu.org/licenses/>.
 package com.leafdigital.hawthorn.jsp;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.*;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -58,13 +58,12 @@ public class LinkToStatisticsTag extends SimpleTagSupport
 		for(URL server : servers)
 		{
 			getJspContext().getOut().println(
-				"<li><a href='"+XML.esc(server.toString())+"hawthorn/html/statistics"
+				"<li><a href='" + server.toString() + "hawthorn/html/statistics"
 				+ "?channel=!system&amp;user=" + init.getUser() + "&amp;displayname="
-				+ XML.esc(init.getDisplayName()) + "&amp;extra="
-				+ XML.esc(init.getExtra()) + "&amp;permissions="
+				+ URLEncoder.encode(init.getDisplayName(), "UTF-8") + "&amp;extra="
+				+ URLEncoder.encode(init.getExtra(), "UTF-8") + "&amp;permissions="
 				+ Auth.getPermissions(init.getPermissionSet()) + "&amp;keytime="
-				+ time + "&amp;key=" + key + "'>"
-				+ XML.esc(server.toString()) + "</a></li>");
+				+ time + "&amp;key=" + key + "'>" + server.toString() + "</a></li>");
 		}
 		getJspContext().getOut().println("</ul>");
 	}

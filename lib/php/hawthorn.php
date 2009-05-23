@@ -416,12 +416,12 @@ class Hawthorn
 		$out = "<ul class='hawthorn_statslinks'>\n";
 		foreach ($this->servers as $server)
 		{
-			$out .= "<li><a href='" . self::escapeXML($server) . 
+			$out .= "<li><a href='" . $server .
 				"hawthorn/html/statistics?channel=!system&amp;user={$this->user}".
-				"&amp;displayname=" . self::escapeXML($this->displayName) . 
-				"&amp;extra=" . self::escapeXML($this->extra) .
-				"&amp;permissions={$this->permissions}&amp;keytime=$keyTime".
-				"&amp;key=$key'>" . self::escapeXML($server) .
+				"&amp;displayname=" . self::escapeURL($this->displayName) .
+				"&amp;extra=" . self::escapeURL($this->extra) .
+				"&amp;permissions={$this->permissions}&amp;keytime=$keyTime" .
+				"&amp;key=$key'>" . $server .
 				"</a></li>\n";
 		}
 		$out .= "</ul>\n";
@@ -495,13 +495,23 @@ class Hawthorn
 	}
 
 	/**
-	 * Escapes a string suitable for inclusion within HTML
+	 * Escapes a string suitable for inclusion within HTML.
 	 * @param string $text String to escape
 	 * @return string String with some characters escaped
 	 */
 	private static function escapeXML($text)
 	{
 		return htmlspecialchars($text, ENT_QUOTES);
+	}
+
+	/**
+	 * Escapes a string suitable for inclusion within a URL.
+	 * @param string $text String to escape
+	 * @return string String with some characters escaped
+	 */
+	private static function escapeURL($text)
+	{
+		return urlencode($text);
 	}
 
 	/**
