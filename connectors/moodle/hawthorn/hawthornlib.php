@@ -16,12 +16,12 @@ require_once($CFG->dirroot . '/blocks/hawthorn/hawthorn.php');
  */
 function get_hawthorn($course = null)
 {
-  global $USER, $COURSE, $CFG;
-  if($course == null)
-  {
-  	$course = $COURSE;
-  }
-  $context = get_context_instance(CONTEXT_COURSE, $course->id);
+	global $USER, $COURSE, $CFG;
+	if($course == null)
+	{
+		$course = $COURSE;
+	}
+	$context = get_context_instance(CONTEXT_COURSE, $course->id);
   
 	// Work out user permissions
 	$permissions = '';
@@ -55,10 +55,13 @@ function get_hawthorn($course = null)
 	$servers = empty($CFG->block_hawthorn_servers)
 		? array() 
 		: explode(',',$CFG->block_hawthorn_servers);
+	$magicnumber = empty($CFG->block_hawthorn_magicnumber) 
+		? 'xxx'
+		: $CFG->block_hawthorn_magicnumber;
 
 	// Construct Hawthorn object
-	return new hawthorn($CFG->block_hawthorn_magicnumber,
-		$servers,
+	return new hawthorn(
+		$magicnumber, $servers,
 		hawthorn::escapeId($USER->username),
 		fullname($USER), $userpic, $permissions,
 		$CFG->wwwroot . '/blocks/hawthorn/hawthorn.js',
@@ -66,7 +69,4 @@ function get_hawthorn($course = null)
 		$CFG->wwwroot . '/blocks/hawthorn/reacquire.php',
 		false, $keyExpiry);
 }
-
-
-
 ?>
