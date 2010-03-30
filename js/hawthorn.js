@@ -26,9 +26,27 @@ var hawthorn =
 	currentServer : null,
 	servers : null,
 	ie6 : /MSIE 6/i.test(navigator.userAgent),
+	pageLoading : true,
+	loadTasks : [],
 
 	init : function(servers)
 	{
+		// Record that we're currently in page load
+		var h = this;
+		var oldOnload = window.onload;
+		window.onload = function()
+		{
+			h.pageLoading = false;
+			for(var i=0; i<h.loadTasks.length; i++)
+			{
+				h.loadTasks[i]();
+			}
+			if(oldOnload)
+			{
+				oldOnload();
+			}
+		};
+
 		this.servers = servers;
 		this.currentServer = Math.floor(Math.random() * servers.length);
 	},
@@ -61,6 +79,19 @@ var hawthorn =
 
 	addTagAnyServer : function(url, updateCurrent)
 	{
+		// If page loading hasn't finished, wait for it before adding tag
+		// (this avoids long load delays caused by script tag to server
+		// that doesn't respond)
+		var h = this;
+		if(h.pageLoading)
+		{
+			h.loadTasks.push(function()
+			{
+				h.addTagAnyServer(url, updateCurrent);
+			});
+			return;
+		}
+
 		var head = document.getElementsByTagName("head")[0];
 		var newScript = document.createElement('script');
 		newScript.id = 'hawthorn_script' + this.id;
@@ -96,6 +127,13 @@ var hawthorn =
 		// onerror function: retries or calls the error handler
 		var errorFunction = function()
 		{
+			// Make sure error only happens once
+			if(data.doneError)
+			{
+				return;
+			}
+			data.doneError = true;
+
 			// Clear timeout
 			window.clearTimeout(data.timeoutId);
 
