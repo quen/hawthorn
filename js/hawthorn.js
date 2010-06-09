@@ -140,7 +140,7 @@ var hawthorn =
 			window.clearTimeout(data.timeoutId);
 
 			// Remove tag
-			data.tag.parentNode.removeChild(data.tag);
+		  data.tag.parentNode.removeChild(data.tag);
 
 			// Retry or give error
 			if (data.urls.length == 0)
@@ -152,13 +152,13 @@ var hawthorn =
 				// Retry with next URL
 				var anotherScript = document.createElement('script');
 				anotherScript.id = data.tag.id;
+				data.tag = anotherScript;
 				anotherScript.type = 'text/javascript';
 				anotherScript.src = data.urls.shift();
 				anotherScript.onerror = errorFunction;
 				anotherScript.onload = loadFunction;
 				data.timeoutId = window.setTimeout(errorFunction, 20000);
 				head.appendChild(anotherScript);
-				data.tag = anotherScript;
 
 				// Update current server
 				if (updateCurrent)
@@ -185,6 +185,11 @@ var hawthorn =
 			{
 			var oldScript = document.getElementById('hawthorn_script' + id);
 			oldScript.parentNode.removeChild(oldScript);
+
+			// When an error happens in IE8, it calls the error callback for all the
+			// previous correct script tags as well (thanks IE!), so let's stop that
+			oldScript.data.doneError = true;
+
 			window.clearTimeout(oldScript.data.timeoutId);
 		};
 		if(hawthorn.ie6)
