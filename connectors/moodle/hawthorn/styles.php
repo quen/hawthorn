@@ -21,6 +21,14 @@
   display:block;
 	margin: 0.5em 0;
 }
+#hawthorngroupselector_jump
+{
+  max-width: 100%;
+}
+.ie7 #hawthorngroupselector_jump
+{
+  width: 100%;
+}
 .hawthorn_recent_messages ul,
 .hawthorn_recent_names ul
 {
