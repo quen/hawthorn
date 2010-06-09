@@ -74,10 +74,12 @@ var hawthorn =
 			index++;
 		}
 
-		this.addTagAnyServer(urlArray, true);
+		this.addTagAnyServer(urlArray, true, this.id);
+		this.id++;
+		return;
 	},
 
-	addTagAnyServer : function(url, updateCurrent)
+	addTagAnyServer : function(url, updateCurrent, id)
 	{
 		// If page loading hasn't finished, wait for it before adding tag
 		// (this avoids long load delays caused by script tag to server
@@ -87,14 +89,14 @@ var hawthorn =
 		{
 			h.loadTasks.push(function()
 			{
-				h.addTagAnyServer(url, updateCurrent);
+				h.addTagAnyServer(url, updateCurrent, id);
 			});
 			return;
 		}
 
 		var head = document.getElementsByTagName("head")[0];
 		var newScript = document.createElement('script');
-		newScript.id = 'hawthorn_script' + this.id;
+		newScript.id = 'hawthorn_script' + id;
 		newScript.type = 'text/javascript';
 
 		// Make sure input variable is an array
@@ -108,11 +110,11 @@ var hawthorn =
 		{
 			if (url[i].indexOf('?') == -1)
 			{
-				url[i] += '?id=' + this.id;
+				url[i] += '?id=' + id;
 			}
 			else
 			{
-				url[i] += '&id=' + this.id;
+				url[i] += '&id=' + id;
 			}
 		}
 
@@ -122,7 +124,7 @@ var hawthorn =
 		data.tag = newScript;
 		newScript.data = data;
 		data.urls = url;
-		data.eventId = this.id;
+		data.eventId = id;
 
 		// onerror function: retries or calls the error handler
 		var errorFunction = function()
@@ -175,8 +177,6 @@ var hawthorn =
 
 		// Timeout 20s
 		data.timeoutId = window.setTimeout(errorFunction, 20000);
-
-		this.id++;
 	},
 
 	removeTag : function(id)
@@ -396,7 +396,8 @@ var hawthorn =
 		this.addTagAnyServer(url + '?channel=' + channel + '&user=' + user
 			+ '&extra=' + encodeURIComponent(extra)
 			+ '&displayname=' + encodeURIComponent(displayName)
-			+ '&permissions=' + permissions, false);
+			+ '&permissions=' + permissions, false, this.id);
+		this.id++;
 	},
 
 	reAcquireComplete : function(id, key, keyTime)
