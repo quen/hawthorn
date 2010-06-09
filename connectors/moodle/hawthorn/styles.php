@@ -73,3 +73,8 @@
   margin-top: 0.5em;
   text-align: center;
 }
+
+.hawthorn_wrap_space
+{
+	position:absolute;
+}

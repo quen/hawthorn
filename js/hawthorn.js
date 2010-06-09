@@ -181,8 +181,8 @@ var hawthorn =
 
 	removeTag : function(id)
 	{
-	    var task = function()
-	    {
+			var task = function()
+			{
 			var oldScript = document.getElementById('hawthorn_script' + id);
 			oldScript.parentNode.removeChild(oldScript);
 			window.clearTimeout(oldScript.data.timeoutId);
@@ -462,7 +462,7 @@ var hawthorn =
 			'width=500,height=400,menubar=no,'
 			+ 'toolbar=no,location=no,directories=no,status=no,resizable=yes,'
 			+ 'scrollbars=no');
-	  this.chatWindow.focus();
+		this.chatWindow.focus();
 		return false;
 	},
 
@@ -530,6 +530,30 @@ var hawthorn =
 							? " (timeout)" : " (requested)"); break;
 						}
 
+						// Long words cause formatting problems. If words are longer than
+						// 30 characters, add spaces with spans that can wrap but not
+						// display, every 5 characters.
+						var longWords = /[^ ]{30,}/g;
+						var previousIndex = 0;
+						var result;
+						var textOut = [];
+						while((result = longWords.exec(text)) != null)
+						{
+							// Long word found starting at result.index
+							var longWord = result[0];
+							textOut.push(text.substring(previousIndex, result.index));
+							previousIndex = result.index + longWord.length;
+
+							var wordChunks = [];
+							for(var chunk = 0; chunk < (longWord.length+4)/5; chunk++)
+							{
+								wordChunks.push(longWord.substring(chunk*5, chunk*5 + 5));
+							}
+							wordChunks.isChunks = true;
+							textOut.push(wordChunks);
+						}
+						textOut.push(text.substring(previousIndex, text.length));
+
 						ul.appendChild(li);
 
 						// Get time in user's locale, but chop off seconds
@@ -548,7 +572,28 @@ var hawthorn =
 						span = document.createElement('span');
 						li.appendChild(span);
 						span.className = 'hawthorn_recent_text';
-						span.appendChild(document.createTextNode(text));
+						for(var textPart=0; textPart<textOut.length; textPart++)
+						{
+							var currentPart = textOut[textPart];
+							if(currentPart.isChunks)
+							{
+								for(var j=0; j<currentPart.length; j++)
+								{
+									if(j!=0)
+									{
+										var space = document.createElement('span');
+										space.className = 'hawthorn_wrap_space';
+										space.appendChild(document.createTextNode(' '));
+										span.appendChild(space);
+									}
+									span.appendChild(document.createTextNode(currentPart[j]));
+								}
+							}
+							else
+							{
+								span.appendChild(document.createTextNode(currentPart));
+							}
+						}
 					}
 				}
 				if(names.length > 0)
@@ -676,7 +721,7 @@ HawthornPopup.prototype.init = function()
 		}
 		if(key==13)
 		{
-		  p.say();
+			p.say();
 		}
 	};
 	this.closeButton.onclick = function()
@@ -1056,7 +1101,7 @@ HawthornPopup.prototype.addName = function(user, displayName, extra)
 			var key = e.keyCode ? e.keyCode : e.which;
 			if(key==13 || key==32)
 			{
-			  newEl.onmousedown();
+				newEl.onmousedown();
 			}
 		};
 		newEl.onmousedown = function()
