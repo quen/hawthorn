@@ -41,7 +41,7 @@ function get_hawthorn($course = null)
 	// Get user picture URL
 	$userpic = print_user_picture($USER, $COURSE->id, NULL, 0, true, false);
 	$userpic = preg_replace('~^.*src="([^"]*)".*$~', '$1', $userpic);
-	
+
 	// Decide key expiry (ms). Usually 1 hour, unless session timeout is lower.
 	$keyExpiry = 3600000;
 	if($CFG->sessiontimeout*1000 < $keyExpiry)
@@ -55,7 +55,7 @@ function get_hawthorn($course = null)
 	$servers = empty($CFG->block_hawthorn_servers)
 		? array() 
 		: explode(',',$CFG->block_hawthorn_servers);
-	$magicnumber = empty($CFG->block_hawthorn_magicnumber) 
+	$magicnumber = empty($CFG->block_hawthorn_magicnumber)
 		? 'xxx'
 		: $CFG->block_hawthorn_magicnumber;
 
