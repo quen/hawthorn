@@ -56,13 +56,13 @@
 {
   list-style-type:none;
   display:inline;
-  padding-left:12px;
-  background: url(<?php print $CFG->wwwroot ?>/blocks/hawthorn/bullet.png) no-repeat left;
+  padding: 0;
 }
-.hawthorn_recent_names li.hawthorn_first
+.hawthorn_recent_names .hawthorn_bullet
 {
-  padding-left:0;
-  background: none;
+	padding-left: 12px;
+	height: 12px;
+  background: url(<?php print $CFG->wwwroot ?>/blocks/hawthorn/bullet.png) no-repeat left;
 }
 .hawthorn_linktochat
 {

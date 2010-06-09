@@ -573,7 +573,13 @@ var hawthorn =
 							li.className = 'hawthorn_first';
 						}
 						ul.appendChild(li);
-						li.appendChild(document.createTextNode(names[i].displayName));
+						li.appendChild(document.createTextNode(names[i].displayName + ' '));
+						if(i < names.length-1)
+						{
+							var bullet = document.createElement('span');
+							bullet.className='hawthorn_bullet';  						
+							li.appendChild(bullet);
+						}
 					}
 					if(names.length == details.maxNames)
 					{
