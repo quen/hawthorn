@@ -78,3 +78,9 @@
 {
 	position:absolute;
 }
+.ie8 .hawthorn_wrap_space
+{
+  position: static;
+  font-size: 1px;
+  margin-right: -1px;
+}
