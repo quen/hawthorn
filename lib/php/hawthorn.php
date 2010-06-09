@@ -203,7 +203,7 @@ class Hawthorn
 			"style='display:none'>$loadingText</div>\n";
 
 		// Output no-script text
-		$out .= "<noscript>$noScriptText</noscript>\n";
+		$out .= "<noscript><div>$noScriptText</div></noscript>\n";
 
 		// Work out JavaScript
 		$keyTime = $this->getKeyTime();
