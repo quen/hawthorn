@@ -140,7 +140,7 @@ var hawthorn =
 			window.clearTimeout(data.timeoutId);
 
 			// Remove tag
-		  data.tag.parentNode.removeChild(data.tag);
+			data.tag.parentNode.removeChild(data.tag);
 
 			// Retry or give error
 			if (data.urls.length == 0)
@@ -627,7 +627,7 @@ var hawthorn =
 						if(i < names.length-1)
 						{
 							var bullet = document.createElement('span');
-							bullet.className='hawthorn_bullet';  						
+							bullet.className='hawthorn_bullet';
 							li.appendChild(bullet);
 						}
 					}
@@ -1238,7 +1238,7 @@ HawthornPopup.prototype.addMessage = function(time, user, displayName, extra,
 	this.addMessageExtra('SAY', extra, entry);
 	this.addEntry(time, entry);
 };
- 
+
 /**
  * Adds a newly-received join message to the message area.
  * @param time Message time (ms since 1970)
@@ -1292,7 +1292,7 @@ HawthornPopup.prototype.addLeave = function(time, user, displayName, extra,
 	this.addEntry(time, entry);
 };
 
- /**
+/**
  * Adds a newly-received ban notice to the message area.
  * @param time Message time (ms since 1970)
  * @param user User name sending message
